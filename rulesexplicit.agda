@@ -1,5 +1,4 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
-
 open import common renaming (Unit to metaUnit)
 open import typetheoryexplicit
 open import syntxexplicit
@@ -12,6 +11,8 @@ data Judgment : Set where
   _⊢_:>_ : (Γ : Ctx n) → TmExpr n → TyExpr n → Judgment
   _⊢_==_ : (Γ : Ctx n) → TyExpr n → TyExpr n → Judgment
   _⊢_==_:>_ : (Γ : Ctx n) → TmExpr n → TmExpr n → TyExpr n → Judgment
+{- Explicit Coercions: Isomorphism Type as in Curien Garner Hofmann -}
+  _⊢_≃_ : (Γ : Ctx n) → TyExpr n → TyExpr n → Judgment
 
 
 {- Derivability of judgments, the typing rules of the type theory -}
