@@ -56,7 +56,7 @@ data Derivable : Judgment → Prop where
   ConvEq : {Γ : Ctx n} {u u' : TmExpr n} {A B : TyExpr n} → Derivable (Γ ⊢ A)
     → Derivable (Γ ⊢ u == u' :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ coerc A B u == coerc A B u' :> B)
   CoercRefl : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ u :> A)
-    → Derivable (Γ ⊢ coerc A (A) (u) == u :> A)
+    → Derivable (Γ ⊢ coerc A A u == u :> A)
   -- Rules for UU
   UU : {i : ℕ} {Γ : Ctx n}
     → Derivable (Γ ⊢ uu i)
@@ -352,7 +352,13 @@ congMor refl refl refl dδ = dδ
 congMorEq : {Γ Γ' : Ctx n} {Δ Δ' : Ctx m} {δ δ' θ θ' : Mor n m} → Γ ≡ Γ' → Δ ≡ Δ' → δ ≡ δ' → θ ≡ θ' → Γ ⊢ δ == θ ∷> Δ → Γ' ⊢ δ' == θ' ∷> Δ'
 congMorEq refl refl refl refl dδ= = dδ=
 
+{- Explicit congruence rules that respect meta Equality are also needed -}
+congConv : {Γ : Ctx n} {A A' B B' : TyExpr n} {u u' : TmExpr n} → A ≡ A' → B ≡ B' → u ≡ u' → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ coerc A' B' u' :> B')
+congConv refl refl refl dcu = dcu
 
+congConvEq  : {Γ : Ctx n} {u u' v v' : TmExpr n} {A A' B B' : TyExpr n} → u ≡ u' → v ≡ v' → A ≡ A' → B ≡ B' → Derivable (Γ ⊢ A)
+    → Derivable (Γ ⊢ u == v :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ coerc A B u == coerc A B v :> B) → Derivable (Γ ⊢ coerc A' B' u' == coerc A' B' v' :> B')
+congConvEq refl refl refl refl dA du= dA= dcu= = dcu=
 {- Reflexivity rules -}
 
 TyRefl : {Γ : Ctx n} {A : TyExpr n} → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A)
