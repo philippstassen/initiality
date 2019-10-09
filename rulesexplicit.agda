@@ -355,15 +355,6 @@ congMor refl refl refl dδ = dδ
 congMorEq : {Γ Γ' : Ctx n} {Δ Δ' : Ctx m} {δ δ' θ θ' : Mor n m} → Γ ≡ Γ' → Δ ≡ Δ' → δ ≡ δ' → θ ≡ θ' → Γ ⊢ δ == θ ∷> Δ → Γ' ⊢ δ' == θ' ∷> Δ'
 congMorEq refl refl refl refl dδ= = dδ=
 
-{- Explicit congruence rules that respect meta Equality are also needed -}
-{- congConv : {Γ : Ctx n} {A A' B B' : TyExpr n} {u u' : TmExpr n} → A ≡ A' → B ≡ B' → u ≡ u' → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ coerc A' B' u' :> B')
-congConv refl refl refl dcu = dcu
-
-congConvEq  : {Γ : Ctx n} {u u' v v' : TmExpr n} {A1 A2 A1' A2' B1 B2 B3 B1' B2' B3' : TyExpr n} → u ≡ u' → v ≡ v' → A1 ≡ A1' → A2 ≡ A2' → B1 ≡ B1' → B2 ≡ B2' → B3 ≡ B3'
-            → Derivable (Γ ⊢ A1) → Derivable (Γ ⊢ u == v :> A1) → Derivable (Γ ⊢ A1 == B1) → Derivable (Γ ⊢ coerc A1 B1 u == coerc A2 B2 v :> B3)
-            → Derivable (Γ ⊢ coerc A1' B1' u' == coerc A2' B2' v' :> B3')
-congConvEq refl refl refl refl refl refl refl dA du= dA= dcu= = dcu=
--}
 {- Reflexivity rules -}
 
 TyRefl : {Γ : Ctx n} {A : TyExpr n} → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A)
@@ -424,9 +415,6 @@ congMorRefl : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → δ ≡ δ' → Γ
 congMorRefl refl dδ = MorRefl dδ
 
 {- Substitution and weakening are admissible -}
-
-test : {Γ : Ctx n} {Δ : Ctx m} → (A B : TyExpr m) → (t : TmExpr m) →  (δ : Mor n m) →  coerc (A [ δ ]Ty) (B [ δ ]Ty) (t [ δ ]Tm) ≡ coerc A B t [ δ ]Tm
-test A B t δ = refl
 
 SubstTy : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ : Mor n m}
        → Derivable (Δ ⊢ A) → Γ ⊢ δ ∷> Δ → Derivable (Γ ⊢ A [ δ ]Ty)
