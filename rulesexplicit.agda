@@ -57,6 +57,8 @@ data Derivable : Judgment → Prop where
     → Derivable (Γ ⊢ u == u' :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ coerc A B u == coerc A B u' :> B)
   CoercRefl : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ u :> A)
     → Derivable (Γ ⊢ coerc A A u == u :> A)
+  CoercRefl! : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ u :> A)
+    → Derivable (Γ ⊢ u == coerc A A u :> A)
   -- Rules for UU
   UU : {i : ℕ} {Γ : Ctx n}
     → Derivable (Γ ⊢ uu i)
@@ -294,9 +296,10 @@ _⊢_∷>_ : (Γ : Ctx n) → Mor n m → Ctx m → Prop
 Γ ⊢ ◇ ∷> ◇ = metaUnit
 Γ ⊢ (δ , u) ∷> (Δ , A) = (Γ ⊢ δ ∷> Δ) × Derivable (Γ ⊢ u :> A [ δ ]Ty) 
 
+{- Explicit coercion -}
 _⊢_==_∷>_ : (Γ : Ctx n) → Mor n m → Mor n m → Ctx m → Prop
 Γ ⊢ ◇ == ◇ ∷> ◇ = metaUnit
-Γ ⊢ (δ , u) == (δ' , u') ∷> (Δ , A) = (Γ ⊢ δ == δ' ∷> Δ) × Derivable (Γ ⊢ u == u' :> A [ δ ]Ty)
+Γ ⊢ (δ , u) == (δ' , u') ∷> (Δ , A) = (Γ ⊢ δ == δ' ∷> Δ) × Derivable (Γ ⊢ u == coerc (A [ δ' ]Ty) (A [ δ ]Ty) u' :> A [ δ ]Ty)
 
 
 {- Congruence with respect to the type in derivability of term expressions -}
@@ -353,12 +356,14 @@ congMorEq : {Γ Γ' : Ctx n} {Δ Δ' : Ctx m} {δ δ' θ θ' : Mor n m} → Γ �
 congMorEq refl refl refl refl dδ= = dδ=
 
 {- Explicit congruence rules that respect meta Equality are also needed -}
-congConv : {Γ : Ctx n} {A A' B B' : TyExpr n} {u u' : TmExpr n} → A ≡ A' → B ≡ B' → u ≡ u' → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ coerc A' B' u' :> B')
+{- congConv : {Γ : Ctx n} {A A' B B' : TyExpr n} {u u' : TmExpr n} → A ≡ A' → B ≡ B' → u ≡ u' → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ coerc A' B' u' :> B')
 congConv refl refl refl dcu = dcu
 
-congConvEq  : {Γ : Ctx n} {u u' v v' : TmExpr n} {A A' B B' : TyExpr n} → u ≡ u' → v ≡ v' → A ≡ A' → B ≡ B' → Derivable (Γ ⊢ A)
-    → Derivable (Γ ⊢ u == v :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ coerc A B u == coerc A B v :> B) → Derivable (Γ ⊢ coerc A' B' u' == coerc A' B' v' :> B')
-congConvEq refl refl refl refl dA du= dA= dcu= = dcu=
+congConvEq  : {Γ : Ctx n} {u u' v v' : TmExpr n} {A1 A2 A1' A2' B1 B2 B3 B1' B2' B3' : TyExpr n} → u ≡ u' → v ≡ v' → A1 ≡ A1' → A2 ≡ A2' → B1 ≡ B1' → B2 ≡ B2' → B3 ≡ B3'
+            → Derivable (Γ ⊢ A1) → Derivable (Γ ⊢ u == v :> A1) → Derivable (Γ ⊢ A1 == B1) → Derivable (Γ ⊢ coerc A1 B1 u == coerc A2 B2 v :> B3)
+            → Derivable (Γ ⊢ coerc A1' B1' u' == coerc A2' B2' v' :> B3')
+congConvEq refl refl refl refl refl refl refl dA du= dA= dcu= = dcu=
+-}
 {- Reflexivity rules -}
 
 TyRefl : {Γ : Ctx n} {A : TyExpr n} → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A)
@@ -419,6 +424,9 @@ congMorRefl : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → δ ≡ δ' → Γ
 congMorRefl refl dδ = MorRefl dδ
 
 {- Substitution and weakening are admissible -}
+
+test : {Γ : Ctx n} {Δ : Ctx m} → (A B : TyExpr m) → (t : TmExpr m) →  (δ : Mor n m) →  coerc (A [ δ ]Ty) (B [ δ ]Ty) (t [ δ ]Tm) ≡ coerc A B t [ δ ]Tm
+test A B t δ = refl
 
 SubstTy : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ : Mor n m}
        → Derivable (Δ ⊢ A) → Γ ⊢ δ ∷> Δ → Derivable (Γ ⊢ A [ δ ]Ty)
@@ -576,6 +584,9 @@ SubstTmEq (JJCong dA dA= dP= dd= da= db= dp=) dδ =
                       (SubstTmEq da= dδ)
                       (SubstTmEq db= dδ)
                       (SubstTmEq dp= dδ))
+{- Explicit Coercions: -}
+SubstTmEq (CoercRefl dA du) dδ = CoercRefl (SubstTy dA dδ) (SubstTm du dδ)
+
 SubstTmEq (BetaPi {u = u} dA dB du da) dδ = congTmEq! refl ([]Tm-substTm u) []Ty-substTy (BetaPi (SubstTy dA dδ) (SubstTy dB (WeakMor+ dA dδ)) (SubstTm du (WeakMor+ dA dδ )) (SubstTm da dδ))
 SubstTmEq (BetaSig1 dA dB da db) dδ = BetaSig1 (SubstTy dA dδ) (SubstTy dB (WeakMor+ dA dδ)) (SubstTm da dδ) (congTmTy []Ty-substTy (SubstTm db dδ))
 SubstTmEq (BetaSig2 dA dB da db) dδ = congTmEqTy! []Ty-substTy (BetaSig2 (SubstTy dA dδ) (SubstTy dB (WeakMor+ dA dδ)) (SubstTm da dδ) (congTmTy []Ty-substTy (SubstTm db dδ)))
@@ -625,9 +636,10 @@ SubstTyMorEq (Id dA da db) dδ dδ= = IdCong (SubstTyMorEq dA dδ dδ=) (SubstTm
 
 SubstTmMorEq {δ = _ , _} {δ' = _ , _} (VarLast _) dδ (_ , du=) = congTmEqTy! (weakenTyInsert _ _ _) du=
 SubstTmMorEq {δ = _ , _} {δ' = _ , _} (VarPrev _ dk) (dδ , _) (dδ= , _) = congTmEqTy! (weakenTyInsert _ _ _) (SubstTmMorEq dk dδ dδ=)
-SubstTmMorEq (Conv dA du dA=) dδ dδ= = {!ConvEq (SubstTy dA dδ) (SubstTmMorEq du dδ dδ=) (SubstTyEq dA= dδ)!}
-{- ConvEq (SubstTy dA dδ) (SubstTmMorEq du dδ dδ=) (SubstTyEq dA= dδ) -}
-
+SubstTmMorEq {δ = δ} {δ' = δ'} (Conv {u = t} {A = A} {B = B} dA du dA=) dδ dδ= = {!congTmEqTm (test A B t δ) (test A B t δ') (ConvEq (SubstTy dA dδ) (SubstTmMorEq du dδ dδ=) (SubstTyEq dA= dδ))!}
+{- ConvEq (SubstTy dA dδ) (SubstTmMorEq du dδ dδ=) (SubstTyEq dA= dδ) 
+{u = coerc (A [ δ ]Ty) (B [ δ ]Ty) (t [ δ ]Tm)} {u' = coerc (A [ δ' ]Ty) (B [ δ' ]Ty) (t [ δ' ]Tm)} {v = coerc A B t [ δ ]Tm} {v' = coerc A B t [ δ' ]Tm} refl refl 
+-}
 SubstTmMorEq UUUU dδ dδ= = UUUUCong
 SubstTmMorEq (PiUU da db) dδ dδ= = PiUUCong (SubstTm da dδ) (SubstTmMorEq da dδ dδ=) (SubstTmMorEq db (WeakMor+ (El da) dδ) (WeakMor+Eq (El da) dδ dδ=))
 SubstTmMorEq (Lam dA dB du) dδ dδ= = LamCong (SubstTy dA dδ) (SubstTyMorEq dA dδ dδ=) (SubstTyMorEq dB (WeakMor+ dA dδ) (WeakMor+Eq dA dδ dδ=)) (SubstTmMorEq du (WeakMor+ dA dδ) (WeakMor+Eq dA dδ dδ=))
