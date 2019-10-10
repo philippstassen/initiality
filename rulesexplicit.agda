@@ -407,9 +407,9 @@ CtxRefl : {Γ : Ctx n} → ⊢ Γ → ⊢ Γ == Γ
 CtxRefl {Γ = ◇} tt = tt
 CtxRefl {Γ = Γ , A} (dΓ , dA) = (CtxRefl dΓ , dA , dA , TyRefl dA , TyRefl dA)
 
--- MorRefl : {Γ : Ctx n} {Δ : Ctx m} {δ : Mor n m} → (Γ ⊢ δ ∷> Δ) → (Γ ⊢ δ == δ ∷> Δ)
--- MorRefl {Δ = ◇} {δ = ◇} dδ = tt
--- MorRefl {Δ = Δ , B} {δ = δ , u} (dδ , du) = MorRefl dδ , TmRefl du
+MorRefl : {Γ : Ctx n} {Δ : Ctx m} {δ : Mor n m} → (Γ ⊢ δ ∷> Δ) → (Γ ⊢ δ == δ ∷> Δ)
+MorRefl {Δ = ◇} {δ = ◇} dδ = tt
+MorRefl {Δ = Δ , B} {δ = δ , u} (dδ , du) = MorRefl dδ , CoercRefl! du
 
 -- congMorRefl : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → δ ≡ δ' → Γ ⊢ δ ∷> Δ → Γ ⊢ δ == δ' ∷> Δ
 -- congMorRefl refl dδ = MorRefl dδ
