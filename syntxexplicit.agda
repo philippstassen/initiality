@@ -80,6 +80,10 @@ weakenCommutesInsert (prev k) l u (δ , u') = ap (λ z → z , _) (weakenCommute
 weakenMor+ : Mor n m → Mor (suc n) (suc m)
 weakenMor+ δ = weakenMor δ , var last
 
+-- Explicit coerciens fix for the WeakMor+Eq function
+weakenMor+coerc : Mor n m → TyExpr n → TyExpr n → Mor (suc n) (suc m)
+weakenMor+coerc δ A B = weakenMor δ , (coerc (weakenTy A) (weakenTy B) (var last))
+
 getLHS : {n m : ℕ} → Mor n (suc m) → Mor n m
 getLHS (δ , u) = δ
 
