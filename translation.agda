@@ -53,12 +53,45 @@ open ex.Judgment renaming (_⊢_ to _⊢ₑ_) renaming (_⊢_:>_ to _⊢ₑ_:>_)
 || Γ ⊢ x ≃ x₁ || = || Γ ||Ctx ⊢ || x ||Ty == || x₁ ||Ty 
 
 {- weakening commutes with stripping -}
-WeakenTy'CommStrip : {n : ℕ} → (k : Fin (suc n)) → (A : ex.TyExpr n) → || ex.weakenTy' k A ||Ty ≡ weakenTy' k (|| A ||Ty)
-WeakenTm'CommStrip : {n : ℕ} → (k : Fin (suc n)) → (u : ex.TmExpr n) → || ex.weakenTm' k u ||Tm ≡ weakenTm' k (|| u ||Tm)
+WeakenVar'CommStrip : (k : Fin (suc n)) → (l : Fin n) → ex.weakenVar' k l ≡ weakenVar' k l
+WeakenVar'CommStrip last l = refl
+WeakenVar'CommStrip (prev k) last = refl
+WeakenVar'CommStrip (prev k) (prev l) = ap prev (WeakenVar'CommStrip k l)
 
-WeakenTy'CommStrip k A = {!!}
+WeakenTy'CommStrip : (k : Fin (suc n)) → (A : ex.TyExpr n) → || ex.weakenTy' k A ||Ty ≡ weakenTy' k (|| A ||Ty)
+WeakenTm'CommStrip : (k : Fin (suc n)) → (u : ex.TmExpr n) → || ex.weakenTm' k u ||Tm ≡ weakenTm' k (|| u ||Tm)
 
-WeakenTm'CommStrip k u = {!!}
+WeakenTy'CommStrip k (ex.uu i) = refl
+WeakenTy'CommStrip k (ex.el i v) rewrite WeakenTm'CommStrip k v = refl
+WeakenTy'CommStrip k (ex.pi A A₁) rewrite WeakenTy'CommStrip k A | WeakenTy'CommStrip (prev k) A₁ = refl
+WeakenTy'CommStrip k (ex.sig A A₁) rewrite WeakenTy'CommStrip k A | WeakenTy'CommStrip (prev k) A₁ = refl
+WeakenTy'CommStrip k ex.empty = refl
+WeakenTy'CommStrip k ex.unit = refl
+WeakenTy'CommStrip k ex.nat = refl
+WeakenTy'CommStrip k (ex.id A u v) rewrite WeakenTy'CommStrip k A | WeakenTm'CommStrip k u | WeakenTm'CommStrip k v = refl
+
+WeakenTm'CommStrip k (ex.var x) rewrite WeakenVar'CommStrip k x = refl
+WeakenTm'CommStrip k (ex.uu i) = refl
+WeakenTm'CommStrip k (ex.pi i u u₁) rewrite WeakenTm'CommStrip k u | WeakenTm'CommStrip (prev k) u₁ = refl
+WeakenTm'CommStrip k (ex.lam A B u) rewrite WeakenTy'CommStrip k A | WeakenTy'CommStrip (prev k) B | WeakenTm'CommStrip (prev k) u = refl
+WeakenTm'CommStrip k (ex.app A B u u₁) rewrite WeakenTy'CommStrip k A | WeakenTy'CommStrip (prev k) B | WeakenTm'CommStrip k u | WeakenTm'CommStrip k u₁ = refl
+WeakenTm'CommStrip k (ex.sig i u u₁) rewrite WeakenTm'CommStrip k u | WeakenTm'CommStrip (prev k) u₁ = refl
+WeakenTm'CommStrip k (ex.pair A B u u₁) rewrite WeakenTy'CommStrip k A | WeakenTy'CommStrip (prev k) B | WeakenTm'CommStrip k u | WeakenTm'CommStrip k u₁ = refl
+WeakenTm'CommStrip k (ex.pr1 A B u) rewrite WeakenTy'CommStrip k A | WeakenTy'CommStrip (prev k) B | WeakenTm'CommStrip k u = refl
+WeakenTm'CommStrip k (ex.pr2 A B u) rewrite WeakenTy'CommStrip k A | WeakenTy'CommStrip (prev k) B | WeakenTm'CommStrip k u = refl
+WeakenTm'CommStrip k (ex.empty i) = refl
+WeakenTm'CommStrip k (ex.emptyelim A u) rewrite WeakenTy'CommStrip (prev k) A | WeakenTm'CommStrip k u = refl
+WeakenTm'CommStrip k (ex.unit i) = refl
+WeakenTm'CommStrip k ex.tt = refl
+WeakenTm'CommStrip k (ex.unitelim A u u₁) rewrite WeakenTy'CommStrip (prev k) A | WeakenTm'CommStrip k u | WeakenTm'CommStrip k u₁ = refl
+WeakenTm'CommStrip k (ex.nat i) = refl
+WeakenTm'CommStrip k ex.zero = refl
+WeakenTm'CommStrip k (ex.suc u) = ap suc (WeakenTm'CommStrip k u)
+WeakenTm'CommStrip k (ex.natelim P u u₁ u₂) rewrite WeakenTy'CommStrip (prev k) P | WeakenTm'CommStrip k u | WeakenTm'CommStrip (prev (prev k)) u₁ | WeakenTm'CommStrip k u₂ = refl
+WeakenTm'CommStrip k (ex.id i u u₁ u₂) rewrite WeakenTm'CommStrip k u | WeakenTm'CommStrip k u₁ | WeakenTm'CommStrip k u₂ = refl
+WeakenTm'CommStrip k (ex.refl A u) rewrite WeakenTy'CommStrip k A | WeakenTm'CommStrip k u = refl
+WeakenTm'CommStrip k (ex.jj A P u u₁ u₂ u₃) rewrite WeakenTy'CommStrip k A | WeakenTy'CommStrip (prev (prev (prev k))) P | WeakenTm'CommStrip (prev k) u | WeakenTm'CommStrip k u₁ | WeakenTm'CommStrip k u₂ | WeakenTm'CommStrip k u₃ = refl
+WeakenTm'CommStrip k (ex.coerc S T u) rewrite WeakenTm'CommStrip k u = {!refl!}
 
 DerToNormal : {judg : ex.Judgment} → (ex.Derivable judg) → (Derivable (|| judg ||))
 DerToNormal (ex.VarLast dj) = {!VarLast (DerToNormal dj)!}
