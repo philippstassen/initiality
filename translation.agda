@@ -1,7 +1,9 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
 
+open import common renaming (Unit to metaUnit)
 open import normal
 import ex 
+open ex.shared
 open ex.Judgment renaming (_⊢_ to _⊢ₑ_) renaming (_⊢_:>_ to _⊢ₑ_:>_) renaming (_⊢_==_ to _⊢ₑ_==_) renaming (_⊢_==_:>_ to _⊢ₑ_==_:>_)
 
 ||_||Ty : {n : ℕ} → ex.TyExpr n → TyExpr n
@@ -51,6 +53,12 @@ open ex.Judgment renaming (_⊢_ to _⊢ₑ_) renaming (_⊢_:>_ to _⊢ₑ_:>_)
 || Γ ⊢ x ≃ x₁ || = || Γ ||Ctx ⊢ || x ||Ty == || x₁ ||Ty 
 
 {- weakening commutes with stripping -}
+WeakenTy'CommStrip : {n : ℕ} → (k : Fin (suc n)) → (A : ex.TyExpr n) → || ex.weakenTy' k A ||Ty ≡ weakenTy' k (|| A ||Ty)
+WeakenTm'CommStrip : {n : ℕ} → (k : Fin (suc n)) → (u : ex.TmExpr n) → || ex.weakenTm' k u ||Tm ≡ weakenTm' k (|| u ||Tm)
+
+WeakenTy'CommStrip k A = {!!}
+
+WeakenTm'CommStrip k u = {!!}
 
 DerToNormal : {judg : ex.Judgment} → (ex.Derivable judg) → (Derivable (|| judg ||))
 DerToNormal (ex.VarLast dj) = {!VarLast (DerToNormal dj)!}
