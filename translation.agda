@@ -91,7 +91,7 @@ WeakenTm'CommStrip k (ex.natelim P u u₁ u₂) rewrite WeakenTy'CommStrip (prev
 WeakenTm'CommStrip k (ex.id i u u₁ u₂) rewrite WeakenTm'CommStrip k u | WeakenTm'CommStrip k u₁ | WeakenTm'CommStrip k u₂ = refl
 WeakenTm'CommStrip k (ex.refl A u) rewrite WeakenTy'CommStrip k A | WeakenTm'CommStrip k u = refl
 WeakenTm'CommStrip k (ex.jj A P u u₁ u₂ u₃) rewrite WeakenTy'CommStrip k A | WeakenTy'CommStrip (prev (prev (prev k))) P | WeakenTm'CommStrip (prev k) u | WeakenTm'CommStrip k u₁ | WeakenTm'CommStrip k u₂ | WeakenTm'CommStrip k u₃ = refl
-WeakenTm'CommStrip k (ex.coerc S T u) rewrite WeakenTm'CommStrip k u = {!refl!}
+WeakenTm'CommStrip k (ex.coerc S T u) rewrite WeakenTm'CommStrip k u = refl
 
 DerToNormal : {judg : ex.Judgment} → (ex.Derivable judg) → (Derivable (|| judg ||))
 DerToNormal (ex.VarLast dj) = {!VarLast (DerToNormal dj)!}
