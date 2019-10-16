@@ -59,8 +59,7 @@ data Derivable : Judgment → Prop where
     → Derivable (Γ ⊢ coerc A A u == u :> A)
   CoercRefl! : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ u :> A)
     → Derivable (Γ ⊢ u == coerc A A u :> A)
-  CoercTrans : {Γ : Ctx n} {u : TmExpr n} {A B C : TyExpr n} {dA : Derivable (Γ ⊢ A)} {dA= : Derivable (Γ ⊢ A == B)} {dB= : Derivable (Γ ⊢ B == C)} {dC= : Derivable (Γ ⊢ A == C)}
-             → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ coerc B C (coerc A B u) == coerc A C u :> C)
+  CoercTrans : {Γ : Ctx n} {u : TmExpr n} {A B C : TyExpr n} → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ B == C) → Derivable (Γ ⊢ A == C) → Derivable (Γ ⊢ coerc B C (coerc A B u) == coerc A C u :> C)
   -- Rules for UU
   UU : {i : ℕ} {Γ : Ctx n}
     → Derivable (Γ ⊢ uu i)
