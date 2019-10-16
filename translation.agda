@@ -103,6 +103,9 @@ WeakenTmCommStrip : (u : ex.TmExpr n) → || ex.weakenTm u ||Tm ≡ weakenTm (||
 WeakenTyCommStrip A = WeakenTy'CommStrip last A
 WeakenTmCommStrip u = WeakenTm'CommStrip last u
 
+weakenTy^2CommStrip : {n : ℕ} → (A : ex.TyExpr n) → || ex.weakenTy (ex.weakenTy A) ||Ty ≡ weakenTy (weakenTy || A ||Ty)
+weakenTy^2CommStrip A = WeakenTyCommStrip (ex.weakenTy A) ∙ ap weakenTy (WeakenTyCommStrip A)
+
 -- Weakening of Morphism
 weakenMor'CommStrip : (k : Fin (suc n)) → (δ : ex.Mor n m) → || ex.weakenMor' k δ ||Mor ≡ weakenMor' k || δ ||Mor
 
@@ -120,6 +123,9 @@ weakenMor+^2CommStrip δ rewrite weakenMorCommStrip (ex.weakenMor δ) | weakenMo
 
 weakenMor+^3CommStrip : (δ : ex.Mor n m) → || ex.weakenMor+^ 3 δ ||Mor ≡ weakenMor+^ 3 || δ ||Mor
 weakenMor+^3CommStrip δ rewrite weakenMorCommStrip (ex.weakenMor+^ 2 δ) | weakenMorCommStrip (ex.weakenMor δ) | weakenMorCommStrip δ = refl
+
+weakenprev^2CommStrip : {n : ℕ} → (A : ex.TyExpr (suc n)) → || ex.weakenTy' (prev last) (ex.weakenTy' (prev last) A) ||Ty ≡ weakenTy' (prev last) (weakenTy' (prev last) (|| A ||Ty))
+weakenprev^2CommStrip A = WeakenTy'CommStrip (prev last)(ex.weakenTy' (prev last) A) ∙ ap (weakenTy' (prev last)) (WeakenTy'CommStrip (prev last) A)
 
 -- idMor commutes with stripping
 idMorCommStrip : (n : ℕ) → || ex.idMor n ||Mor ≡ idMor n
@@ -174,6 +180,12 @@ substTyCommStrip {n = n} A t rewrite ! (idMorCommStrip n) = []TyCommStrip A ((ex
 substTmCommStrip : {n : ℕ} → (u : ex.TmExpr (suc n)) → (t : ex.TmExpr n) → || ex.substTm u t ||Tm ≡ substTm (|| u ||Tm) (|| t ||Tm)
 substTmCommStrip {n = n} u t rewrite ! (idMorCommStrip n) = []TmCommStrip u ((ex.idMor _) ex., t)
 
+subst2TyCommStrip : {n : ℕ} → (A : ex.TyExpr (suc (suc n))) → (u v : ex.TmExpr n) → || ex.subst2Ty A u v ||Ty ≡ subst2Ty (|| A ||Ty) (|| u ||Tm) (|| v ||Tm)
+subst2TyCommStrip {n = n} A u v rewrite ! (idMorCommStrip n) = []TyCommStrip A (((ex.idMor _) ex., u) ex., v )
+
+subst3TyCommStrip : {n : ℕ} → (A : ex.TyExpr (suc (suc (suc n)))) → (u v w : ex.TmExpr n) → || ex.subst3Ty A u v w ||Ty ≡ subst3Ty (|| A ||Ty) (|| u ||Tm) (|| v ||Tm) (|| w ||Tm)
+subst3TyCommStrip {n = n} A u v w rewrite ! (idMorCommStrip n) = []TyCommStrip A {!(((ex.idMor _) ex., u) ex., v) ex., w!}
+
 -- Stripping respects derivability 
 DerToNormal : {judg : ex.Judgment} → (ex.Derivable judg) → (Derivable (|| judg ||))
 DerToNormal (ex.VarLast {A = A} dj) rewrite WeakenTyCommStrip A = VarLast (DerToNormal dj)
@@ -203,54 +215,55 @@ DerToNormal (ex.PiUUCong dj dj₁ dj₂) = PiUUCong (DerToNormal dj) (DerToNorma
 DerToNormal (ex.ElPi= dj dj₁) = ElPi= (DerToNormal dj) (DerToNormal dj₁)
 DerToNormal (ex.Lam dj dj₁ dj₂) = Lam (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
 DerToNormal (ex.LamCong dj dj₁ dj₂ dj₃) = LamCong (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂) (DerToNormal dj₃)
-DerToNormal (ex.App dj dj₁ dj₂ dj₃) = {!App (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂) (DerToNormal dj₃)!}
-DerToNormal (ex.AppCong dj dj₁ dj₂ dj₃ dj₄) = {!!}
-DerToNormal (ex.Sig dj dj₁) = {!!}
-DerToNormal (ex.SigCong dj dj₁ dj₂) = {!!}
-DerToNormal (ex.SigUU dj dj₁) = {!!}
-DerToNormal (ex.SigUUCong dj dj₁ dj₂) = {!!}
-DerToNormal (ex.ElSig= dj dj₁) = {!!}
-DerToNormal (ex.Pair dj dj₁ dj₂ dj₃) = {!!}
-DerToNormal (ex.PairCong dj dj₁ dj₂ dj₃ dj₄) = {!!}
-DerToNormal (ex.Pr1 dj dj₁ dj₂) = {!!}
-DerToNormal (ex.Pr1Cong dj dj₁ dj₂ dj₃) = {!!}
-DerToNormal (ex.Pr2 dj dj₁ dj₂) = {!!}
-DerToNormal (ex.Pr2Cong dj dj₁ dj₂ dj₃) = {!!}
-DerToNormal ex.Empty = {!!}
-DerToNormal ex.EmptyCong = {!!}
-DerToNormal ex.EmptyUU = {!!}
-DerToNormal ex.EmptyUUCong = {!!}
-DerToNormal ex.ElEmpty= = {!!}
-DerToNormal (ex.Emptyelim dj dj₁) = {!!}
-DerToNormal (ex.EmptyelimCong dj dj₁) = {!!}
-DerToNormal ex.Unit = {!!}
-DerToNormal ex.UnitCong = {!!}
-DerToNormal ex.UnitUU = {!!}
-DerToNormal ex.UnitUUCong = {!!}
-DerToNormal ex.ElUnit= = {!!}
-DerToNormal ex.TT = {!!}
-DerToNormal ex.TTCong = {!!}
-DerToNormal (ex.Unitelim dj dj₁ dj₂) = {!!}
-DerToNormal (ex.UnitelimCong dj dj₁ dj₂) = {!!}
-DerToNormal ex.Nat = {!!}
-DerToNormal ex.NatCong = {!!}
-DerToNormal ex.NatUU = {!!}
-DerToNormal ex.NatUUCong = {!!}
-DerToNormal ex.ElNat= = {!!}
-DerToNormal ex.Zero = {!!}
-DerToNormal ex.ZeroCong = {!!}
-DerToNormal (ex.Suc dj) = {!!}
-DerToNormal (ex.SucCong dj) = {!!}
-DerToNormal (ex.Natelim dj dj₁ dj₂ dj₃) = {!!}
-DerToNormal (ex.NatelimCong dj dj₁ dj₂ dj₃ dj₄) = {!!}
-DerToNormal (ex.Id dj dj₁ dj₂) = {!!}
-DerToNormal (ex.IdCong dj dj₁ dj₂) = {!!}
-DerToNormal (ex.IdUU dj dj₁ dj₂) = {!!}
-DerToNormal (ex.IdUUCong dj dj₁ dj₂) = {!!}
-DerToNormal (ex.ElId= dj dj₁ dj₂) = {!!}
-DerToNormal (ex.Refl dj dj₁) = {!!}
-DerToNormal (ex.ReflCong dj dj₁) = {!!}
-DerToNormal (ex.JJ dj dj₁ dj₂ dj₃ dj₄ dj₅) = {!!}
+DerToNormal (ex.App {B = B} {a = a} dj dj₁ dj₂ dj₃) rewrite (substTyCommStrip B a) = App (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂) (DerToNormal dj₃)
+DerToNormal (ex.AppCong {B = B} {a = a} dj dj₁ dj₂ dj₃ dj₄) rewrite (substTyCommStrip B a) = AppCong (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂) (DerToNormal dj₃) (DerToNormal dj₄)
+DerToNormal (ex.Sig dj dj₁) = Sig (DerToNormal dj) (DerToNormal dj₁)
+DerToNormal (ex.SigCong dj dj₁ dj₂) = SigCong (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
+DerToNormal (ex.SigUU dj dj₁) = SigUU (DerToNormal dj) (DerToNormal dj₁)
+DerToNormal (ex.SigUUCong dj dj₁ dj₂) = SigUUCong (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
+DerToNormal (ex.ElSig= dj dj₁) = ElSig= (DerToNormal dj) (DerToNormal dj₁)
+DerToNormal (ex.Pair {B = B} {a = a} dj dj₁ dj₂ dj₃) = Pair (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂) (congTmTy (substTyCommStrip B a) (DerToNormal dj₃))
+DerToNormal (ex.PairCong {B = B} {a = a} dj dj₁ dj₂ dj₃ dj₄) = PairCong (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂) (DerToNormal dj₃) (congTmEqTy (substTyCommStrip B a) (DerToNormal dj₄))
+DerToNormal (ex.Pr1 dj dj₁ dj₂) = Pr1 (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
+DerToNormal (ex.Pr1Cong dj dj₁ dj₂ dj₃) = Pr1Cong (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂) (DerToNormal dj₃)
+DerToNormal (ex.Pr2 {A = A} {B = B} {u = u} dj dj₁ dj₂) = congTmTy (! (substTyCommStrip B (ex.pr1 A B u))) (Pr2 (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂))
+DerToNormal (ex.Pr2Cong {A = A} {B = B} {u = u} dj dj₁ dj₂ dj₃) = congTmEqTy (! (substTyCommStrip B (ex.pr1 A B u))) (Pr2Cong (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂) (DerToNormal dj₃))
+DerToNormal ex.Empty = Empty
+DerToNormal ex.EmptyCong = EmptyCong
+DerToNormal ex.EmptyUU = EmptyUU
+DerToNormal ex.EmptyUUCong = EmptyUUCong
+DerToNormal ex.ElEmpty= = ElEmpty=
+DerToNormal (ex.Emptyelim {A = A} {u = u} dj dj₁) = congTmTy! (substTyCommStrip A u) (Emptyelim (DerToNormal dj) (DerToNormal dj₁))
+DerToNormal (ex.EmptyelimCong {A = A} {u = u} dj dj₁) =  congTmEqTy! (substTyCommStrip A u) (EmptyelimCong (DerToNormal dj) (DerToNormal dj₁))
+DerToNormal ex.Unit = Unit
+DerToNormal ex.UnitCong = UnitCong
+DerToNormal ex.UnitUU = UnitUU
+DerToNormal ex.UnitUUCong = UnitUUCong
+DerToNormal ex.ElUnit= = ElUnit=
+DerToNormal ex.TT = TT
+DerToNormal ex.TTCong = TTCong
+DerToNormal (ex.Unitelim {A = A} {u = u} dj dj₁ dj₂) = congTmTy! (substTyCommStrip A u) (Unitelim (DerToNormal dj) (congTmTy (substTyCommStrip A ex.tt) (DerToNormal dj₁)) (DerToNormal dj₂))
+DerToNormal (ex.UnitelimCong {A = A} {u = u} dj dj₁ dj₂) =  congTmEqTy! (substTyCommStrip A u) (UnitelimCong (DerToNormal dj) (congTmEqTy (substTyCommStrip A ex.tt) (DerToNormal dj₁)) (DerToNormal dj₂))
+
+DerToNormal ex.Nat = Nat
+DerToNormal ex.NatCong = NatCong
+DerToNormal ex.NatUU = NatUU
+DerToNormal ex.NatUUCong = NatUUCong
+DerToNormal ex.ElNat= = ElNat=
+DerToNormal ex.Zero = Zero
+DerToNormal ex.ZeroCong = ZeroCong
+DerToNormal (ex.Suc dj) = Suc (DerToNormal dj)
+DerToNormal (ex.SucCong dj) = SucCong (DerToNormal dj)
+DerToNormal (ex.Natelim {P = P} {u = u} dj dj₁ dj₂ dj₃) = congTmTy! (substTyCommStrip P u) (Natelim (DerToNormal dj) (congTmTy (substTyCommStrip P ex.zero) (DerToNormal dj₁)) (congTmTy (substTyCommStrip (ex.weakenTy' (prev last) (ex.weakenTy' (prev last) P)) (ex.suc (ex.var (prev last))) ∙ ap (λ x → substTy x (suc (var (prev last)))) ( weakenprev^2CommStrip P)) (DerToNormal dj₂)) (DerToNormal dj₃))
+DerToNormal (ex.NatelimCong {P = P} {u = u} dj dj₁ dj₂ dj₃ dj₄) = congTmEqTy! (substTyCommStrip P u) (NatelimCong (DerToNormal dj) (DerToNormal dj₁) (congTmEqTy (substTyCommStrip P ex.zero) (DerToNormal dj₂)) (congTmEqTy ( (substTyCommStrip (ex.weakenTy' (prev last) (ex.weakenTy' (prev last) P)) (ex.suc (ex.var (prev last))) ∙ ap (λ x → substTy x (suc (var (prev last)))) ( weakenprev^2CommStrip P)) ) (DerToNormal dj₃)) (DerToNormal dj₄))
+DerToNormal (ex.Id dj dj₁ dj₂) = Id (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
+DerToNormal (ex.IdCong dj dj₁ dj₂) = IdCong (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
+DerToNormal (ex.IdUU dj dj₁ dj₂) = IdUU (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
+DerToNormal (ex.IdUUCong dj dj₁ dj₂) = IdUUCong (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
+DerToNormal (ex.ElId= dj dj₁ dj₂) = ElId= (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
+DerToNormal (ex.Refl dj dj₁) = Refl (DerToNormal dj) (DerToNormal dj₁)
+DerToNormal (ex.ReflCong dj dj₁) = ReflCong (DerToNormal dj) (DerToNormal dj₁)
+DerToNormal (ex.JJ {Γ = Γ} {A = A} dj dj₁ dj₂ dj₃ dj₄ dj₅) rewrite (WeakenTyCommStrip A) = congTmTy! {!!} (JJ (DerToNormal dj) (congTyCtx (Ctx+= (Ctx+= refl (WeakenTyCommStrip A)) (ap-id-Ty (weakenTy^2CommStrip A) refl refl)) (DerToNormal dj₁)) {!!} {!!} {!!} {!!})
 DerToNormal (ex.JJCong dj dj₁ dj₂ dj₃ dj₄ dj₅ dj₆) = {!!}
 DerToNormal (ex.BetaPi dj dj₁ dj₂ dj₃) = {!!}
 DerToNormal (ex.BetaSig1 dj dj₁ dj₂ dj₃) = {!!}
