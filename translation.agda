@@ -183,8 +183,15 @@ substTmCommStrip {n = n} u t rewrite ! (idMorCommStrip n) = []TmCommStrip u ((ex
 subst2TyCommStrip : {n : ℕ} → (A : ex.TyExpr (suc (suc n))) → (u v : ex.TmExpr n) → || ex.subst2Ty A u v ||Ty ≡ subst2Ty (|| A ||Ty) (|| u ||Tm) (|| v ||Tm)
 subst2TyCommStrip {n = n} A u v rewrite ! (idMorCommStrip n) = []TyCommStrip A (((ex.idMor _) ex., u) ex., v )
 
+subst2TmCommStrip : {n : ℕ} → (t : ex.TmExpr (suc (suc n))) → (u v : ex.TmExpr n) → || ex.subst2Tm t u v ||Tm ≡ subst2Tm (|| t ||Tm) (|| u ||Tm) (|| v ||Tm)
+subst2TmCommStrip {n = n} t u v rewrite ! (idMorCommStrip n) = []TmCommStrip t (((ex.idMor _) ex., u) ex., v )
+
 subst3TyCommStrip : {n : ℕ} → (A : ex.TyExpr (suc (suc (suc n)))) → (u v w : ex.TmExpr n) → || ex.subst3Ty A u v w ||Ty ≡ subst3Ty (|| A ||Ty) (|| u ||Tm) (|| v ||Tm) (|| w ||Tm)
-subst3TyCommStrip {n = n} A u v w rewrite ! (idMorCommStrip n) = []TyCommStrip A {!(((ex.idMor _) ex., u) ex., v) ex., w!}
+subst3TyCommStrip {n = n} A u v w rewrite ! (idMorCommStrip n) = []TyCommStrip A ((((ex.idMor _) ex., u) ex., v) ex., w)
+
+subst3Ty-weakenprev3CommStrip : {n : ℕ} → (P : ex.TyExpr (suc (suc (suc n)))) → (A : ex.TyExpr n) → || ex.subst3Ty (ex.weakenTy' (prev (prev (prev last))) P) (ex.var last) (ex.var last) (ex.refl (ex.weakenTy A) (ex.var last)) ||Ty ≡ subst3Ty (weakenTy' (prev (prev (prev last))) || P ||Ty) (var last) (var last) (refl (weakenTy || A ||Ty) (var last))
+
+subst3Ty-weakenprev3CommStrip P A rewrite subst3TyCommStrip (ex.weakenTy' (prev (prev (prev last))) P) (ex.var last) (ex.var last) (ex.refl (ex.weakenTy A) (ex.var last)) | WeakenTy'CommStrip (prev (prev (prev last))) P | WeakenTyCommStrip A = refl
 
 -- Stripping respects derivability 
 DerToNormal : {judg : ex.Judgment} → (ex.Derivable judg) → (Derivable (|| judg ||))
@@ -263,16 +270,15 @@ DerToNormal (ex.IdUUCong dj dj₁ dj₂) = IdUUCong (DerToNormal dj) (DerToNorma
 DerToNormal (ex.ElId= dj dj₁ dj₂) = ElId= (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
 DerToNormal (ex.Refl dj dj₁) = Refl (DerToNormal dj) (DerToNormal dj₁)
 DerToNormal (ex.ReflCong dj dj₁) = ReflCong (DerToNormal dj) (DerToNormal dj₁)
-DerToNormal (ex.JJ {Γ = Γ} {A = A} dj dj₁ dj₂ dj₃ dj₄ dj₅) rewrite (WeakenTyCommStrip A) = congTmTy! {!!} (JJ (DerToNormal dj) (congTyCtx (Ctx+= (Ctx+= refl (WeakenTyCommStrip A)) (ap-id-Ty (weakenTy^2CommStrip A) refl refl)) (DerToNormal dj₁)) {!!} {!!} {!!} {!!})
-DerToNormal (ex.JJCong dj dj₁ dj₂ dj₃ dj₄ dj₅ dj₆) = {!!}
-DerToNormal (ex.BetaPi dj dj₁ dj₂ dj₃) = {!!}
-DerToNormal (ex.BetaSig1 dj dj₁ dj₂ dj₃) = {!!}
-DerToNormal (ex.BetaSig2 dj dj₁ dj₂ dj₃) = {!!}
-DerToNormal (ex.BetaUnit dj dj₁) = {!!}
-DerToNormal (ex.BetaNatZero dj dj₁ dj₂) = {!!}
-DerToNormal (ex.BetaNatSuc dj dj₁ dj₂ dj₃) = {!!}
-DerToNormal (ex.BetaIdRefl dj dj₁ dj₂ dj₃) = {!!}
-DerToNormal (ex.EtaPi dj dj₁ dj₂) = {!!}
-DerToNormal (ex.EtaSig dj dj₁ dj₂) = {!!}
-
+DerToNormal (ex.JJ {Γ = Γ} {A = A} {P = P} dj dj₁ dj₂ dj₃ dj₄ dj₅) rewrite (WeakenTyCommStrip A) = congTmTy! (subst3TyCommStrip P _ _ _) (JJ (DerToNormal dj) (congTyCtx (Ctx+= (Ctx+= refl (WeakenTyCommStrip A)) (ap-id-Ty (weakenTy^2CommStrip A) refl refl)) (DerToNormal dj₁)) (congTmTy (subst3Ty-weakenprev3CommStrip P A) (DerToNormal dj₂)) (DerToNormal dj₃) (DerToNormal dj₄) (DerToNormal dj₅))
+DerToNormal (ex.JJCong {Γ = Γ} {A = A} {P = P} dj dj₁ dj₂ dj₃ dj₄ dj₅ dj₆) = congTmEqTy! (subst3TyCommStrip _ _ _ _) (JJCong (DerToNormal dj) (DerToNormal dj₁) (congTyCtxEq (Ctx+= (Ctx+= refl (WeakenTyCommStrip A)) ( ap-id-Ty (weakenTy^2CommStrip A) refl refl)) (DerToNormal dj₂)) ( congTmEqTy (subst3Ty-weakenprev3CommStrip P A) (DerToNormal dj₃)) (DerToNormal dj₄) (DerToNormal dj₅) (DerToNormal dj₆))
+DerToNormal (ex.BetaPi {B = B} {u = u} {a = a} dj dj₁ dj₂ dj₃) = congTmEqTy! (substTyCommStrip B a) (congTmEqTm refl (! (substTmCommStrip u a)) (BetaPi (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂) (DerToNormal dj₃)))
+DerToNormal (ex.BetaSig1 dj dj₁ dj₂ dj₃) = BetaSig1 (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂) (congTmTy (substTyCommStrip _ _) (DerToNormal dj₃))
+DerToNormal (ex.BetaSig2 dj dj₁ dj₂ dj₃) = congTmEqTy! (substTyCommStrip _ _) (BetaSig2 (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂) (congTmTy (substTyCommStrip _ _) (DerToNormal dj₃)))
+DerToNormal (ex.BetaUnit {A = A} {dtt = dtt} dj dj₁) = congTmEqTy! (substTyCommStrip A ex.tt) (BetaUnit (DerToNormal dj) (congTmTy (substTyCommStrip A ex.tt) (DerToNormal dj₁)))
+DerToNormal (ex.BetaNatZero {P = P} dj dj₁ dj₂) = congTmEqTy! (substTyCommStrip P ex.zero) (BetaNatZero (DerToNormal dj) (congTmTy (substTyCommStrip P ex.zero) (DerToNormal dj₁)) (congTmTy ((substTyCommStrip (ex.weakenTy' (prev last) (ex.weakenTy' (prev last) P)) (ex.suc (ex.var (prev last)))) ∙ ap (λ x → substTy x (suc (var (prev last)))) (weakenprev^2CommStrip P)) (DerToNormal dj₂)))
+DerToNormal (ex.BetaNatSuc {P = P} {dO = dO} {dS = dS} {u = u} dj dj₁ dj₂ dj₃) = congTmEq! refl (subst2TmCommStrip dS u (ex.natelim P dO dS u)) (substTyCommStrip P (ex.suc u)) (BetaNatSuc (DerToNormal dj) (congTmTy (substTyCommStrip P ex.zero) (DerToNormal dj₁)) (congTmTy ( (substTyCommStrip (ex.weakenTy' (prev last) (ex.weakenTy' (prev last) P)) (ex.suc (ex.var (prev last)))) ∙  ap (λ x → substTy x (suc (var (prev last)))) (weakenprev^2CommStrip P)) (DerToNormal dj₂)) (DerToNormal dj₃))
+DerToNormal (ex.BetaIdRefl {A = A} {P = P} {d = d} {a = a} dj dj₁ dj₂ dj₃) = congTmEq! refl (substTmCommStrip d a) (subst3TyCommStrip P a a (ex.refl A a)) (BetaIdRefl (DerToNormal dj) (congTyCtx (Ctx+= (Ctx+= refl (WeakenTyCommStrip _)) (ap-id-Ty (WeakenTyCommStrip (ex.weakenTy _) ∙ ap weakenTy (WeakenTyCommStrip _)) refl refl)) (DerToNormal dj₁)) (congTmTy (subst3Ty-weakenprev3CommStrip _ _) (DerToNormal dj₂)) (DerToNormal dj₃))
+DerToNormal (ex.EtaPi {A = A} {B = B} {f = f} dj dj₁ dj₂) = congTmEq! refl (ap (lam || A ||Ty || B ||Ty) (ap-app-Tm (WeakenTyCommStrip A) (WeakenTy'CommStrip (prev last) B) (WeakenTmCommStrip f) refl)) refl (EtaPi (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂))
+DerToNormal (ex.EtaSig dj dj₁ dj₂) = EtaSig (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
 
