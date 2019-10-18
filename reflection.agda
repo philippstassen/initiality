@@ -10,6 +10,8 @@ open import typetheory
 _×R_ : (A B : Set) → Set
 A ×R B = ΣSS A (λ _ → B)
 
+infixr 42 _×R_
+
 instance
   TCMonad : Monad {ℓ = lzero} TC
   return {{TCMonad}} = returnTC
@@ -226,26 +228,26 @@ apify : (Name → ℕ → ℕ → Arg Term) → (ℕ → Name → Term → Term)
 apify body l c tyC = def (lookup corresponding-ap c) (makeArgs body (l - 1) tyC)
 
 
-unquoteDecl ap-uu-Tm = generate-ap (quote TmExpr.uu) ap-uu-Tm
+-- unquoteDecl ap-uu-Tm = generate-ap (quote TmExpr.uu) ap-uu-Tm
 unquoteDecl ap-var-Tm = generate-ap (quote TmExpr.var) ap-var-Tm
 unquoteDecl ap-pi-Ty = generate-ap (quote TyExpr.pi) ap-pi-Ty
-unquoteDecl ap-sig-Ty = generate-ap (quote TyExpr.sig) ap-sig-Ty
-unquoteDecl ap-pi-Tm = generate-ap (quote TmExpr.pi) ap-pi-Tm
+-- unquoteDecl ap-sig-Ty = generate-ap (quote TyExpr.sig) ap-sig-Ty
+-- unquoteDecl ap-pi-Tm = generate-ap (quote TmExpr.pi) ap-pi-Tm
 unquoteDecl ap-lam-Tm = generate-ap (quote TmExpr.lam) ap-lam-Tm
 unquoteDecl ap-app-Tm = generate-ap (quote TmExpr.app) ap-app-Tm
-unquoteDecl ap-sig-Tm = generate-ap (quote TmExpr.sig) ap-sig-Tm
-unquoteDecl ap-pair-Tm = generate-ap (quote TmExpr.pair) ap-pair-Tm
-unquoteDecl ap-pr1-Tm = generate-ap (quote TmExpr.pr1) ap-pr1-Tm
-unquoteDecl ap-pr2-Tm = generate-ap (quote TmExpr.pr2) ap-pr2-Tm
-unquoteDecl ap-emptyelim-Tm = generate-ap (quote TmExpr.emptyelim) ap-emptyelim-Tm
-unquoteDecl ap-unitelim-Tm = generate-ap (quote TmExpr.unitelim) ap-unitelim-Tm
-unquoteDecl ap-natelim-Tm = generate-ap (quote TmExpr.natelim) ap-natelim-Tm
-unquoteDecl ap-jj-Tm = generate-ap (quote TmExpr.jj) ap-jj-Tm 
+-- unquoteDecl ap-sig-Tm = generate-ap (quote TmExpr.sig) ap-sig-Tm
+-- unquoteDecl ap-pair-Tm = generate-ap (quote TmExpr.pair) ap-pair-Tm
+-- unquoteDecl ap-pr1-Tm = generate-ap (quote TmExpr.pr1) ap-pr1-Tm
+-- unquoteDecl ap-pr2-Tm = generate-ap (quote TmExpr.pr2) ap-pr2-Tm
+-- unquoteDecl ap-emptyelim-Tm = generate-ap (quote TmExpr.emptyelim) ap-emptyelim-Tm
+-- unquoteDecl ap-unitelim-Tm = generate-ap (quote TmExpr.unitelim) ap-unitelim-Tm
+-- unquoteDecl ap-natelim-Tm = generate-ap (quote TmExpr.natelim) ap-natelim-Tm
+-- unquoteDecl ap-jj-Tm = generate-ap (quote TmExpr.jj) ap-jj-Tm 
 unquoteDecl ap-el-Ty = generate-ap (quote TyExpr.el) ap-el-Ty 
-unquoteDecl ap-id-Ty = generate-ap (quote TyExpr.id) ap-id-Ty
-unquoteDecl ap-id-Tm = generate-ap (quote TmExpr.id) ap-id-Tm
-unquoteDecl ap-suc-Tm = generate-ap (quote TmExpr.suc) ap-suc-Tm
-unquoteDecl ap-refl-Tm = generate-ap (quote TmExpr.refl) ap-refl-Tm
+-- unquoteDecl ap-id-Ty = generate-ap (quote TyExpr.id) ap-id-Ty
+-- unquoteDecl ap-id-Tm = generate-ap (quote TmExpr.id) ap-id-Tm
+-- unquoteDecl ap-suc-Tm = generate-ap (quote TmExpr.suc) ap-suc-Tm
+-- unquoteDecl ap-refl-Tm = generate-ap (quote TmExpr.refl) ap-refl-Tm
 
 iterate : ℕ → (List (Arg Term) → Term) → Term → Term
 iterate 0 f t = t
@@ -285,20 +287,20 @@ generate-apR s res = do
 
 unquoteDecl apR-var-Tm = generate-apR (quote TmExpr.var) apR-var-Tm
 unquoteDecl apR-pi-Ty = generate-apR (quote TyExpr.pi) apR-pi-Ty 
-unquoteDecl apR-sig-Ty = generate-apR (quote TyExpr.sig) apR-sig-Ty
-unquoteDecl apR-pi-Tm = generate-apR (quote TmExpr.pi) apR-pi-Tm
+-- unquoteDecl apR-sig-Ty = generate-apR (quote TyExpr.sig) apR-sig-Ty
+-- unquoteDecl apR-pi-Tm = generate-apR (quote TmExpr.pi) apR-pi-Tm
 unquoteDecl apR-lam-Tm = generate-apR (quote TmExpr.lam) apR-lam-Tm
 unquoteDecl apR-app-Tm = generate-apR (quote TmExpr.app) apR-app-Tm
-unquoteDecl apR-sig-Tm = generate-apR (quote TmExpr.sig) apR-sig-Tm
-unquoteDecl apR-pair-Tm = generate-apR (quote TmExpr.pair) apR-pair-Tm
-unquoteDecl apR-pr1-Tm = generate-apR (quote TmExpr.pr1) apR-pr1-Tm
-unquoteDecl apR-pr2-Tm = generate-apR (quote TmExpr.pr2) apR-pr2-Tm
-unquoteDecl apR-emptyelim-Tm = generate-apR (quote TmExpr.emptyelim) apR-emptyelim-Tm
-unquoteDecl apR-unitelim-Tm = generate-apR (quote TmExpr.unitelim) apR-unitelim-Tm
-unquoteDecl apR-natelim-Tm = generate-apR (quote TmExpr.natelim) apR-natelim-Tm
-unquoteDecl apR-jj-Tm = generate-apR (quote TmExpr.jj) apR-jj-Tm
+-- unquoteDecl apR-sig-Tm = generate-apR (quote TmExpr.sig) apR-sig-Tm
+-- unquoteDecl apR-pair-Tm = generate-apR (quote TmExpr.pair) apR-pair-Tm
+-- unquoteDecl apR-pr1-Tm = generate-apR (quote TmExpr.pr1) apR-pr1-Tm
+-- unquoteDecl apR-pr2-Tm = generate-apR (quote TmExpr.pr2) apR-pr2-Tm
+-- unquoteDecl apR-emptyelim-Tm = generate-apR (quote TmExpr.emptyelim) apR-emptyelim-Tm
+-- unquoteDecl apR-unitelim-Tm = generate-apR (quote TmExpr.unitelim) apR-unitelim-Tm
+-- unquoteDecl apR-natelim-Tm = generate-apR (quote TmExpr.natelim) apR-natelim-Tm
+-- unquoteDecl apR-jj-Tm = generate-apR (quote TmExpr.jj) apR-jj-Tm
 unquoteDecl apR-el-Ty = generate-apR (quote TyExpr.el) apR-el-Ty
-unquoteDecl apR-id-Ty = generate-apR (quote TyExpr.id) apR-id-Ty
-unquoteDecl apR-id-Tm = generate-apR (quote TmExpr.id) apR-id-Tm
-unquoteDecl apR-suc-Tm = generate-apR (quote TmExpr.suc) apR-suc-Tm
-unquoteDecl apR-refl-Tm = generate-apR (quote TmExpr.refl) apR-refl-Tm
+-- unquoteDecl apR-id-Ty = generate-apR (quote TyExpr.id) apR-id-Ty
+-- unquoteDecl apR-id-Tm = generate-apR (quote TmExpr.id) apR-id-Tm
+-- unquoteDecl apR-suc-Tm = generate-apR (quote TmExpr.suc) apR-suc-Tm
+-- unquoteDecl apR-refl-Tm = generate-apR (quote TmExpr.refl) apR-refl-Tm
