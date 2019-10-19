@@ -66,19 +66,19 @@ data Derivable : Judgment → Prop where
   UUCong :  {i : ℕ} {Γ : Ctx n}
     → Derivable (Γ ⊢ uu i == uu i)
 
-  -- Rules for uu
-  UUUU : {i : ℕ} {Γ : Ctx n}
-    → Derivable (Γ ⊢ uu i :> uu (suc i))
-  UUUUCong : {i : ℕ} {Γ : Ctx n}
-    → Derivable (Γ ⊢ uu i == uu i :> uu (suc i))
-  ElUU= : {i : ℕ} {Γ : Ctx n}
-    → Derivable (Γ ⊢ el (suc i) (uu i) == uu i)
+--   -- Rules for uu
+--   UUUU : {i : ℕ} {Γ : Ctx n}
+--     → Derivable (Γ ⊢ uu i :> uu (suc i))
+--   UUUUCong : {i : ℕ} {Γ : Ctx n}
+--     → Derivable (Γ ⊢ uu i == uu i :> uu (suc i))
+--   ElUU= : {i : ℕ} {Γ : Ctx n}
+--     → Derivable (Γ ⊢ el (suc i) (uu i) == uu i)
 
   -- Rules for El
   El : {i : ℕ} {Γ : Ctx n} {v : TmExpr n}
     → Derivable (Γ ⊢ v :> uu i) → Derivable (Γ ⊢ el i v)
   ElCong : {i : ℕ} {Γ : Ctx n} {v v' : TmExpr n}
-    → Derivable (Γ ⊢ v == v' :> uu i) → Derivable (Γ ⊢ el i v == el i v')
+     → Derivable (Γ ⊢ v == v' :> uu i) → Derivable (Γ ⊢ el i v == el i v')
 
 
   -- Rules for Pi
@@ -88,13 +88,13 @@ data Derivable : Judgment → Prop where
     → Derivable (Γ ⊢ A)
     → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ pi A B == pi A' B')
 
-  -- Rules for pi
-  PiUU : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
-    → Derivable (Γ ⊢ a :> uu i) → Derivable ((Γ , el i a) ⊢ b :> uu i) → Derivable (Γ ⊢ pi i a b :> uu i)
-  PiUUCong : {i : ℕ} {Γ : Ctx n} {a a' : TmExpr n} {b b' : TmExpr (suc n)}
-    → Derivable (Γ ⊢ a :> uu i) → Derivable (Γ ⊢ a == a' :> uu i) → Derivable ((Γ , el i a) ⊢ b == b' :> uu i) → Derivable (Γ ⊢ pi i a b == pi i a' b' :> uu i)
-  ElPi= : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
-    → Derivable (Γ ⊢ a :> uu i) → Derivable ((Γ , el i a) ⊢ b :> uu i) → Derivable (Γ ⊢ el i (pi i a b) == pi (el i a) (el i b))
+--   -- Rules for pi
+--   PiUU : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
+--     → Derivable (Γ ⊢ a :> uu i) → Derivable ((Γ , el i a) ⊢ b :> uu i) → Derivable (Γ ⊢ pi i a b :> uu i)
+--   PiUUCong : {i : ℕ} {Γ : Ctx n} {a a' : TmExpr n} {b b' : TmExpr (suc n)}
+--     → Derivable (Γ ⊢ a :> uu i) → Derivable (Γ ⊢ a == a' :> uu i) → Derivable ((Γ , el i a) ⊢ b == b' :> uu i) → Derivable (Γ ⊢ pi i a b == pi i a' b' :> uu i)
+--   ElPi= : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
+--     → Derivable (Γ ⊢ a :> uu i) → Derivable ((Γ , el i a) ⊢ b :> uu i) → Derivable (Γ ⊢ el i (pi i a b) == pi (el i a) (el i b))
 
   -- Rules for lambda
   Lam : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n)}
@@ -115,173 +115,173 @@ data Derivable : Judgment → Prop where
     → Derivable (Γ ⊢ app A B f a == app A' B' f' a' :> substTy B a)
 
 
-  -- Rules for Sigma
-  Sig : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)}
-    → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ sig A B)
-  SigCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} → Derivable (Γ ⊢ A)
-    → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ sig A B == sig A' B')
+--   -- Rules for Sigma
+--   Sig : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)}
+--     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ sig A B)
+--   SigCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} → Derivable (Γ ⊢ A)
+--     → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ sig A B == sig A' B')
 
-  -- Rules for sig
-  SigUU : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
-    → Derivable (Γ ⊢ a :> uu i) → Derivable ((Γ , el i a) ⊢ b :> uu i) → Derivable (Γ ⊢ sig i a b :> uu i)
-  SigUUCong : {i : ℕ} {Γ : Ctx n} {a a' : TmExpr n} {b b' : TmExpr (suc n)}
-    → Derivable (Γ ⊢ a :> uu i) → Derivable (Γ ⊢ a == a' :> uu i) → Derivable ((Γ , el i a) ⊢ b == b' :> uu i) → Derivable (Γ ⊢ sig i a b == sig i a' b' :> uu i)
-  ElSig= : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
-    → Derivable (Γ ⊢ a :> uu i) → Derivable ((Γ , el i a) ⊢ b :> uu i) → Derivable (Γ ⊢ el i (sig i a b) == sig (el i a) (el i b))
+--   -- Rules for sig
+--   SigUU : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
+--     → Derivable (Γ ⊢ a :> uu i) → Derivable ((Γ , el i a) ⊢ b :> uu i) → Derivable (Γ ⊢ sig i a b :> uu i)
+--   SigUUCong : {i : ℕ} {Γ : Ctx n} {a a' : TmExpr n} {b b' : TmExpr (suc n)}
+--     → Derivable (Γ ⊢ a :> uu i) → Derivable (Γ ⊢ a == a' :> uu i) → Derivable ((Γ , el i a) ⊢ b == b' :> uu i) → Derivable (Γ ⊢ sig i a b == sig i a' b' :> uu i)
+--   ElSig= : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
+--     → Derivable (Γ ⊢ a :> uu i) → Derivable ((Γ , el i a) ⊢ b :> uu i) → Derivable (Γ ⊢ el i (sig i a b) == sig (el i a) (el i b))
 
-  -- Rules for pair
-  Pair : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {a : TmExpr n} {b : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ b :> substTy B a) → Derivable (Γ ⊢ pair A B a b :> sig A B)
-  PairCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {a a' : TmExpr n} {b b' : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ b == b' :> substTy B a) → Derivable (Γ ⊢ pair A B a b == pair A' B' a' b' :> sig A B)
+--   -- Rules for pair
+--   Pair : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {a : TmExpr n} {b : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ b :> substTy B a) → Derivable (Γ ⊢ pair A B a b :> sig A B)
+--   PairCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {a a' : TmExpr n} {b b' : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ b == b' :> substTy B a) → Derivable (Γ ⊢ pair A B a b == pair A' B' a' b' :> sig A B)
 
-  -- Rules for pr1
-  Pr1 : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ u :> sig A B) → Derivable (Γ ⊢ pr1 A B u :> A)
-  Pr1Cong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ u == u' :> sig A B) → Derivable (Γ ⊢ pr1 A B u == pr1 A' B' u' :> A)
+--   -- Rules for pr1
+--   Pr1 : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ u :> sig A B) → Derivable (Γ ⊢ pr1 A B u :> A)
+--   Pr1Cong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ u == u' :> sig A B) → Derivable (Γ ⊢ pr1 A B u == pr1 A' B' u' :> A)
 
-  -- Rules for pr2
-  Pr2 : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ u :> sig A B) → Derivable (Γ ⊢ pr2 A B u :> substTy B (pr1 A B u))
-  Pr2Cong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ u == u' :> sig A B) → Derivable (Γ ⊢ pr2 A B u == pr2 A' B' u' :> substTy B (pr1 A B u))
+--   -- Rules for pr2
+--   Pr2 : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ u :> sig A B) → Derivable (Γ ⊢ pr2 A B u :> substTy B (pr1 A B u))
+--   Pr2Cong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ u == u' :> sig A B) → Derivable (Γ ⊢ pr2 A B u == pr2 A' B' u' :> substTy B (pr1 A B u))
 
 
-  -- Rules for Empty
-  Empty : {Γ : Ctx n}
-      → Derivable (Γ ⊢ empty)
-  EmptyCong : {Γ : Ctx n}
-      → Derivable (Γ ⊢ empty == empty)
+--   -- Rules for Empty
+--   Empty : {Γ : Ctx n}
+--       → Derivable (Γ ⊢ empty)
+--   EmptyCong : {Γ : Ctx n}
+--       → Derivable (Γ ⊢ empty == empty)
 
-  -- Rules for empty
-  EmptyUU : {i : ℕ} {Γ : Ctx n}
-     → Derivable (Γ ⊢ empty i :> uu i)
-  EmptyUUCong : {i : ℕ} {Γ : Ctx n}
-     → Derivable (Γ ⊢ empty i == empty i :> uu i)
-  ElEmpty= : {i : ℕ} {Γ : Ctx n}
-     → Derivable (Γ ⊢ el i (empty i) == empty)
+--   -- Rules for empty
+--   EmptyUU : {i : ℕ} {Γ : Ctx n}
+--      → Derivable (Γ ⊢ empty i :> uu i)
+--   EmptyUUCong : {i : ℕ} {Γ : Ctx n}
+--      → Derivable (Γ ⊢ empty i == empty i :> uu i)
+--   ElEmpty= : {i : ℕ} {Γ : Ctx n}
+--      → Derivable (Γ ⊢ el i (empty i) == empty)
 
-  -- Rules for emptyelim
-  Emptyelim : {Γ : Ctx n} {A : TyExpr (suc n)} {u : TmExpr n}
-     → Derivable ((Γ , empty) ⊢ A) → Derivable (Γ ⊢ u :> empty) → Derivable (Γ ⊢ emptyelim A u :> substTy A u)
-  EmptyelimCong : {Γ : Ctx n} {A A' : TyExpr (suc n)} {u u' : TmExpr n}
-     → Derivable ((Γ , empty) ⊢ A == A') → Derivable (Γ ⊢ u == u' :> empty) → Derivable (Γ ⊢ emptyelim A u == emptyelim A' u' :> substTy A u)
+--   -- Rules for emptyelim
+--   Emptyelim : {Γ : Ctx n} {A : TyExpr (suc n)} {u : TmExpr n}
+--      → Derivable ((Γ , empty) ⊢ A) → Derivable (Γ ⊢ u :> empty) → Derivable (Γ ⊢ emptyelim A u :> substTy A u)
+--   EmptyelimCong : {Γ : Ctx n} {A A' : TyExpr (suc n)} {u u' : TmExpr n}
+--      → Derivable ((Γ , empty) ⊢ A == A') → Derivable (Γ ⊢ u == u' :> empty) → Derivable (Γ ⊢ emptyelim A u == emptyelim A' u' :> substTy A u)
 
-  -- Rules for Unit
-  Unit : {Γ : Ctx n}
-     → Derivable (Γ ⊢ unit)
-  UnitCong : {Γ : Ctx n}
-     → Derivable (Γ ⊢ unit == unit)
+--   -- Rules for Unit
+--   Unit : {Γ : Ctx n}
+--      → Derivable (Γ ⊢ unit)
+--   UnitCong : {Γ : Ctx n}
+--      → Derivable (Γ ⊢ unit == unit)
 
-  -- Rules for unit
-  UnitUU : {i : ℕ} {Γ : Ctx n}
-     → Derivable (Γ ⊢ unit i :> uu i)
-  UnitUUCong : {i : ℕ} {Γ : Ctx n}
-     → Derivable (Γ ⊢ unit i == unit i :> uu i)
-  ElUnit= : {i : ℕ} {Γ : Ctx n}
-     → Derivable (Γ ⊢ el i (unit i) == unit)
+--   -- Rules for unit
+--   UnitUU : {i : ℕ} {Γ : Ctx n}
+--      → Derivable (Γ ⊢ unit i :> uu i)
+--   UnitUUCong : {i : ℕ} {Γ : Ctx n}
+--      → Derivable (Γ ⊢ unit i == unit i :> uu i)
+--   ElUnit= : {i : ℕ} {Γ : Ctx n}
+--      → Derivable (Γ ⊢ el i (unit i) == unit)
 
-  -- Rules for tt
-  TT : {Γ : Ctx n}
-     → Derivable (Γ ⊢ tt :> unit)
-  TTCong : {Γ : Ctx n}
-     → Derivable (Γ ⊢ tt == tt :> unit)
+--   -- Rules for tt
+--   TT : {Γ : Ctx n}
+--      → Derivable (Γ ⊢ tt :> unit)
+--   TTCong : {Γ : Ctx n}
+--      → Derivable (Γ ⊢ tt == tt :> unit)
 
-  -- Rules for unitelim
-  Unitelim : {Γ : Ctx n} {A : TyExpr (suc n)} {dtt : TmExpr n} {u : TmExpr n}
-     → Derivable ((Γ , unit) ⊢ A) → Derivable (Γ ⊢ dtt :> substTy A tt) → Derivable (Γ ⊢ u :> unit) → Derivable (Γ ⊢ unitelim A dtt u :> substTy A u)
-  UnitelimCong : {Γ : Ctx n} {A A' : TyExpr (suc n)} {dtt dtt' : TmExpr n} {u u' : TmExpr n}
-     → Derivable ((Γ , unit) ⊢ A == A') → Derivable (Γ ⊢ dtt == dtt' :> substTy A tt) → Derivable (Γ ⊢ u == u' :> unit) → Derivable (Γ ⊢ unitelim A dtt u == unitelim A' dtt' u' :> substTy A u)
+--   -- Rules for unitelim
+--   Unitelim : {Γ : Ctx n} {A : TyExpr (suc n)} {dtt : TmExpr n} {u : TmExpr n}
+--      → Derivable ((Γ , unit) ⊢ A) → Derivable (Γ ⊢ dtt :> substTy A tt) → Derivable (Γ ⊢ u :> unit) → Derivable (Γ ⊢ unitelim A dtt u :> substTy A u)
+--   UnitelimCong : {Γ : Ctx n} {A A' : TyExpr (suc n)} {dtt dtt' : TmExpr n} {u u' : TmExpr n}
+--      → Derivable ((Γ , unit) ⊢ A == A') → Derivable (Γ ⊢ dtt == dtt' :> substTy A tt) → Derivable (Γ ⊢ u == u' :> unit) → Derivable (Γ ⊢ unitelim A dtt u == unitelim A' dtt' u' :> substTy A u)
     
 
-  -- Rules for Nat
-  Nat : {Γ : Ctx n}
-    → Derivable (Γ ⊢ nat)
-  NatCong : {Γ : Ctx n}
-    → Derivable (Γ ⊢ nat == nat)
+--   -- Rules for Nat
+--   Nat : {Γ : Ctx n}
+--     → Derivable (Γ ⊢ nat)
+--   NatCong : {Γ : Ctx n}
+--     → Derivable (Γ ⊢ nat == nat)
 
-  -- Rules for nat
-  NatUU : {i : ℕ} {Γ : Ctx n}
-    → Derivable (Γ ⊢ nat i :> uu i)
-  NatUUCong : {i : ℕ} {Γ : Ctx n}
-    → Derivable (Γ ⊢ nat i == nat i :> uu i)
-  ElNat= : {i : ℕ} {Γ : Ctx n}
-    → Derivable (Γ ⊢ el i (nat i) == nat)
+--   -- Rules for nat
+--   NatUU : {i : ℕ} {Γ : Ctx n}
+--     → Derivable (Γ ⊢ nat i :> uu i)
+--   NatUUCong : {i : ℕ} {Γ : Ctx n}
+--     → Derivable (Γ ⊢ nat i == nat i :> uu i)
+--   ElNat= : {i : ℕ} {Γ : Ctx n}
+--     → Derivable (Γ ⊢ el i (nat i) == nat)
 
-  -- Rules for zero
-  Zero : {Γ : Ctx n}
-    → Derivable (Γ ⊢ zero :> nat)
-  ZeroCong : {Γ : Ctx n}
-    → Derivable (Γ ⊢ zero == zero :> nat)
+--   -- Rules for zero
+--   Zero : {Γ : Ctx n}
+--     → Derivable (Γ ⊢ zero :> nat)
+--   ZeroCong : {Γ : Ctx n}
+--     → Derivable (Γ ⊢ zero == zero :> nat)
 
-  -- Rules for suc
-  Suc : {Γ : Ctx n} {u : TmExpr n}
-    → Derivable (Γ ⊢ u :> nat) → Derivable (Γ ⊢ suc u :> nat)
-  SucCong : {Γ : Ctx n} {u u' : TmExpr n}
-    → Derivable (Γ ⊢ u == u' :> nat) → Derivable (Γ ⊢ suc u == suc u' :> nat)
+--   -- Rules for suc
+--   Suc : {Γ : Ctx n} {u : TmExpr n}
+--     → Derivable (Γ ⊢ u :> nat) → Derivable (Γ ⊢ suc u :> nat)
+--   SucCong : {Γ : Ctx n} {u u' : TmExpr n}
+--     → Derivable (Γ ⊢ u == u' :> nat) → Derivable (Γ ⊢ suc u == suc u' :> nat)
 
-  -- Rules for natelim
-  Natelim : {Γ : Ctx n} {P : TyExpr (suc n)} {dO : TmExpr n} {dS : TmExpr (suc (suc n))} {u : TmExpr n}
-    → Derivable ((Γ , nat) ⊢ P) → Derivable (Γ ⊢ dO :> substTy P zero) → Derivable (((Γ , nat) , P) ⊢ dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) P)) (suc (var (prev last)))) → Derivable (Γ ⊢ u :> nat) → Derivable (Γ ⊢ natelim P dO dS u :> substTy P u)
-  NatelimCong : {Γ : Ctx n} {P P' : TyExpr (suc n)} {dO dO' : TmExpr n} {dS dS' : TmExpr (suc (suc n))} {u u' : TmExpr n}
-    → Derivable ((Γ , nat) ⊢ P) → Derivable ((Γ , nat) ⊢ P == P') → Derivable (Γ ⊢ dO == dO' :> substTy P zero) → Derivable (((Γ , nat) , P) ⊢ dS == dS' :> substTy (weakenTy' (prev last) (weakenTy' (prev last) P)) (suc (var (prev last)))) → Derivable (Γ ⊢ u == u' :> nat) → Derivable (Γ ⊢ natelim P dO dS u == natelim P' dO' dS' u' :> substTy P u)
+--   -- Rules for natelim
+--   Natelim : {Γ : Ctx n} {P : TyExpr (suc n)} {dO : TmExpr n} {dS : TmExpr (suc (suc n))} {u : TmExpr n}
+--     → Derivable ((Γ , nat) ⊢ P) → Derivable (Γ ⊢ dO :> substTy P zero) → Derivable (((Γ , nat) , P) ⊢ dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) P)) (suc (var (prev last)))) → Derivable (Γ ⊢ u :> nat) → Derivable (Γ ⊢ natelim P dO dS u :> substTy P u)
+--   NatelimCong : {Γ : Ctx n} {P P' : TyExpr (suc n)} {dO dO' : TmExpr n} {dS dS' : TmExpr (suc (suc n))} {u u' : TmExpr n}
+--     → Derivable ((Γ , nat) ⊢ P) → Derivable ((Γ , nat) ⊢ P == P') → Derivable (Γ ⊢ dO == dO' :> substTy P zero) → Derivable (((Γ , nat) , P) ⊢ dS == dS' :> substTy (weakenTy' (prev last) (weakenTy' (prev last) P)) (suc (var (prev last)))) → Derivable (Γ ⊢ u == u' :> nat) → Derivable (Γ ⊢ natelim P dO dS u == natelim P' dO' dS' u' :> substTy P u)
 
 
-  -- Rules for Id
-  Id : {Γ : Ctx n} {A : TyExpr n} {a b : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ b :> A) → Derivable (Γ ⊢ id A a b)
-  IdCong : {Γ : Ctx n} {A A' : TyExpr n} {a a' b b' : TmExpr n}
-    → Derivable (Γ ⊢ A == A') → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ b == b' :> A) → Derivable (Γ ⊢ id A a b == id A' a' b')
+--   -- Rules for Id
+--   Id : {Γ : Ctx n} {A : TyExpr n} {a b : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ b :> A) → Derivable (Γ ⊢ id A a b)
+--   IdCong : {Γ : Ctx n} {A A' : TyExpr n} {a a' b b' : TmExpr n}
+--     → Derivable (Γ ⊢ A == A') → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ b == b' :> A) → Derivable (Γ ⊢ id A a b == id A' a' b')
 
-  -- Rules for id
-  IdUU : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {u v : TmExpr n}
-    → Derivable (Γ ⊢ a :> uu i) → Derivable (Γ ⊢ u :> el i a) → Derivable (Γ ⊢ v :> el i a) → Derivable (Γ ⊢ id i a u v :> uu i)
-  IdUUCong : {i : ℕ} {Γ : Ctx n} {a a' : TmExpr n} {u u' v v' : TmExpr n}
-    → Derivable (Γ ⊢ a == a' :> uu i) → Derivable (Γ ⊢ u == u' :> el i a) → Derivable (Γ ⊢ v == v' :> el i a) → Derivable (Γ ⊢ id i a u v == id i a' u' v' :> uu i)
-  ElId= : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {u v : TmExpr n}
-    → Derivable (Γ ⊢ a :> uu i) → Derivable (Γ ⊢ u :> el i a) → Derivable (Γ ⊢ v :> el i a) → Derivable (Γ ⊢ el i (id i a u v) == id (el i a) u v)
+--   -- Rules for id
+--   IdUU : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {u v : TmExpr n}
+--     → Derivable (Γ ⊢ a :> uu i) → Derivable (Γ ⊢ u :> el i a) → Derivable (Γ ⊢ v :> el i a) → Derivable (Γ ⊢ id i a u v :> uu i)
+--   IdUUCong : {i : ℕ} {Γ : Ctx n} {a a' : TmExpr n} {u u' v v' : TmExpr n}
+--     → Derivable (Γ ⊢ a == a' :> uu i) → Derivable (Γ ⊢ u == u' :> el i a) → Derivable (Γ ⊢ v == v' :> el i a) → Derivable (Γ ⊢ id i a u v == id i a' u' v' :> uu i)
+--   ElId= : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {u v : TmExpr n}
+--     → Derivable (Γ ⊢ a :> uu i) → Derivable (Γ ⊢ u :> el i a) → Derivable (Γ ⊢ v :> el i a) → Derivable (Γ ⊢ el i (id i a u v) == id (el i a) u v)
   
-  -- Rules for refl
-  Refl : {Γ : Ctx n} {A : TyExpr n} {a : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ refl A a :> id A a a)
-  ReflCong : {Γ : Ctx n} {A A' : TyExpr n} {a a' : TmExpr n}
-    → Derivable (Γ ⊢ A == A') → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ refl A a == refl A' a' :> id A a a)
+--   -- Rules for refl
+--   Refl : {Γ : Ctx n} {A : TyExpr n} {a : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ refl A a :> id A a a)
+--   ReflCong : {Γ : Ctx n} {A A' : TyExpr n} {a a' : TmExpr n}
+--     → Derivable (Γ ⊢ A == A') → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ refl A a == refl A' a' :> id A a a)
 
-  -- Rules for jj
-  JJ : {Γ : Ctx n} {A : TyExpr n} {P : TyExpr (suc (suc (suc n)))} {d : TmExpr (suc n)} {a b p : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable ((((Γ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)) ⊢ P) → Derivable ((Γ , A) ⊢ d :> subst3Ty (weakenTy' (prev (prev (prev last))) P) (var last) (var last) (refl (weakenTy A) (var last))) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ b :> A) → Derivable (Γ ⊢ p :> id A a b) → Derivable (Γ ⊢ jj A P d a b p :> subst3Ty P a b p)
-  JJCong :  {Γ : Ctx n} {A A' : TyExpr n} {P P' : TyExpr (suc (suc (suc n)))} {d d' : TmExpr (suc n)} {a a' b b' p p' : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A') →  Derivable ((((Γ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)) ⊢ P == P') → Derivable ((Γ , A) ⊢ d == d' :> subst3Ty (weakenTy' (prev (prev (prev last))) P) (var last) (var last) (refl (weakenTy A) (var last))) → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ b == b' :> A) → Derivable (Γ ⊢ p == p' :> id A a b) → Derivable (Γ ⊢ jj A P d a b p == jj A' P' d' a' b' p' :> subst3Ty P a b p)
+--   -- Rules for jj
+--   JJ : {Γ : Ctx n} {A : TyExpr n} {P : TyExpr (suc (suc (suc n)))} {d : TmExpr (suc n)} {a b p : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable ((((Γ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)) ⊢ P) → Derivable ((Γ , A) ⊢ d :> subst3Ty (weakenTy' (prev (prev (prev last))) P) (var last) (var last) (refl (weakenTy A) (var last))) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ b :> A) → Derivable (Γ ⊢ p :> id A a b) → Derivable (Γ ⊢ jj A P d a b p :> subst3Ty P a b p)
+--   JJCong :  {Γ : Ctx n} {A A' : TyExpr n} {P P' : TyExpr (suc (suc (suc n)))} {d d' : TmExpr (suc n)} {a a' b b' p p' : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A') →  Derivable ((((Γ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)) ⊢ P == P') → Derivable ((Γ , A) ⊢ d == d' :> subst3Ty (weakenTy' (prev (prev (prev last))) P) (var last) (var last) (refl (weakenTy A) (var last))) → Derivable (Γ ⊢ a == a' :> A) → Derivable (Γ ⊢ b == b' :> A) → Derivable (Γ ⊢ p == p' :> id A a b) → Derivable (Γ ⊢ jj A P d a b p == jj A' P' d' a' b' p' :> subst3Ty P a b p)
 
 
   -- Beta-reductions
   BetaPi : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n)} {a : TmExpr n}
     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A) ⊢ u :> B) → Derivable (Γ ⊢ a :> A)
     → Derivable (Γ ⊢ app A B (lam A B u) a == substTm u a :> substTy B a)
-  BetaSig1 : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {a : TmExpr n} {b : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ b :> substTy B a) → Derivable (Γ ⊢ pr1 A B (pair A B a b) == a :> A)
-  BetaSig2 : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {a : TmExpr n} {b : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ b :> substTy B a) → Derivable (Γ ⊢ pr2 A B (pair A B a b) == b :> substTy B a)
-  BetaUnit : {Γ : Ctx n} {A : TyExpr (suc n)} {dtt : TmExpr n}
-    → Derivable ((Γ , unit) ⊢ A) → Derivable (Γ ⊢ dtt :> substTy A tt) → Derivable (Γ ⊢ unitelim A dtt tt == dtt :> substTy A tt)
-  BetaNatZero : {Γ : Ctx n} {P : TyExpr (suc n)} {dO : TmExpr n} {dS : TmExpr (suc (suc n))}
-    → Derivable ((Γ , nat) ⊢ P) → Derivable (Γ ⊢ dO :> substTy P zero) → Derivable (((Γ , nat) , P) ⊢ dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) P)) (suc (var (prev last))))
-    → Derivable (Γ ⊢ natelim P dO dS zero == dO :> substTy P zero)
-  BetaNatSuc : {Γ : Ctx n} {P : TyExpr (suc n)} {dO : TmExpr n} {dS : TmExpr (suc (suc n))} {u : TmExpr n}
-    → Derivable ((Γ , nat) ⊢ P) → Derivable (Γ ⊢ dO :> substTy P zero) → Derivable (((Γ , nat) , P) ⊢ dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) P)) (suc (var (prev last)))) → Derivable (Γ ⊢ u :> nat)
-    → Derivable (Γ ⊢ natelim P dO dS (suc u) == subst2Tm dS u (natelim P dO dS u) :> substTy P (suc u))
-  BetaIdRefl : {Γ : Ctx n} {A : TyExpr n} {P : TyExpr (suc (suc (suc n)))} {d : TmExpr (suc n)} {a : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable ((((Γ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)) ⊢ P) → Derivable ((Γ , A) ⊢ d :> subst3Ty (weakenTy' (prev (prev (prev last))) P) (var last) (var last) (refl (weakenTy A) (var last))) → Derivable (Γ ⊢ a :> A)
-    → Derivable (Γ ⊢ jj A P d a a (refl A a) == substTm d a :> subst3Ty P a a (refl A a))
+--   BetaSig1 : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {a : TmExpr n} {b : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ b :> substTy B a) → Derivable (Γ ⊢ pr1 A B (pair A B a b) == a :> A)
+--   BetaSig2 : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {a : TmExpr n} {b : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ b :> substTy B a) → Derivable (Γ ⊢ pr2 A B (pair A B a b) == b :> substTy B a)
+--   BetaUnit : {Γ : Ctx n} {A : TyExpr (suc n)} {dtt : TmExpr n}
+--     → Derivable ((Γ , unit) ⊢ A) → Derivable (Γ ⊢ dtt :> substTy A tt) → Derivable (Γ ⊢ unitelim A dtt tt == dtt :> substTy A tt)
+--   BetaNatZero : {Γ : Ctx n} {P : TyExpr (suc n)} {dO : TmExpr n} {dS : TmExpr (suc (suc n))}
+--     → Derivable ((Γ , nat) ⊢ P) → Derivable (Γ ⊢ dO :> substTy P zero) → Derivable (((Γ , nat) , P) ⊢ dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) P)) (suc (var (prev last))))
+--     → Derivable (Γ ⊢ natelim P dO dS zero == dO :> substTy P zero)
+--   BetaNatSuc : {Γ : Ctx n} {P : TyExpr (suc n)} {dO : TmExpr n} {dS : TmExpr (suc (suc n))} {u : TmExpr n}
+--     → Derivable ((Γ , nat) ⊢ P) → Derivable (Γ ⊢ dO :> substTy P zero) → Derivable (((Γ , nat) , P) ⊢ dS :> substTy (weakenTy' (prev last) (weakenTy' (prev last) P)) (suc (var (prev last)))) → Derivable (Γ ⊢ u :> nat)
+--     → Derivable (Γ ⊢ natelim P dO dS (suc u) == subst2Tm dS u (natelim P dO dS u) :> substTy P (suc u))
+--   BetaIdRefl : {Γ : Ctx n} {A : TyExpr n} {P : TyExpr (suc (suc (suc n)))} {d : TmExpr (suc n)} {a : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable ((((Γ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)) ⊢ P) → Derivable ((Γ , A) ⊢ d :> subst3Ty (weakenTy' (prev (prev (prev last))) P) (var last) (var last) (refl (weakenTy A) (var last))) → Derivable (Γ ⊢ a :> A)
+--     → Derivable (Γ ⊢ jj A P d a a (refl A a) == substTm d a :> subst3Ty P a a (refl A a))
 
   -- Eta-equivalences
   EtaPi : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {f : TmExpr n}
     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ f :> pi A B)
     → Derivable (Γ ⊢ f == lam A B (app (weakenTy A) (weakenTy' (prev last) B) (weakenTm f) (var last)) :> pi A B)
-  EtaSig : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr n}
-    → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ u :> sig A B)
-    → Derivable (Γ ⊢ u == pair A B (pr1 A B u) (pr2 A B u) :> sig A B)
+--   EtaSig : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr n}
+--     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ u :> sig A B)
+--     → Derivable (Γ ⊢ u == pair A B (pr1 A B u) (pr2 A B u) :> sig A B)
 
 {- Derivability of contexts, context equality, context morphisms, and context morphism equality -}
 
@@ -364,35 +364,35 @@ TmRefl : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ u :> A
 TyRefl (Pi dA dB) = PiCong dA (TyRefl dA) (TyRefl dB)
 TyRefl UU = UUCong
 TyRefl (El dv) = ElCong (TmRefl dv)
-TyRefl (Sig dA dB) = SigCong dA (TyRefl dA) (TyRefl dB)
-TyRefl Empty = EmptyCong
-TyRefl Unit = UnitCong
-TyRefl Nat = NatCong
-TyRefl (Id dA da db) = IdCong (TyRefl dA) (TmRefl da) (TmRefl db)
+-- TyRefl (Sig dA dB) = SigCong dA (TyRefl dA) (TyRefl dB)
+-- TyRefl Empty = EmptyCong
+-- TyRefl Unit = UnitCong
+-- TyRefl Nat = NatCong
+-- TyRefl (Id dA da db) = IdCong (TyRefl dA) (TmRefl da) (TmRefl db)
 
 TmRefl (VarLast dA) = VarLastCong dA
 TmRefl (VarPrev dA dk) = VarPrevCong dA (TmRefl dk) 
 TmRefl (Conv dA du dA=) = ConvEq dA (TmRefl du) dA=
 TmRefl (Lam dA dB du) = LamCong dA (TyRefl dA) (TyRefl dB) (TmRefl du)
 TmRefl (App dA dB df da) = AppCong dA (TyRefl dA) (TyRefl dB) (TmRefl df) (TmRefl da)
-TmRefl UUUU = UUUUCong
-TmRefl (PiUU da db) = PiUUCong da (TmRefl da) (TmRefl db)
-TmRefl (SigUU da db) = SigUUCong da (TmRefl da) (TmRefl db)
-TmRefl (Pair dA dB du dv) = PairCong dA (TyRefl dA) (TyRefl dB) (TmRefl du) (TmRefl dv)
-TmRefl (Pr1 dA dB du) = Pr1Cong dA (TyRefl dA) (TyRefl dB) (TmRefl du)
-TmRefl (Pr2 dA dB du) = Pr2Cong dA (TyRefl dA) (TyRefl dB) (TmRefl du)
-TmRefl EmptyUU = EmptyUUCong
-TmRefl (Emptyelim dA du) = EmptyelimCong (TyRefl dA) (TmRefl du)
-TmRefl UnitUU = UnitUUCong
-TmRefl TT = TTCong
-TmRefl (Unitelim dA ddtt du) = UnitelimCong (TyRefl dA) (TmRefl ddtt) (TmRefl du)
-TmRefl NatUU = NatUUCong
-TmRefl Zero = ZeroCong
-TmRefl (Suc du) = SucCong (TmRefl du)
-TmRefl (Natelim dP ddO ddS du) = NatelimCong dP (TyRefl dP) (TmRefl ddO) (TmRefl ddS) (TmRefl du)
-TmRefl (IdUU da du dv) = IdUUCong (TmRefl da) (TmRefl du) (TmRefl dv)
-TmRefl (Refl dA da) = ReflCong (TyRefl dA) (TmRefl da)
-TmRefl (JJ dA dP dd da db dp) = JJCong dA (TyRefl dA) (TyRefl dP) (TmRefl dd) (TmRefl da) (TmRefl db) (TmRefl dp) 
+-- TmRefl UUUU = UUUUCong
+-- TmRefl (PiUU da db) = PiUUCong da (TmRefl da) (TmRefl db)
+-- TmRefl (SigUU da db) = SigUUCong da (TmRefl da) (TmRefl db)
+-- TmRefl (Pair dA dB du dv) = PairCong dA (TyRefl dA) (TyRefl dB) (TmRefl du) (TmRefl dv)
+-- TmRefl (Pr1 dA dB du) = Pr1Cong dA (TyRefl dA) (TyRefl dB) (TmRefl du)
+-- TmRefl (Pr2 dA dB du) = Pr2Cong dA (TyRefl dA) (TyRefl dB) (TmRefl du)
+-- TmRefl EmptyUU = EmptyUUCong
+-- TmRefl (Emptyelim dA du) = EmptyelimCong (TyRefl dA) (TmRefl du)
+-- TmRefl UnitUU = UnitUUCong
+-- TmRefl TT = TTCong
+-- TmRefl (Unitelim dA ddtt du) = UnitelimCong (TyRefl dA) (TmRefl ddtt) (TmRefl du)
+-- TmRefl NatUU = NatUUCong
+-- TmRefl Zero = ZeroCong
+-- TmRefl (Suc du) = SucCong (TmRefl du)
+-- TmRefl (Natelim dP ddO ddS du) = NatelimCong dP (TyRefl dP) (TmRefl ddO) (TmRefl ddS) (TmRefl du)
+-- TmRefl (IdUU da du dv) = IdUUCong (TmRefl da) (TmRefl du) (TmRefl dv)
+-- TmRefl (Refl dA da) = ReflCong (TyRefl dA) (TmRefl da)
+-- TmRefl (JJ dA dP dd da db dp) = JJCong dA (TyRefl dA) (TyRefl dP) (TmRefl dd) (TmRefl da) (TmRefl db) (TmRefl dp) 
 
 
 congTyRefl : {Γ : Ctx n} {A A' : TyExpr n} → Derivable (Γ ⊢ A) → A ≡ A' → Derivable (Γ ⊢ A == A')
