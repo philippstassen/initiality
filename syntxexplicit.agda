@@ -173,33 +173,33 @@ weakenCommutesTm' : {n : ℕ} (m : ℕ) (k : ΣS ℕ (λ k → k < suc n)) (l : 
 weakenCommutesTy' m k l (uu i) p = reflR
 weakenCommutesTy' m k l (el i v) p = ΣSS= (apR-el-Ty reflR (sndΣSSℕR (weakenCommutesTm' m k l v p)))
 weakenCommutesTy' m k l (pi A B) p = ΣSS= (apR-pi-Ty (sndΣSSℕR (weakenCommutesTy' m k l A p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) B (apR suc p R∙ n+suc _ m))))
-weakenCommutesTy' m k l (sig A B) p = ΣSS= (apR-sig-Ty (sndΣSSℕR (weakenCommutesTy' m k l A p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) B (apR suc p R∙ n+suc _ m))))
-weakenCommutesTy' m k l empty p = reflR
-weakenCommutesTy' m k l unit p = reflR
-weakenCommutesTy' m k l (nat) p = reflR
-weakenCommutesTy' m k l (id A u v) p = ΣSS= (apR-id-Ty (sndΣSSℕR (weakenCommutesTy' m k l A p)) (sndΣSSℕR (weakenCommutesTm' m k l u p)) (sndΣSSℕR (weakenCommutesTm' m k l v p)))
+-- weakenCommutesTy' m k l (sig A B) p = ΣSS= (apR-sig-Ty (sndΣSSℕR (weakenCommutesTy' m k l A p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) B (apR suc p R∙ n+suc _ m))))
+-- weakenCommutesTy' m k l empty p = reflR
+-- weakenCommutesTy' m k l unit p = reflR
+-- weakenCommutesTy' m k l (nat) p = reflR
+-- weakenCommutesTy' m k l (id A u v) p = ΣSS= (apR-id-Ty (sndΣSSℕR (weakenCommutesTy' m k l A p)) (sndΣSSℕR (weakenCommutesTm' m k l u p)) (sndΣSSℕR (weakenCommutesTm' m k l v p)))
 
 weakenCommutesTm' m k l (var x) p = weakenCommutesVar' m l k x p
-weakenCommutesTm' m k l (uu i) p = reflR
-weakenCommutesTm' m k l (pi i a b) p = ΣSS= (apR-pi-Tm reflR (sndΣSSℕR (weakenCommutesTm' m k l (a) p)) (sndΣSSℕR (weakenCommutesTm' (suc m) k (suc l) (b) (apR suc p R∙ n+suc _ m))))
+-- weakenCommutesTm' m k l (uu i) p = reflR
+-- weakenCommutesTm' m k l (pi i a b) p = ΣSS= (apR-pi-Tm reflR (sndΣSSℕR (weakenCommutesTm' m k l (a) p)) (sndΣSSℕR (weakenCommutesTm' (suc m) k (suc l) (b) (apR suc p R∙ n+suc _ m))))
 weakenCommutesTm' m k l (lam A B u) p = ΣSS= (apR-lam-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' (suc m) k (suc l) (u) (apR suc p R∙ n+suc _ m))))
 weakenCommutesTm' m k l (app A B f a) p = ΣSS= (apR-app-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (f) p)) (sndΣSSℕR (weakenCommutesTm' m k l (a) p)))
-weakenCommutesTm' m k l (sig i a b) p = ΣSS= (apR-sig-Tm reflR (sndΣSSℕR (weakenCommutesTm' m k l (a) p)) (sndΣSSℕR (weakenCommutesTm' (suc m) k (suc l) (b) (apR suc p R∙ n+suc _ m))))
-weakenCommutesTm' m k l (pair A B a b) p = ΣSS= (apR-pair-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (a) p)) (sndΣSSℕR (weakenCommutesTm' m k l (b) p)))
-weakenCommutesTm' m k l (pr1 A B u) p = ΣSS= (apR-pr1-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)))
-weakenCommutesTm' m k l (pr2 A B u) p = ΣSS= (apR-pr2-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)))
-weakenCommutesTm' m k l (empty i) p = reflR
-weakenCommutesTm' m k l (emptyelim A u) p = ΣSS= (apR-emptyelim-Tm (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) A (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l u p)))
-weakenCommutesTm' m k l (unit i) p = reflR
-weakenCommutesTm' m k l (unitelim A dtt u) p = ΣSS= (apR-unitelim-Tm (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) A (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l dtt p)) (sndΣSSℕR (weakenCommutesTm' m k l u p)))
-weakenCommutesTm' m k l tt p = reflR
-weakenCommutesTm' m k l (nat i) p = reflR
-weakenCommutesTm' m k l (zero) p = reflR 
-weakenCommutesTm' m k l (suc x) p = ΣSS= (apR-suc-Tm (sndΣSSℕR (weakenCommutesTm' m k l (x) p)))
-weakenCommutesTm' m k l (natelim P d0 dS u) p = ΣSS= (apR-natelim-Tm (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (P) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (d0) p)) (sndΣSSℕR (weakenCommutesTm' (suc (suc m)) k (suc (suc l)) dS (apR suc (apR suc p) R∙  apR suc (n+suc _ m) R∙ n+suc _ (suc m)))) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)))
-weakenCommutesTm' m k l (id i a u v) p = ΣSS= (apR-id-Tm reflR (sndΣSSℕR (weakenCommutesTm' m k l (a) p)) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)) (sndΣSSℕR (weakenCommutesTm' m k l (v) p)))
-weakenCommutesTm' m k l (refl A a) p = ΣSS= (apR-refl-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTm' m k l (a) p)))
-weakenCommutesTm' m k l (jj A P d a b p) q = ΣSS= (apR-jj-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) q)) (sndΣSSℕR (weakenCommutesTy' (suc (suc (suc m))) k (suc (suc (suc l))) P (apR suc (apR suc (apR suc q)) R∙ (apR suc (apR suc (n+suc _ m)) R∙ apR suc (n+suc _ (suc m))) R∙ (n+suc _ (suc (suc m)))))) (sndΣSSℕR (weakenCommutesTm' (suc m) k (suc l) (d) (apR suc q R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (a) q)) (sndΣSSℕR (weakenCommutesTm' m k l (b) q)) (sndΣSSℕR (weakenCommutesTm' m k l (p) q)))
+-- weakenCommutesTm' m k l (sig i a b) p = ΣSS= (apR-sig-Tm reflR (sndΣSSℕR (weakenCommutesTm' m k l (a) p)) (sndΣSSℕR (weakenCommutesTm' (suc m) k (suc l) (b) (apR suc p R∙ n+suc _ m))))
+-- weakenCommutesTm' m k l (pair A B a b) p = ΣSS= (apR-pair-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (a) p)) (sndΣSSℕR (weakenCommutesTm' m k l (b) p)))
+-- weakenCommutesTm' m k l (pr1 A B u) p = ΣSS= (apR-pr1-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)))
+-- weakenCommutesTm' m k l (pr2 A B u) p = ΣSS= (apR-pr2-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)))
+-- weakenCommutesTm' m k l (empty i) p = reflR
+-- weakenCommutesTm' m k l (emptyelim A u) p = ΣSS= (apR-emptyelim-Tm (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) A (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l u p)))
+-- weakenCommutesTm' m k l (unit i) p = reflR
+-- weakenCommutesTm' m k l (unitelim A dtt u) p = ΣSS= (apR-unitelim-Tm (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) A (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l dtt p)) (sndΣSSℕR (weakenCommutesTm' m k l u p)))
+-- weakenCommutesTm' m k l tt p = reflR
+-- weakenCommutesTm' m k l (nat i) p = reflR
+-- weakenCommutesTm' m k l (zero) p = reflR 
+-- weakenCommutesTm' m k l (suc x) p = ΣSS= (apR-suc-Tm (sndΣSSℕR (weakenCommutesTm' m k l (x) p)))
+-- weakenCommutesTm' m k l (natelim P d0 dS u) p = ΣSS= (apR-natelim-Tm (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (P) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (d0) p)) (sndΣSSℕR (weakenCommutesTm' (suc (suc m)) k (suc (suc l)) dS (apR suc (apR suc p) R∙  apR suc (n+suc _ m) R∙ n+suc _ (suc m)))) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)))
+-- weakenCommutesTm' m k l (id i a u v) p = ΣSS= (apR-id-Tm reflR (sndΣSSℕR (weakenCommutesTm' m k l (a) p)) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)) (sndΣSSℕR (weakenCommutesTm' m k l (v) p)))
+-- weakenCommutesTm' m k l (refl A a) p = ΣSS= (apR-refl-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTm' m k l (a) p)))
+-- weakenCommutesTm' m k l (jj A P d a b p) q = ΣSS= (apR-jj-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) q)) (sndΣSSℕR (weakenCommutesTy' (suc (suc (suc m))) k (suc (suc (suc l))) P (apR suc (apR suc (apR suc q)) R∙ (apR suc (apR suc (n+suc _ m)) R∙ apR suc (n+suc _ (suc m))) R∙ (n+suc _ (suc (suc m)))))) (sndΣSSℕR (weakenCommutesTm' (suc m) k (suc l) (d) (apR suc q R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (a) q)) (sndΣSSℕR (weakenCommutesTm' m k l (b) q)) (sndΣSSℕR (weakenCommutesTm' m k l (p) q)))
 weakenCommutesTm' m k l (coerc S T u) p = ΣSS= (apR-coerc-Tm (sndΣSSℕR (weakenCommutesTy' m k l (S) p)) (sndΣSSℕR (weakenCommutesTy' m k l (T) p)) (sndΣSSℕR (weakenCommutesTm' m k l (u) p)))
 
 
