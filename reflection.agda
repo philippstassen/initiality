@@ -254,6 +254,13 @@ iterate 0 f t = t
 iterate (suc n) f t = f (earg (iterate n f t) ∷ [])
 
 -- ≡R
+makeArgsR : (Name → ℕ → ℕ → Arg Term) → (ℕ → Type → List (Arg Term))
+makeArgsR body n (pi (arg i (def T (k ∷ _))) (abs s B)) =
+  body T n (depth k) ∷ makeArgsR body (n - 1) B
+makeArgsR body n (pi (arg (arg-info visible _) _) (abs s B)) =
+  earg (con (quote _≡R_.reflR) []) ∷ makeArgsR body (n - 1) B
+makeArgsR body n (pi _ (abs s B)) = makeArgsR body (n - 1) B
+makeArgsR body n _ = []
 
 generate-typeR : ℕ → Name → Type → Type
 generate-typeR n s (pi (arg ai A) (abs x B)) =
@@ -288,7 +295,7 @@ corresponding-apR : List (Name ×R Name)
 unquoteDef corresponding-apR = iterateExpr corresponding-apR generate-apR
 
 apRify : (Name → ℕ → ℕ → Arg Term) → (ℕ → Name → Term → Term)
-apRify body l c tyC = def (lookup corresponding-apR c) (makeArgs body (l - 1) tyC)
+apRify body l c tyC = def (lookup corresponding-apR c) (makeArgsR body (l - 1) tyC)
 
 
 unquoteDecl apR-var-Tm = generate-apR (quote TmExpr.var) apR-var-Tm
