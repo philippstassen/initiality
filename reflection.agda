@@ -283,6 +283,12 @@ generate-apR s res = do
   _ ← declareDef (earg res) (pi A (abs y (generate-typeR 0 s ts)))
   _ ← defineFun res (clause (generate-patternR ts) (con (quote _≡R_.reflR) []) ∷ [])
   return _
+{- added proof relevant apRify -}
+corresponding-apR : List (Name ×R Name)
+unquoteDef corresponding-apR = iterateExpr corresponding-apR generate-apR
+
+apRify : (Name → ℕ → ℕ → Arg Term) → (ℕ → Name → Term → Term)
+apRify body l c tyC = def (lookup corresponding-apR c) (makeArgs body (l - 1) tyC)
 
 
 unquoteDecl apR-var-Tm = generate-apR (quote TmExpr.var) apR-var-Tm
