@@ -755,3 +755,11 @@ weakenMor-to-[]Mor {δ = δ} = ap weakenMor (! ([idMor]Mor _)) ∙ weaken[]Mor �
 
 ap-[]Ty : {A A' : TyExpr n} {δ δ' : Mor m n} → A ≡ A' → δ ≡ δ' → A [ δ ]Ty ≡ A' [ δ' ]Ty
 ap-[]Ty refl refl = refl
+
+-- Explicit syntax
+-- Term of a type is uniquely determined by context
+getTy : {n : ℕ} → (Γ : Ctx (n)) → (u : TmExpr n) → TyExpr n
+getTy (Γ , A) (var last) = weakenTy A
+getTy (Γ , A) (var (prev x)) = weakenTy (getTy Γ (var x))
+getTy Γ (lam A B u) = pi A B
+getTy Γ (app A B u u₁) = substTy B u₁
