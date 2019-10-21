@@ -10,6 +10,7 @@ open import Agda.Builtin.Bool public
 data _≡R_ {l} {A : Set l} (a : A) : A → Set l where
   reflR : a ≡R a
 
+infix 4 _≡R_
 
 _R∙_ : ∀ {l} {A : Set l} {a b c : A} →  a ≡R b → b ≡R c → a ≡R c
 _R∙_ reflR reflR = reflR
