@@ -1,7 +1,7 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
 
 open import Agda.Primitive public
-open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_; _<_)
+open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_) renaming (_<_ to _<ₙ_)
 open import Agda.Builtin.List public
 open import Agda.Builtin.Bool public
 
