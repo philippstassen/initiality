@@ -29,3 +29,14 @@ TmTy dΓ (App {Γ = Γ} {A = A} du du₁ du₂ du₃) = SubstTy {Δ = Γ , A} du
 -- TmTy dΓ (IdUU du du₁ du₂) = UU
 -- TmTy dΓ (Refl du du₁) = Id du du₁ du₁
 -- TmTy dΓ (JJ {A = A} {P = P} {a = a} {b = b} du du₁ du₂ du₃ du₄ du₅) = SubstTy du₁ (((((idMorDerivable dΓ) , congTmTy! ([idMor]Ty _) du₃) , congTmTy! (weakenTyInsert A (idMor _) a) (congTmTy! ([idMor]Ty _) du₄) ) , congTmTy! (ap-id-Ty (subst2Ty-weakenTy) refl refl) du₅))
+
+TmEqTy : {Γ : Ctx n} {A : TyExpr n} {u v : TmExpr n} → (⊢ Γ) → Derivable (Γ ⊢ u == v :> A) → Derivable (Γ ⊢ A)
+TmEqTy dΓ (VarLastCong du=) = WeakTy du=
+TmEqTy dΓ (VarPrevCong du= du=₁) = WeakTy du=
+TmEqTy dΓ (TmSymm du=) = TmEqTy dΓ du=
+TmEqTy dΓ (TmTran du= du=₁ du=₂) = TmTy dΓ du=
+TmEqTy dΓ (ConvEq du= du=₁ du=₂) = {!!}
+TmEqTy dΓ (LamCong du= du=₁ du=₂ du=₃) = {!!}
+TmEqTy dΓ (AppCong du= du=₁ du=₂ du=₃ du=₄) = {!!}
+TmEqTy dΓ (BetaPi du= du=₁ du=₂ du=₃) = {!!}
+TmEqTy dΓ (EtaPi du= du=₁ du=₂) = {!!}
