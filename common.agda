@@ -398,3 +398,22 @@ axiomK-nat n p = nat-is-set n n p reflR
 --This allows one to proof the following about sigma types where the first component is n:ℕ
 sndΣSSℕR : {B : ℕ → Set } {n : ℕ} {b b' : B n} → ΣSS._,_ {B = B} n b ≡R (n , b') → b ≡R b'
 sndΣSSℕR {B = B} {n} {b} {b'} p = apR (transportR {B = B} b) (!R (axiomK-nat n (fst (characΣSS= p)))) R∙ (snd (characΣSS= p)) 
+
+{- additional lemmas for < needed for reconstruction function explicit syntax -}
+<-+m : (n m l : ℕ) → (n + m) < l → n < l
+<-+m n zero l p rewrite ! (+-zero n) = p
+<-+m n (suc m) (suc l) p rewrite ! (+-suc n m)= <-suc (<-+m n m l (suc-ref-< p))
+
+<-+m' : (n m l : ℕ) → (n + m) < l → m < l
+<-+m' zero m l p = p
+<-+m' (suc n) m (suc l) p = <-suc (<-+m' n m l (suc-ref-< p))
+
+<-+m^2 : (n n₁ n₂ m : ℕ) → (n + n₁ + n₂) < m → n < m
+<-+m^2 n n₁ n₂ m p rewrite (+-assoc n n₁ n₂) = <-+m n (n₁ + n₂) m p
+
+<-+m^21 : (n n₁ n₂ m : ℕ) → (n + n₁ + n₂) < m → n₁ < m
+<-+m^21 n n₁ n₂ m p rewrite (+-assoc n n₁ n₂) = <-+m n₁ n₂ m (<-+m' n (n₁ + n₂) m p)
+
+<-+m^22 : (n n₁ n₂ m : ℕ) → (n + n₁ + n₂) < m → n₂ < m
+<-+m^22 n n₁ n₂ m p = <-+m' (n + n₁) n₂ m p
+
