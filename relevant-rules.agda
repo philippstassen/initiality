@@ -366,6 +366,10 @@ WeakTyEq' : {k : Fin (suc n)} {Γ : Ctx n} {T : TyExpr (n -F' k)} {A A' : TyExpr
 WeakTmEq' : {k : Fin (suc n)} {Γ : Ctx n} {T : TyExpr (n -F' k)} {u u' : TmExpr n} {A : TyExpr n}
      → Derivable' (Γ ⊢ u == u' :> A) → Derivable' (weakenCtx k Γ T ⊢ weakenTm' k u == weakenTm' k u' :> weakenTy' k A)
 
+WeakCtxR : {k : Fin (suc n)} {Γ : Ctx n} {T : TyExpr (n -F' k)} → ⊢R Γ → Derivable' (cutCtx k Γ ⊢ T) → ⊢R (weakenCtx k Γ T)
+WeakCtxR {k = last} {Γ} dΓ dT = dΓ , dT
+WeakCtxR {k = (prev k)} {Γ = Γ , A} dΓ dT = WeakCtxR {k = k} (fst dΓ) dT , WeakTy' (snd dΓ)
+
 WeakMorR : {Γ : Ctx n} {Δ : Ctx m} {T : TyExpr n} {δ : Mor n m} → Γ ⊢R δ ∷> Δ → (Γ , T) ⊢R weakenMor δ ∷> Δ
 WeakMorR {Δ = ◇} {δ = ◇} starU = starU
 WeakMorR {Δ = Δ , B} {δ = δ , u} (dδ , du) = (WeakMorR dδ , congTmTyR (weaken[]TyR _ _ _) (WeakTm' du))
@@ -599,3 +603,13 @@ squashJdg (EtaPi j j₁ j₂) = EtaPi (squashJdg j) (squashJdg j₁) (squashJdg 
 squashCtx : (Γ : Ctx n) → (⊢R_ Γ) → ⊢ Γ
 squashCtx ◇ dΓ = tt
 squashCtx (Γ , A) dΓ = (squashCtx Γ (fst dΓ)) , (squashJdg (snd dΓ))
+
+-- Metatheorems
+TmTyR : {Γ : Ctx n} {A : TyExpr n} {u : TmExpr n} → (⊢R Γ) → Derivable' (Γ ⊢ u :> A) → Derivable' (Γ ⊢ A)
+TmTyR dΓ (VarLast du) = WeakTy' du
+TmTyR dΓ (VarPrev du du₁) = WeakTy' du
+TmTyR dΓ (Conv du du₁ du₂) = TyEqTy2R dΓ du₂
+-- TmTy dΓ UUUU = UU
+-- TmTy dΓ (PiUU du du₁) = UU
+TmTyR dΓ (Lam du du₁ du₂) = Pi du du₁
+TmTyR dΓ (App {Γ = Γ} {A = A} du du₁ du₂ du₃) = SubstTyR {Δ = Γ , A} du₁ ((idMorDerivableR dΓ) , congTmTyR! ([idMor]TyR _) du₃) 
