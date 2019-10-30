@@ -439,6 +439,9 @@ WeakMor : {Γ : Ctx n} {Δ : Ctx m} {T : TyExpr n} {δ : Mor n m} → Γ ⊢ δ 
 WeakMor {Δ = ◇} {δ = ◇} tt = tt
 WeakMor {Δ = Δ , B} {δ = δ , u} (dδ , du) = (WeakMor dδ , congTmTy (weaken[]Ty _ _ _) (WeakTm du))
 
+-- with (B [ weakenMor' last δ ]Ty) | ! (weaken[]Ty B δ last)
+-- WeakMor {Δ = Δ , B} {δ = δ , u} (dδ , du) | .(weakenTy' last (B [ δ ]Ty)) | refl = {!!}
+
 WeakMorEq : {Γ : Ctx n } {Δ : Ctx m} {T : TyExpr n} {δ δ' : Mor n m} → (Γ ⊢ δ == δ' ∷> Δ) → ((Γ , T) ⊢ weakenMor δ == weakenMor δ' ∷> Δ)
 WeakMorEq {Δ = ◇} {δ = ◇} {◇} dδ = tt
 WeakMorEq {Δ = Δ , B} {δ = δ , u} {δ' , u'} (dδ , du) = (WeakMorEq dδ , congTmEqTy (weaken[]Ty _ _ _) (WeakTmEq du))
