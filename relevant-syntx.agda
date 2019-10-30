@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K -v tc.unquote:10 #-}
 
 open import common renaming (Unit to metaUnit) renaming (UnitR to metaUnitR)
 open import typetheory
