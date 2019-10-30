@@ -57,6 +57,9 @@ SizeDer (AppCong dj dj₁ dj₂ dj₃ dj₄) =  suc (SizeDer (dj) + SizeDer (dj�
 SizeDer (BetaPi dj dj₁ dj₂ dj₃) =  suc (SizeDer (dj) + SizeDer (dj₁) + SizeDer (dj₂) + SizeDer (dj₃))
 SizeDer (EtaPi dj dj₁ dj₂) = suc (SizeDer (dj) + SizeDer (dj₁) + SizeDer (dj₂))
 
+congRespSize : {jdg : Judgment} → (dj : Derivable' (jdg)) {dj₁ : Derivable' (jdg)} → dj ≡ dj₁ → SizeDer dj ≡ SizeDer dj₁
+congRespSize dj refl = refl
+
 SizeTyEqTy1R : {A B : TyExpr n} {Γ : Ctx n} {m : ℕ} → (dΓ : ⊢R Γ) → (dA= : Derivable' (Γ ⊢ A == B)) → SizeDer (dA=) < m → SizeDer (TyEqTy1R dΓ dA=) < m
 SizeTyEqTy2R : {A B : TyExpr n} {Γ : Ctx n} → (dΓ : ⊢R Γ) → (dA= : Derivable' (Γ ⊢ A == B)) → SizeDer (dA=) < m → SizeDer (TyEqTy2R dΓ dA=) < m
 SizeTmEqTm1R : {u v : TmExpr n} {A : TyExpr n} {Γ : Ctx n} {m : ℕ} → (dΓ : ⊢R Γ) → (du= : Derivable' (Γ ⊢ u == v :> A)) → SizeDer (du=) < m → SizeDer (TmEqTm1R dΓ du=) < m
@@ -145,12 +148,15 @@ constrMor : {n m : ℕ} {Γ : Ctx n} {Δ : Ctx m} → (δ : Mor n m) → ⊢R Γ
 constrMor ◇ dΓ dδ = ex.◇
 constrMor {Γ = Γ} {Δ = Δ , A} (δ , u) dΓ dδ = (constrMor {Γ = Γ} {Δ = Δ} δ dΓ (fst dδ)) ex., constrTm (suc (SizeDer (snd dδ))) u dΓ (snd dδ) <-refl
 
-constrTmComm-weakenTm' : {Γ : Ctx n} {u : TmExpr n} {k : Fin (suc n)} {A : TyExpr (n -F' k)} → (dΓ : ⊢R Γ) → (du : Derivable' (Γ ⊢ u :> A)) → ΣSS ℕ (λ m → (constrTm m (weakenTm' k u) dΓ (WeakTm' du) <-refl ≡ ex.weakenTm' k (constrTm m u dΓ du)))
-constrTmComm-weakenTm' k dΓ du = ?
+constrTmComm-weakenTm' : {Γ : Ctx n} {u : TmExpr n} {k : Fin (suc n)} {T : TyExpr (n -F' k)} {A : TyExpr n} → (dΓ : ⊢R Γ) → (dT : Derivable' (cutCtx k Γ ⊢ T)) → (du : Derivable' (Γ ⊢ u :> A)) → constrTm (suc (SizeDer (WeakTm' du))) (weakenTm' k u) (WeakCtxR {k = k} {Γ = Γ} {T = T} dΓ dT) (WeakTm' {k = k} {Γ = Γ} {T = T} du) <-refl ≡R ex.weakenTm' k (constrTm (suc (SizeDer du)) u dΓ du <-refl)
+constrTmComm-weakenTm' dΓ du du₁ = {!!}
 
 constrMorComm-weakenMor : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr n} {δ : Mor n m} → (dΓ : ⊢R Γ) → (dA : Derivable' (Γ ⊢ A)) → (dδ : Γ ⊢R δ ∷> Δ) → constrMor (weakenMor (δ)) (dΓ , dA) (WeakMorR dδ) ≡ ex.weakenMor (constrMor δ dΓ dδ)
 constrMorComm-weakenMor {Γ = Γ} {Δ = ◇} {A} {◇} dΓ dA dδ = refl
-constrMorComm-weakenMor {Γ = Γ} {Δ , A₁} {A} {δ , u} dΓ dA dδ = ex.Mor+= (constrMorComm-weakenMor dΓ dA (fst dδ)) {!!}
+constrMorComm-weakenMor {Γ = Γ} {Δ , A₁} {A} {δ , u} dΓ dA dδ = ex.Mor+= {!constrMorComm-weakenMor ?!} {!!}
+-- ex.Mor+= (constrMorComm-weakenMor dΓ dA (fst dδ)) {!!} ∙ {!!}
+-- (ap (λ dj → constrTm (suc (SizeDer (dj))) (weakenTm' last u) (dΓ , dA) dj <-refl) {a = congTmTyR (weaken[]TyR A₁ δ last) (WeakTm' (snd dδ))} {!!} ∙ {!!})
+-- rewrite CongTmR {Γ = Γ , A} {A = weakenTy' last (A₁ [ δ ]Ty) } {B = A₁ [ weakenMor' last δ ]Ty} {u = weakenTm' last u} reflR (weaken[]TyR A₁ δ last) reflR
 
 idMorisidMor : {n : ℕ} {Γ : Ctx n} → (dΓ : ⊢R Γ) → constrMor (idMor n) dΓ (idMorDerivableR dΓ) ≡ ex.idMor n
 idMorisidMor {zero} dΓ = refl
@@ -174,7 +180,8 @@ constrJdg ((Γ , A) ⊢ (var last) :> .(weakenTy' last A)) ctx (VarLast dj) = (c
 constrJdg ((Γ , A) ⊢ (var (prev k)) :> .(weakenTy' last _)) ctx (VarPrev dj dj₁) =  (constrCtx (Γ , _) ctx) ⊢ₑ ex.var (prev k) :> ex.weakenTy (constrTy (suc (SizeDer dj)) _ (fst ctx) (dj) (<-refl))
 constrJdg (Γ ⊢ x :> x₁) ctx (Conv dj dj₁ dj₂) = constrCtx Γ ctx ⊢ₑ constrTm (suc (SizeDer (Conv dj dj₁ dj₂))) x ctx (Conv dj dj₁ dj₂) <-refl :> constrTy (suc (SizeDer (TyEqTy2R ctx dj₂))) x₁ ctx ( TyEqTy2R ctx dj₂) <-refl 
 constrJdg (Γ ⊢ (lam A B u) :> (pi A B)) ctx (Lam dj dj₁ dj₂) = constrCtx Γ ctx ⊢ₑ constrTm (suc (SizeDer (Lam dj dj₁ dj₂))) (lam A B u) ctx (Lam dj dj₁ dj₂) <-refl :> constrTy (suc (SizeDer (Pi dj dj₁))) (pi A B) ctx (Pi dj dj₁) <-refl
-constrJdg (Γ ⊢ (app A B u v) :> .(substTy B v)) ctx (App dj dj₁ dj₂ dj₃) = constrCtx Γ ctx ⊢ₑ constrTm (suc (SizeDer (App dj dj₁ dj₂ dj₃))) (app A B u v) ctx (App dj dj₁ dj₂ dj₃) <-refl :> constrTy {!!} {!!} {!!} {!!} {!!}
+constrJdg (Γ ⊢ (app A B u v) :> .(substTy B v)) ctx (App dj dj₁ dj₂ dj₃) = constrCtx Γ ctx ⊢ₑ constrTm (suc (SizeDer (App dj dj₁ dj₂ dj₃))) (app A B u v) ctx (App dj dj₁ dj₂ dj₃) <-refl :> {!!}
+-- constrTy {!!} {!!} {!!} {!!} {!!}
 constrJdg (Γ ⊢ x == x₁) ctx dj = constrCtx Γ ctx ⊢ₑ constrTy (suc (SizeDer dj)) x ctx (TyEqTy1R ctx dj) (SizeTyEqTy1R ctx dj <-refl) ==  constrTy (suc (SizeDer dj)) x₁ ctx (TyEqTy2R ctx dj) (SizeTyEqTy2R ctx dj <-refl)
 constrJdg (Γ ⊢ x == x₁ :> x₂) ctx dj = constrCtx Γ ctx ⊢ₑ constrTm (suc (SizeDer dj)) x ctx (TmEqTm1R ctx dj) (SizeTmEqTm1R ctx dj <-refl) ==  constrTm (suc (SizeDer dj)) x₁ ctx (TmEqTm2R ctx dj) (SizeTmEqTm2R ctx dj <-refl) :> constrTy {!!} x₂ ctx {!!} {!!}
 
