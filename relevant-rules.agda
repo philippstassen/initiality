@@ -320,6 +320,10 @@ congTmEqR reflR reflR reflR du= = du=
 congTmEqR! : {Γ : Ctx n} {A A' : TyExpr n} {u u' v v' : TmExpr n} → v ≡R u → v' ≡R u' → A' ≡R A → Derivable' (Γ ⊢ u == u' :> A) → Derivable' (Γ ⊢ v == v' :> A')
 congTmEqR! reflR reflR reflR du= = du=
 
+-- new congruences
+CongTmR : {Γ Δ : Ctx n} {A B : TyExpr n} {u v : TmExpr n} → Γ ≡R Δ → A ≡R B → u ≡R v → Derivable' (Γ ⊢ u :> A) ≡ Derivable' (Δ ⊢ v :> B)
+CongTmR reflR reflR reflR = refl
+
 -- Reflexivity rules for the proof relevant derivations
 TyRefl' : {Γ : Ctx n} {A : TyExpr n} → Derivable' (Γ ⊢ A) → Derivable' (Γ ⊢ A == A)
 TmRefl' : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable' (Γ ⊢ u :> A) → Derivable' (Γ ⊢ u == u :> A)
@@ -372,7 +376,15 @@ WeakCtxR {k = (prev k)} {Γ = Γ , A} dΓ dT = WeakCtxR {k = k} (fst dΓ) dT , W
 
 WeakMorR : {Γ : Ctx n} {Δ : Ctx m} {T : TyExpr n} {δ : Mor n m} → Γ ⊢R δ ∷> Δ → (Γ , T) ⊢R weakenMor δ ∷> Δ
 WeakMorR {Δ = ◇} {δ = ◇} starU = starU
-WeakMorR {Δ = Δ , B} {δ = δ , u} (dδ , du) = (WeakMorR dδ , congTmTyR (weaken[]TyR _ _ _) (WeakTm' du))
+WeakMorR {Γ = Γ} {Δ = Δ , B} {T = T} {δ = δ , u} (dδ , du) with (B [ weakenMor' last δ ]Ty) | !R (weaken[]TyR B δ last)
+WeakMorR {Δ = Δ , B} {δ = δ , u} (dδ , du) | .(weakenTy' last (B [ δ ]Ty)) | reflR = (WeakMorR dδ , WeakTm' du )
+
+-- = WeakMorR dδ , congTmTyR (weaken[]TyR _ _ _) (WeakTm' du)
+
+{-  Try to get rid of congTmTyR by with abstraction. There might be some universe issues...
+with (CongTm {Γ = Γ , T} {Δ = Γ , T} {A = weakenTy (B [ δ ]Ty)} {B = B [ weakenMor' last δ ]Ty} {u = weakenTm u} reflR (weaken[]TyR B δ last) reflR)
+WeakMorR {Δ = Δ , B} {δ = δ , u} (dδ , du)   | eq = (WeakMorR dδ , {!WeakTm' du!} )
+-}
 
 WeakMorEqR : {Γ : Ctx n } {Δ : Ctx m} {T : TyExpr n} {δ δ' : Mor n m} → (Γ ⊢R δ == δ' ∷> Δ) → ((Γ , T) ⊢R weakenMor δ == weakenMor δ' ∷> Δ)
 WeakMorEqR {Δ = ◇} {δ = ◇} {◇} dδ = starU
