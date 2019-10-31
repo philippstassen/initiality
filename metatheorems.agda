@@ -35,8 +35,14 @@ TmEqTy dΓ (VarLastCong du=) = WeakTy du=
 TmEqTy dΓ (VarPrevCong du= du=₁) = WeakTy du=
 TmEqTy dΓ (TmSymm du=) = TmEqTy dΓ du=
 TmEqTy dΓ (TmTran du= du=₁ du=₂) = TmTy dΓ du=
-TmEqTy dΓ (ConvEq du= du=₁ du=₂) = {!!}
-TmEqTy dΓ (LamCong du= du=₁ du=₂ du=₃) = {!!}
-TmEqTy dΓ (AppCong du= du=₁ du=₂ du=₃ du=₄) = {!!}
-TmEqTy dΓ (BetaPi du= du=₁ du=₂ du=₃) = {!!}
-TmEqTy dΓ (EtaPi du= du=₁ du=₂) = {!!}
+TmEqTy dΓ (ConvEq du= du=₁ du=₂) = TyEqTy2 dΓ du=₂
+TmEqTy dΓ (LamCong du= du=₁ du=₂ du=₃) = Pi du= (TyEqTy1 (dΓ , du=) du=₂)
+TmEqTy dΓ (AppCong du= du=₁ du=₂ du=₃ du=₄) = SubstTy (TyEqTy1 (dΓ , du=) du=₂) (idMorDerivable dΓ , congTmTy! ([idMor]Ty _) (TmEqTm1 dΓ du=₄))
+TmEqTy dΓ (BetaPi du= du=₁ du=₂ du=₃) = SubstTy du=₁ (idMorDerivable dΓ ,  congTmTy! ([idMor]Ty _) du=₃) 
+TmEqTy dΓ (EtaPi du= du=₁ du=₂) = TmTy dΓ du=₂
+
+getCtx : Judgment → ΣSS ℕ Ctx 
+getCtx ( _⊢_ {n = n} Γ x) = (n , Γ)
+getCtx (_⊢_:>_ {n = n} Γ x x₁) = n , Γ
+getCtx (_⊢_==_ {n = n} Γ x x₁) = n , Γ
+getCtx (_⊢_==_:>_ {n = n} Γ x x₁ x₂) = n , Γ
