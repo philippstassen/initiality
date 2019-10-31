@@ -27,12 +27,6 @@ max : List ℕ → ℕ
 max [] = zero
 max (x ∷ l) = if x  <ₙ max l then max l else x
 
-getCtx : Judgment → ΣSS ℕ Ctx 
-getCtx ( _⊢_ {n = n} Γ x) = (n , Γ)
-getCtx (_⊢_:>_ {n = n} Γ x x₁) = n , Γ
-getCtx (_⊢_==_ {n = n} Γ x x₁) = n , Γ
-getCtx (_⊢_==_:>_ {n = n} Γ x x₁ x₂) = n , Γ
-
 SizeDer : {jdg : Judgment} → Derivable' (jdg) → ℕ
 SizeDer (VarLast dj) = suc (SizeDer (dj))
 SizeDer (VarPrev dj dj₁) = suc (SizeDer (dj) + SizeDer (dj₁))
