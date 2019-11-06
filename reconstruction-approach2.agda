@@ -5,6 +5,7 @@ open import normal
 import ex 
 open ex.shared
 open ex.Judgment renaming (_⊢_ to _⊢ₑ_) renaming (_⊢_:>_ to _⊢ₑ_:>_) renaming (_⊢_==_ to _⊢ₑ_==_) renaming (_⊢_==_:>_ to _⊢ₑ_==_:>_)
+open import translation
 
 {- feels like I also need to put a coerc in the beginning, to translate a derivation that uses as final step Conversion, this would not be trackable anymore probably, possibly it can be fixed later in the derivation translation by hand -}
 {-
@@ -83,3 +84,58 @@ liftMor : {n m : ℕ} → Mor n m → ex.Ctx n → ex.Mor n m
 liftMor ◇ Γ = ex.◇
 liftMor (δ , u) Γ = liftMor δ Γ ex., liftTm Γ u
 
+liftJdg : Judgment → ex.Judgment
+liftJdg (Γ ⊢ x) = liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) x
+liftJdg (Γ ⊢ x :> x₁) = liftCtx Γ ⊢ₑ liftTm (liftCtx Γ) x :> liftTy (liftCtx Γ) x₁
+liftJdg (Γ ⊢ x == x₁) = liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) x == liftTy (liftCtx Γ) x₁
+liftJdg (Γ ⊢ x == x₁ :> x₂) = liftCtx Γ ⊢ₑ liftTm (liftCtx Γ) x == liftTm (liftCtx Γ) x₁ :> liftTy (liftCtx Γ) x₂
+
+strip-liftTy : (Γ : ex.Ctx n) → (A : TyExpr n) → || liftTy Γ A ||Ty ≡ A
+strip-liftTm : (Γ : ex.Ctx n) → (v : TmExpr n) → || liftTm Γ v ||Tm ≡ v
+
+strip-liftTy Γ (uu i) = refl
+strip-liftTy Γ (el i v) = ap (el i) (strip-liftTm Γ v)
+strip-liftTy Γ (pi A A₁) = ap-pi-Ty (strip-liftTy Γ A) (strip-liftTy (Γ ex., liftTy Γ A) A₁)
+
+strip-liftTm Γ (var x) = refl
+strip-liftTm Γ (lam A B v) = ap-lam-Tm (strip-liftTy Γ A) (strip-liftTy (Γ ex., liftTy Γ A) B) (strip-liftTm (Γ ex., liftTy Γ A) v)
+strip-liftTm Γ (app A B v v₁) = ap-app-Tm (strip-liftTy Γ A) (strip-liftTy (Γ ex., liftTy Γ A) B) (strip-liftTm Γ v) (strip-liftTm Γ v₁)
+
+strip-liftCtx : (Γ : Ctx n) → || liftCtx Γ ||Ctx ≡ Γ
+strip-liftCtx ◇ = refl
+strip-liftCtx (Γ , A) = Ctx+= (strip-liftCtx Γ) (strip-liftTy (liftCtx Γ) A)
+
+strip-lift : (j : Judgment) → || liftJdg j || ≡ j
+strip-lift (Γ ⊢ x) = ap-jdg-ty (strip-liftCtx Γ) (strip-liftTy (liftCtx Γ) x)
+strip-lift (Γ ⊢ x :> x₁) = ap-jdg-tm (strip-liftCtx Γ) (strip-liftTy (liftCtx Γ) x₁) (strip-liftTm (liftCtx Γ) x)
+strip-lift (Γ ⊢ x == x₁) = ap-jdg-tyEq (strip-liftCtx Γ) (strip-liftTy (liftCtx Γ) x) (strip-liftTy (liftCtx Γ) x₁)
+strip-lift (Γ ⊢ x == x₁ :> x₂) = ap-jdg-tmEq (strip-liftCtx Γ) (strip-liftTy (liftCtx Γ) x₂) (strip-liftTm (liftCtx Γ) x) (strip-liftTm (liftCtx Γ) x₁)
+
+lift-weakenTy : {Γ : ex.Ctx n} {A : TyExpr n} → liftTy (Γ ex., liftTy Γ A) (weakenTy A) ≡ ex.weakenTy (liftTy Γ A)
+lift-weakenTy {Γ = Γ} {uu i} = refl
+lift-weakenTy {Γ = Γ} {el i v} = {!!}
+lift-weakenTy {Γ = Γ} {pi A A₁} = {!!}
+
+Lift-Der : {jdg : Judgment} → Derivable (jdg) → ex.Derivable (liftJdg jdg)
+Lift-Der (VarLast dj) = {!ex.Conv ?!}
+Lift-Der (VarPrev dj dj₁) = {!!}
+Lift-Der (VarLastCong dj) = {!!}
+Lift-Der (VarPrevCong dj dj₁) = {!!}
+Lift-Der (TySymm dj) = {!!}
+Lift-Der (TyTran dj dj₁ dj₂) = {!!}
+Lift-Der (TmSymm dj) = {!!}
+Lift-Der (TmTran dj dj₁ dj₂) = {!!}
+Lift-Der (Conv dj dj₁ dj₂) = {!!}
+Lift-Der (ConvEq dj dj₁ dj₂) = {!!}
+Lift-Der UU = {!!}
+Lift-Der UUCong = {!!}
+Lift-Der (El dj) = {!!}
+Lift-Der (ElCong dj) = {!!}
+Lift-Der (Pi dj dj₁) = {!!}
+Lift-Der (PiCong dj dj₁ dj₂) = {!!}
+Lift-Der (Lam dj dj₁ dj₂) = {!!}
+Lift-Der (LamCong dj dj₁ dj₂ dj₃) = {!!}
+Lift-Der (App dj dj₁ dj₂ dj₃) = {!!}
+Lift-Der (AppCong dj dj₁ dj₂ dj₃ dj₄) = {!!}
+Lift-Der (BetaPi dj dj₁ dj₂ dj₃) = {!!}
+Lift-Der (EtaPi dj dj₁ dj₂) = {!!}
