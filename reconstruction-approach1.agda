@@ -27,7 +27,7 @@ max : List ℕ → ℕ
 max [] = zero
 max (x ∷ l) = if x  <ₙ max l then max l else x
 
-SizeDer : {jdg : Judgment} → Derivable' (jdg) → ℕ
+SizeDer : {jdg : Judgment} → Derivation (jdg) → ℕ
 SizeDer (VarLast dj) = suc (SizeDer (dj))
 SizeDer (VarPrev dj dj₁) = suc (SizeDer (dj) + SizeDer (dj₁))
 SizeDer (VarLastCong dj) = suc (SizeDer dj)
@@ -51,13 +51,13 @@ SizeDer (AppCong dj dj₁ dj₂ dj₃ dj₄) =  suc (SizeDer (dj) + SizeDer (dj�
 SizeDer (BetaPi dj dj₁ dj₂ dj₃) =  suc (SizeDer (dj) + SizeDer (dj₁) + SizeDer (dj₂) + SizeDer (dj₃))
 SizeDer (EtaPi dj dj₁ dj₂) = suc (SizeDer (dj) + SizeDer (dj₁) + SizeDer (dj₂))
 
-congRespSize : {jdg : Judgment} → (dj : Derivable' (jdg)) {dj₁ : Derivable' (jdg)} → dj ≡ dj₁ → SizeDer dj ≡ SizeDer dj₁
+congRespSize : {jdg : Judgment} → (dj : Derivation (jdg)) {dj₁ : Derivation (jdg)} → dj ≡ dj₁ → SizeDer dj ≡ SizeDer dj₁
 congRespSize dj refl = refl
 
-SizeTyEqTy1R : {A B : TyExpr n} {Γ : Ctx n} {m : ℕ} → (dΓ : ⊢R Γ) → (dA= : Derivable' (Γ ⊢ A == B)) → SizeDer (dA=) < m → SizeDer (TyEqTy1R dΓ dA=) < m
-SizeTyEqTy2R : {A B : TyExpr n} {Γ : Ctx n} → (dΓ : ⊢R Γ) → (dA= : Derivable' (Γ ⊢ A == B)) → SizeDer (dA=) < m → SizeDer (TyEqTy2R dΓ dA=) < m
-SizeTmEqTm1R : {u v : TmExpr n} {A : TyExpr n} {Γ : Ctx n} {m : ℕ} → (dΓ : ⊢R Γ) → (du= : Derivable' (Γ ⊢ u == v :> A)) → SizeDer (du=) < m → SizeDer (TmEqTm1R dΓ du=) < m
-SizeTmEqTm2R : {u v : TmExpr n} {A : TyExpr n} {Γ : Ctx n} {m : ℕ} → (dΓ : ⊢R Γ) → (du= : Derivable' (Γ ⊢ u == v :> A)) → SizeDer (du=) < m → SizeDer (TmEqTm2R dΓ du=) < m
+SizeTyEqTy1R : {A B : TyExpr n} {Γ : Ctx n} {m : ℕ} → (dΓ : ⊢R Γ) → (dA= : Derivation (Γ ⊢ A == B)) → SizeDer (dA=) < m → SizeDer (TyEqTy1R dΓ dA=) < m
+SizeTyEqTy2R : {A B : TyExpr n} {Γ : Ctx n} → (dΓ : ⊢R Γ) → (dA= : Derivation (Γ ⊢ A == B)) → SizeDer (dA=) < m → SizeDer (TyEqTy2R dΓ dA=) < m
+SizeTmEqTm1R : {u v : TmExpr n} {A : TyExpr n} {Γ : Ctx n} {m : ℕ} → (dΓ : ⊢R Γ) → (du= : Derivation (Γ ⊢ u == v :> A)) → SizeDer (du=) < m → SizeDer (TmEqTm1R dΓ du=) < m
+SizeTmEqTm2R : {u v : TmExpr n} {A : TyExpr n} {Γ : Ctx n} {m : ℕ} → (dΓ : ⊢R Γ) → (du= : Derivation (Γ ⊢ u == v :> A)) → SizeDer (du=) < m → SizeDer (TmEqTm2R dΓ du=) < m
 
 SizeTyEqTy1R {m = m} dΓ (TySymm dA=) <m = SizeTyEqTy2R dΓ dA= (<-+m' 1 (SizeDer dA=) m <m)
 SizeTyEqTy1R {m = m} dΓ (TyTran dA= dA=₁ dA=₂) <m = SizeTyEqTy1R dΓ dA=₁ (<-+m^21 (SizeDer dA=) (SizeDer dA=₁) (SizeDer dA=₂) m (<-+m' 1 (SizeDer dA= + SizeDer dA=₁ + SizeDer dA=₂) m <m)) 
@@ -94,100 +94,100 @@ embedTm (lam A B u) = ex.lam (embedTy A) (embedTy B) (embedTm u)
 embedTm (app A B u u₁) = ex.app (embedTy A) (embedTy B) (embedTm u) (embedTm u₁)
 
 {- in practice, we will fix m to be (suc SizeDer (t)). No matter what m, the terms should be equal in the end-}
-constrTy : {n : ℕ} {Γ : Ctx n} → (m : ℕ) → (A : TyExpr n) → ⊢R Γ → (dA : Derivable' (Γ ⊢ A)) → SizeDer (dA) < m → ex.TyExpr n
-constrTm : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} → (m : ℕ) → (u : TmExpr n) → ⊢R Γ → (du : Derivable' (Γ ⊢ u :> A)) → SizeDer (du) < m → ex.TmExpr n
+liftTy : {n : ℕ} {Γ : Ctx n} → (m : ℕ) → (A : TyExpr n) → ⊢R Γ → (dA : Derivation (Γ ⊢ A)) → SizeDer (dA) < m → ex.TyExpr n
+liftTm : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} → (m : ℕ) → (u : TmExpr n) → ⊢R Γ → (du : Derivation (Γ ⊢ u :> A)) → SizeDer (du) < m → ex.TmExpr n
 
-constrTy zero A dΓ dA () 
-constrTy (suc m) (uu i) dΓ UU <m = ex.uu i
-constrTy (suc m) (el i v) dΓ (El dA) <m = ex.el i (constrTm m v dΓ dA (suc-ref-< <m))
-constrTy (suc m) (pi A B) dΓ (Pi dA dB) <m = ex.pi (constrTy m A dΓ dA (<-+m (SizeDer dA) (SizeDer dB) m (suc-ref-< <m))) (constrTy m B (dΓ , dA) dB ( <-+m' (SizeDer dA) (SizeDer dB) m (suc-ref-< <m)))
--- constrTy (uu i) ctx UU = ex.uu i
--- constrTy (el i v) ctx (El dA) = ex.el i (constrTm v ctx dA)
--- constrTy (pi A A₁) ctx  (Pi dA dA₁) = ex.pi (constrTy A ctx dA) (constrTy A₁ (ctx , dA) dA₁)
+liftTy zero A dΓ dA () 
+liftTy (suc m) (uu i) dΓ UU <m = ex.uu i
+liftTy (suc m) (el i v) dΓ (El dA) <m = ex.el i (liftTm m v dΓ dA (suc-ref-< <m))
+liftTy (suc m) (pi A B) dΓ (Pi dA dB) <m = ex.pi (liftTy m A dΓ dA (<-+m (SizeDer dA) (SizeDer dB) m (suc-ref-< <m))) (liftTy m B (dΓ , dA) dB ( <-+m' (SizeDer dA) (SizeDer dB) m (suc-ref-< <m)))
+-- liftTy (uu i) ctx UU = ex.uu i
+-- liftTy (el i v) ctx (El dA) = ex.el i (liftTm v ctx dA)
+-- liftTy (pi A A₁) ctx  (Pi dA dA₁) = ex.pi (liftTy A ctx dA) (liftTy A₁ (ctx , dA) dA₁)
 
 {- Problem: Hopefully my treatment of the implicit variables is okay.
  PROBLEM: The type arguments of the coercion have the same "level" as the term we recurse on. So there might be an termination issue. For instance just an infinite coerc sequence 
  IDEA: Take derivationlength as parameter
 -}
-constrTm (suc m) (var last) dΓ (VarLast du) <m = ex.var last
-constrTm (suc m) (var (prev k)) dΓ (VarPrev du du₁) <m = ex.var (prev k)
-constrTm (suc m) u dΓ (Conv {A = A} {B = B} du du₁ du₂) <m = ex.coerc (constrTy m A dΓ du (<-+m^2 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (suc-ref-< <m)) ) (constrTy m B dΓ (TyEqTy2R dΓ du₂) (SizeTyEqTy2R dΓ du₂ (<-+m^22 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (suc-ref-< <m)))) (constrTm m u dΓ du₁ (<-+m^21 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (suc-ref-< <m)))
-constrTm (suc m) (lam A B u) dΓ (Lam du du₁ du₂) <m = ex.lam (constrTy m A dΓ du (<-+m^2 _ _ _ m (suc-ref-< <m))) (constrTy m B (dΓ , du) du₁ (<-+m^21 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (suc-ref-< <m))) (constrTm m u (dΓ , du) du₂ (<-+m^22 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (suc-ref-< <m)))
-constrTm (suc m) (app A B u x) dΓ (App du du₁ du₂ du₃) <m = ex.app (constrTy m A dΓ du ( <-+m^2 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (<-+m (SizeDer du + SizeDer du₁ + SizeDer du₂) (SizeDer du₃) m (suc-ref-< <m)))) (constrTy m B (dΓ , du) du₁ ( <-+m^21 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (<-+m (SizeDer du + SizeDer du₁ + SizeDer du₂) (SizeDer du₃) m (suc-ref-< <m)))) (constrTm m u dΓ du₂ ( <-+m^22 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (<-+m (SizeDer du + SizeDer du₁ + SizeDer du₂) (SizeDer du₃) m (suc-ref-< <m)))) (constrTm m x dΓ du₃ ( <-+m' (SizeDer du + SizeDer du₁ + SizeDer du₂) (SizeDer du₃) m (suc-ref-< <m)))
--- constrTm .(var last) dΓ (VarLast du) = {!!}
--- constrTm .(var (prev _)) dΓ (VarPrev du du₁) = {!!}
--- constrTm u dΓ (Conv {A = A} {B = B} du du₁ du₂) = ex.coerc (constrTy A dΓ du) (constrTy B dΓ (TyEqTy2R dΓ du₂)) {!!}
--- constrTm .(lam _ _ _) dΓ (Lam du du₁ du₂) = {!!}
--- constrTm .(app _ _ _ _) dΓ (App du du₁ du₂ du₃) = {!!}
-{- constrTm (var .last) dΓ (VarLast du) = ex.var last
-constrTm (var .(prev _)) dΓ (VarPrev {k = k} du du₁) = ex.var (prev k)
-constrTm (var x) dΓ (Conv {A = A} {B = B} du du₁ du₂) = ex.coerc (constrTy A dΓ du) (constrTy B dΓ (TyEqTy2R dΓ du₂)) (ex.var x)
-constrTm (lam A B u) dΓ (Conv {A = A₁} {B = A₂} du du₁ du₂) = ex.coerc (constrTy A₁ dΓ du) (constrTy A₂ dΓ (TyEqTy2R dΓ du₂)) {!!}
-constrTm (lam A B u) ctx (Lam du du₁ du₂) = {!!}
-constrTm (app A B u u₁) ctx du = {!!}
+liftTm (suc m) (var last) dΓ (VarLast du) <m = ex.var last
+liftTm (suc m) (var (prev k)) dΓ (VarPrev du du₁) <m = ex.var (prev k)
+liftTm (suc m) u dΓ (Conv {A = A} {B = B} du du₁ du₂) <m = ex.coerc (liftTy m A dΓ du (<-+m^2 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (suc-ref-< <m)) ) (liftTy m B dΓ (TyEqTy2R dΓ du₂) (SizeTyEqTy2R dΓ du₂ (<-+m^22 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (suc-ref-< <m)))) (liftTm m u dΓ du₁ (<-+m^21 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (suc-ref-< <m)))
+liftTm (suc m) (lam A B u) dΓ (Lam du du₁ du₂) <m = ex.lam (liftTy m A dΓ du (<-+m^2 _ _ _ m (suc-ref-< <m))) (liftTy m B (dΓ , du) du₁ (<-+m^21 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (suc-ref-< <m))) (liftTm m u (dΓ , du) du₂ (<-+m^22 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (suc-ref-< <m)))
+liftTm (suc m) (app A B u x) dΓ (App du du₁ du₂ du₃) <m = ex.app (liftTy m A dΓ du ( <-+m^2 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (<-+m (SizeDer du + SizeDer du₁ + SizeDer du₂) (SizeDer du₃) m (suc-ref-< <m)))) (liftTy m B (dΓ , du) du₁ ( <-+m^21 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (<-+m (SizeDer du + SizeDer du₁ + SizeDer du₂) (SizeDer du₃) m (suc-ref-< <m)))) (liftTm m u dΓ du₂ ( <-+m^22 (SizeDer du) (SizeDer du₁) (SizeDer du₂) m (<-+m (SizeDer du + SizeDer du₁ + SizeDer du₂) (SizeDer du₃) m (suc-ref-< <m)))) (liftTm m x dΓ du₃ ( <-+m' (SizeDer du + SizeDer du₁ + SizeDer du₂) (SizeDer du₃) m (suc-ref-< <m)))
+-- liftTm .(var last) dΓ (VarLast du) = {!!}
+-- liftTm .(var (prev _)) dΓ (VarPrev du du₁) = {!!}
+-- liftTm u dΓ (Conv {A = A} {B = B} du du₁ du₂) = ex.coerc (liftTy A dΓ du) (liftTy B dΓ (TyEqTy2R dΓ du₂)) {!!}
+-- liftTm .(lam _ _ _) dΓ (Lam du du₁ du₂) = {!!}
+-- liftTm .(app _ _ _ _) dΓ (App du du₁ du₂ du₃) = {!!}
+{- liftTm (var .last) dΓ (VarLast du) = ex.var last
+liftTm (var .(prev _)) dΓ (VarPrev {k = k} du du₁) = ex.var (prev k)
+liftTm (var x) dΓ (Conv {A = A} {B = B} du du₁ du₂) = ex.coerc (liftTy A dΓ du) (liftTy B dΓ (TyEqTy2R dΓ du₂)) (ex.var x)
+liftTm (lam A B u) dΓ (Conv {A = A₁} {B = A₂} du du₁ du₂) = ex.coerc (liftTy A₁ dΓ du) (liftTy A₂ dΓ (TyEqTy2R dΓ du₂)) {!!}
+liftTm (lam A B u) ctx (Lam du du₁ du₂) = {!!}
+liftTm (app A B u u₁) ctx du = {!!}
 -}
-constrCtx : {n : ℕ} → (Γ : Ctx n) → (dj : ⊢R Γ) → ex.Ctx n
+liftCtx : {n : ℕ} → (Γ : Ctx n) → (dj : ⊢R Γ) → ex.Ctx n
 
-constrCtx ◇ _ = ex.◇
-constrCtx (Γ , (uu i)) (fst₁ , UU) = (constrCtx Γ fst₁) ex., constrTy (suc 0) (uu i) fst₁ UU (suc-pos 0) 
-constrCtx (Γ , (el i v)) (fst₁ , El snd₁) = (constrCtx Γ fst₁) ex., constrTy (suc (SizeDer (El snd₁))) (el i v) fst₁ (El snd₁) <-refl 
-constrCtx (Γ , (pi A B)) (fst₁ , Pi snd₁ snd₂) = (constrCtx Γ fst₁) ex., constrTy (suc (SizeDer (Pi snd₁ snd₂))) (pi A B) fst₁ (Pi snd₁ snd₂) <-refl
--- constrCtx (Γ , .(sig _ _)) (fst₁ , Sig snd₁ snd₂) = {!!}
--- constrCtx (Γ , .empty) (fst₁ , Empty) = {!!}
--- constrCtx (Γ , .unit) (fst₁ , Unit) = {!!}
--- constrCtx (Γ , .nat) (fst₁ , Nat) = {!!}
--- constrCtx (Γ , .(id _ _ _)) (fst₁ , Id' snd₁ snd₂ snd₃) = {!!}
+liftCtx ◇ _ = ex.◇
+liftCtx (Γ , (uu i)) (fst₁ , UU) = (liftCtx Γ fst₁) ex., liftTy (suc 0) (uu i) fst₁ UU (suc-pos 0) 
+liftCtx (Γ , (el i v)) (fst₁ , El snd₁) = (liftCtx Γ fst₁) ex., liftTy (suc (SizeDer (El snd₁))) (el i v) fst₁ (El snd₁) <-refl 
+liftCtx (Γ , (pi A B)) (fst₁ , Pi snd₁ snd₂) = (liftCtx Γ fst₁) ex., liftTy (suc (SizeDer (Pi snd₁ snd₂))) (pi A B) fst₁ (Pi snd₁ snd₂) <-refl
+-- liftCtx (Γ , .(sig _ _)) (fst₁ , Sig snd₁ snd₂) = {!!}
+-- liftCtx (Γ , .empty) (fst₁ , Empty) = {!!}
+-- liftCtx (Γ , .unit) (fst₁ , Unit) = {!!}
+-- liftCtx (Γ , .nat) (fst₁ , Nat) = {!!}
+-- liftCtx (Γ , .(id _ _ _)) (fst₁ , Id' snd₁ snd₂ snd₃) = {!!}
 
-constrMor : {n m : ℕ} {Γ : Ctx n} {Δ : Ctx m} → (δ : Mor n m) → ⊢R Γ → Γ ⊢R δ ∷> Δ → ex.Mor n m
-constrMor ◇ dΓ dδ = ex.◇
-constrMor {Γ = Γ} {Δ = Δ , A} (δ , u) dΓ dδ = (constrMor {Γ = Γ} {Δ = Δ} δ dΓ (fst dδ)) ex., constrTm (suc (SizeDer (snd dδ))) u dΓ (snd dδ) <-refl
+liftMor : {n m : ℕ} {Γ : Ctx n} {Δ : Ctx m} → (δ : Mor n m) → ⊢R Γ → Γ ⊢R δ ∷> Δ → ex.Mor n m
+liftMor ◇ dΓ dδ = ex.◇
+liftMor {Γ = Γ} {Δ = Δ , A} (δ , u) dΓ dδ = (liftMor {Γ = Γ} {Δ = Δ} δ dΓ (fst dδ)) ex., liftTm (suc (SizeDer (snd dδ))) u dΓ (snd dδ) <-refl
 
-constrTmComm-weakenTm' : {Γ : Ctx n} {u : TmExpr n} {k : Fin (suc n)} {T : TyExpr (n -F' k)} {A : TyExpr n} → (dΓ : ⊢R Γ) → (dT : Derivable' (cutCtx k Γ ⊢ T)) → (du : Derivable' (Γ ⊢ u :> A)) → constrTm (suc (SizeDer (WeakTm' du))) (weakenTm' k u) (WeakCtxR {k = k} {Γ = Γ} {T = T} dΓ dT) (WeakTm' {k = k} {Γ = Γ} {T = T} du) <-refl ≡R ex.weakenTm' k (constrTm (suc (SizeDer du)) u dΓ du <-refl)
-constrTmComm-weakenTm' dΓ du du₁ = {!!}
+liftTmComm-weakenTm' : {Γ : Ctx n} {u : TmExpr n} {k : Fin (suc n)} {T : TyExpr (n -F' k)} {A : TyExpr n} → (dΓ : ⊢R Γ) → (dT : Derivation (cutCtx k Γ ⊢ T)) → (du : Derivation (Γ ⊢ u :> A)) → liftTm (suc (SizeDer (WeakTm' du))) (weakenTm' k u) (WeakCtxR {k = k} {Γ = Γ} {T = T} dΓ dT) (WeakTm' {k = k} {Γ = Γ} {T = T} du) <-refl ≡R ex.weakenTm' k (liftTm (suc (SizeDer du)) u dΓ du <-refl)
+liftTmComm-weakenTm' dΓ du du₁ = {!!}
 
-constrMorComm-weakenMor : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr n} {δ : Mor n m} → (dΓ : ⊢R Γ) → (dA : Derivable' (Γ ⊢ A)) → (dδ : Γ ⊢R δ ∷> Δ) → constrMor (weakenMor (δ)) (dΓ , dA) (WeakMorR dδ) ≡ ex.weakenMor (constrMor δ dΓ dδ)
-constrMorComm-weakenMor {Γ = Γ} {Δ = ◇} {A} {◇} dΓ dA dδ = refl
-constrMorComm-weakenMor {Γ = Γ} {Δ , A₁} {A} {δ , u} dΓ dA dδ = ex.Mor+= {!constrMorComm-weakenMor ?!} {!!}
--- ex.Mor+= (constrMorComm-weakenMor dΓ dA (fst dδ)) {!!} ∙ {!!}
--- (ap (λ dj → constrTm (suc (SizeDer (dj))) (weakenTm' last u) (dΓ , dA) dj <-refl) {a = congTmTyR (weaken[]TyR A₁ δ last) (WeakTm' (snd dδ))} {!!} ∙ {!!})
+liftMorComm-weakenMor : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr n} {δ : Mor n m} → (dΓ : ⊢R Γ) → (dA : Derivation (Γ ⊢ A)) → (dδ : Γ ⊢R δ ∷> Δ) → liftMor (weakenMor (δ)) (dΓ , dA) (WeakMorR dδ) ≡ ex.weakenMor (liftMor δ dΓ dδ)
+liftMorComm-weakenMor {Γ = Γ} {Δ = ◇} {A} {◇} dΓ dA dδ = refl
+liftMorComm-weakenMor {Γ = Γ} {Δ , A₁} {A} {δ , u} dΓ dA dδ = ex.Mor+= {!liftMorComm-weakenMor ?!} {!!}
+-- ex.Mor+= (liftMorComm-weakenMor dΓ dA (fst dδ)) {!!} ∙ {!!}
+-- (ap (λ dj → liftTm (suc (SizeDer (dj))) (weakenTm' last u) (dΓ , dA) dj <-refl) {a = congTmTyR (weaken[]TyR A₁ δ last) (WeakTm' (snd dδ))} {!!} ∙ {!!})
 -- rewrite CongTmR {Γ = Γ , A} {A = weakenTy' last (A₁ [ δ ]Ty) } {B = A₁ [ weakenMor' last δ ]Ty} {u = weakenTm' last u} reflR (weaken[]TyR A₁ δ last) reflR
 
-idMorisidMor : {n : ℕ} {Γ : Ctx n} → (dΓ : ⊢R Γ) → constrMor (idMor n) dΓ (idMorDerivableR dΓ) ≡ ex.idMor n
+idMorisidMor : {n : ℕ} {Γ : Ctx n} → (dΓ : ⊢R Γ) → liftMor (idMor n) dΓ (idMorDerivableR dΓ) ≡ ex.idMor n
 idMorisidMor {zero} dΓ = refl
 idMorisidMor {suc n} {Γ = Γ , A} dΓ = ex.Mor+= {!idMorisidMor ?!} {!!}
 
 
-constrSubstMor : {n m : ℕ} {Γ : Ctx n} {A : TyExpr n} {u : TmExpr n} → Derivable' (Γ ⊢ u :> A) → ⊢R Γ → Γ ⊢R (idMor n , u) ∷> (Γ , A)
-constrSubstMor {A = A} u dΓ = idMorDerivableR dΓ , congTmTyR! ([idMor]TyR A) u
+liftSubstMor : {n m : ℕ} {Γ : Ctx n} {A : TyExpr n} {u : TmExpr n} → Derivation (Γ ⊢ u :> A) → ⊢R Γ → Γ ⊢R (idMor n , u) ∷> (Γ , A)
+liftSubstMor {A = A} u dΓ = idMorDerivableR dΓ , congTmTyR! ([idMor]TyR A) u
 
 {- this definition assumes that idMor is mapped to ex.idMor which is only up to ≡ corerct -}
-constrSubstTy : {Γ : Ctx n} → {A : TyExpr n} → {B : TyExpr (suc n)} → {u : TmExpr n} → ⊢R Γ → Derivable' (Γ ⊢ u :> A) → Derivable' ((Γ , A) ⊢ B) → ex.TyExpr n
-constrSubstTy {B = B} dΓ du dB = ex.substTy (constrTy (suc (SizeDer dB)) B (dΓ , TmTyR dΓ du) dB <-refl) {!!}
+liftSubstTy : {Γ : Ctx n} → {A : TyExpr n} → {B : TyExpr (suc n)} → {u : TmExpr n} → ⊢R Γ → Derivation (Γ ⊢ u :> A) → Derivation ((Γ , A) ⊢ B) → ex.TyExpr n
+liftSubstTy {B = B} dΓ du dB = ex.substTy (liftTy (suc (SizeDer dB)) B (dΓ , TmTyR dΓ du) dB <-refl) {!!}
 
 {- Case distinction of derivations might have been unnecessary, see the last judgment cases -}
-constrJdg : (j : Judgment) → ( ⊢R (snd (getCtx j))) → Derivable' (j) → ex.Judgment
+liftJdg : (j : Judgment) → ( ⊢R (snd (getCtx j))) → Derivation (j) → ex.Judgment
 
-constrJdg (Γ ⊢ (uu i)) ctx UU = (constrCtx Γ ctx) ex.⊢ ex.uu i
-constrJdg (Γ ⊢ (el i v)) ctx (El dj) = (constrCtx Γ ctx) ex.⊢ constrTy (suc (SizeDer (El dj))) (el i v) ctx (El dj) (<-refl)
-constrJdg (Γ ⊢ (pi A B)) ctx (Pi dj dj₁) =  (constrCtx Γ ctx) ex.⊢ constrTy (suc (SizeDer (Pi dj dj₁))) (pi A B) ctx (Pi dj dj₁) (<-refl)
-constrJdg ((Γ , A) ⊢ (var last) :> .(weakenTy' last A)) ctx (VarLast dj) = (constrCtx (Γ , A) ctx) ⊢ₑ ex.var last :> ex.weakenTy (constrTy (suc (SizeDer dj)) A (fst ctx) dj (<-refl))
-constrJdg ((Γ , A) ⊢ (var (prev k)) :> .(weakenTy' last _)) ctx (VarPrev dj dj₁) =  (constrCtx (Γ , _) ctx) ⊢ₑ ex.var (prev k) :> ex.weakenTy (constrTy (suc (SizeDer dj)) _ (fst ctx) (dj) (<-refl))
-constrJdg (Γ ⊢ x :> x₁) ctx (Conv dj dj₁ dj₂) = constrCtx Γ ctx ⊢ₑ constrTm (suc (SizeDer (Conv dj dj₁ dj₂))) x ctx (Conv dj dj₁ dj₂) <-refl :> constrTy (suc (SizeDer (TyEqTy2R ctx dj₂))) x₁ ctx ( TyEqTy2R ctx dj₂) <-refl 
-constrJdg (Γ ⊢ (lam A B u) :> (pi A B)) ctx (Lam dj dj₁ dj₂) = constrCtx Γ ctx ⊢ₑ constrTm (suc (SizeDer (Lam dj dj₁ dj₂))) (lam A B u) ctx (Lam dj dj₁ dj₂) <-refl :> constrTy (suc (SizeDer (Pi dj dj₁))) (pi A B) ctx (Pi dj dj₁) <-refl
-constrJdg (Γ ⊢ (app A B u v) :> .(substTy B v)) ctx (App dj dj₁ dj₂ dj₃) = constrCtx Γ ctx ⊢ₑ constrTm (suc (SizeDer (App dj dj₁ dj₂ dj₃))) (app A B u v) ctx (App dj dj₁ dj₂ dj₃) <-refl :> {!!}
--- constrTy {!!} {!!} {!!} {!!} {!!}
-constrJdg (Γ ⊢ x == x₁) ctx dj = constrCtx Γ ctx ⊢ₑ constrTy (suc (SizeDer dj)) x ctx (TyEqTy1R ctx dj) (SizeTyEqTy1R ctx dj <-refl) ==  constrTy (suc (SizeDer dj)) x₁ ctx (TyEqTy2R ctx dj) (SizeTyEqTy2R ctx dj <-refl)
-constrJdg (Γ ⊢ x == x₁ :> x₂) ctx dj = constrCtx Γ ctx ⊢ₑ constrTm (suc (SizeDer dj)) x ctx (TmEqTm1R ctx dj) (SizeTmEqTm1R ctx dj <-refl) ==  constrTm (suc (SizeDer dj)) x₁ ctx (TmEqTm2R ctx dj) (SizeTmEqTm2R ctx dj <-refl) :> constrTy {!!} x₂ ctx {!!} {!!}
+liftJdg (Γ ⊢ (uu i)) ctx UU = (liftCtx Γ ctx) ex.⊢ ex.uu i
+liftJdg (Γ ⊢ (el i v)) ctx (El dj) = (liftCtx Γ ctx) ex.⊢ liftTy (suc (SizeDer (El dj))) (el i v) ctx (El dj) (<-refl)
+liftJdg (Γ ⊢ (pi A B)) ctx (Pi dj dj₁) =  (liftCtx Γ ctx) ex.⊢ liftTy (suc (SizeDer (Pi dj dj₁))) (pi A B) ctx (Pi dj dj₁) (<-refl)
+liftJdg ((Γ , A) ⊢ (var last) :> .(weakenTy' last A)) ctx (VarLast dj) = (liftCtx (Γ , A) ctx) ⊢ₑ ex.var last :> ex.weakenTy (liftTy (suc (SizeDer dj)) A (fst ctx) dj (<-refl))
+liftJdg ((Γ , A) ⊢ (var (prev k)) :> .(weakenTy' last _)) ctx (VarPrev dj dj₁) =  (liftCtx (Γ , _) ctx) ⊢ₑ ex.var (prev k) :> ex.weakenTy (liftTy (suc (SizeDer dj)) _ (fst ctx) (dj) (<-refl))
+liftJdg (Γ ⊢ x :> x₁) ctx (Conv dj dj₁ dj₂) = liftCtx Γ ctx ⊢ₑ liftTm (suc (SizeDer (Conv dj dj₁ dj₂))) x ctx (Conv dj dj₁ dj₂) <-refl :> liftTy (suc (SizeDer (TyEqTy2R ctx dj₂))) x₁ ctx ( TyEqTy2R ctx dj₂) <-refl 
+liftJdg (Γ ⊢ (lam A B u) :> (pi A B)) ctx (Lam dj dj₁ dj₂) = liftCtx Γ ctx ⊢ₑ liftTm (suc (SizeDer (Lam dj dj₁ dj₂))) (lam A B u) ctx (Lam dj dj₁ dj₂) <-refl :> liftTy (suc (SizeDer (Pi dj dj₁))) (pi A B) ctx (Pi dj dj₁) <-refl
+liftJdg (Γ ⊢ (app A B u v) :> .(substTy B v)) ctx (App dj dj₁ dj₂ dj₃) = liftCtx Γ ctx ⊢ₑ liftTm (suc (SizeDer (App dj dj₁ dj₂ dj₃))) (app A B u v) ctx (App dj dj₁ dj₂ dj₃) <-refl :> {!!}
+-- liftTy {!!} {!!} {!!} {!!} {!!}
+liftJdg (Γ ⊢ x == x₁) ctx dj = liftCtx Γ ctx ⊢ₑ liftTy (suc (SizeDer dj)) x ctx (TyEqTy1R ctx dj) (SizeTyEqTy1R ctx dj <-refl) ==  liftTy (suc (SizeDer dj)) x₁ ctx (TyEqTy2R ctx dj) (SizeTyEqTy2R ctx dj <-refl)
+liftJdg (Γ ⊢ x == x₁ :> x₂) ctx dj = liftCtx Γ ctx ⊢ₑ liftTm (suc (SizeDer dj)) x ctx (TmEqTm1R ctx dj) (SizeTmEqTm1R ctx dj <-refl) ==  liftTm (suc (SizeDer dj)) x₁ ctx (TmEqTm2R ctx dj) (SizeTmEqTm2R ctx dj <-refl) :> liftTy {!!} x₂ ctx {!!} {!!}
 
-DerToEx : {j : Judgment} → ( ctx : ⊢R (snd (getCtx j))) → (dj : Derivable' j) → (ex.Derivable (constrJdg j ctx dj))
+DerToEx : {j : Judgment} → ( ctx : ⊢R (snd (getCtx j))) → (dj : Derivation j) → (ex.Derivable (liftJdg j ctx dj))
 DerToEx dj ctx = {!!}
 
-{- proof that stripping after constructing gives you back where you started from -}
+{- proof that stripping after liftucting gives you back where you started from -}
 
-CtxisCtx : (Γ : Ctx n) → (dΓ : ⊢R Γ) → || (constrCtx Γ dΓ) ||Ctx ≡ Γ
+CtxisCtx : (Γ : Ctx n) → (dΓ : ⊢R Γ) → || (liftCtx Γ dΓ) ||Ctx ≡ Γ
 CtxisCtx Γ dΓ = {!!}
 
-JudgisJudg : (jdg : Judgment) → ( dΓ : ⊢R (snd (getCtx jdg))) → (dj : Derivable' jdg) → || (constrJdg jdg dΓ dj) || ≡ jdg
+JudgisJudg : (jdg : Judgment) → ( dΓ : ⊢R (snd (getCtx jdg))) → (dj : Derivation jdg) → || (liftJdg jdg dΓ dj) || ≡ jdg
 JudgisJudg (Γ ⊢ .(uu _)) dΓ UU = {!!}
 JudgisJudg (Γ ⊢ .(el _ _)) dΓ (El dj) = {!!}
 JudgisJudg (Γ ⊢ .(pi _ _)) dΓ (Pi dj dj₁) = {!!}
