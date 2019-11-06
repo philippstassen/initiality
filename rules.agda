@@ -13,7 +13,6 @@ data Judgment : Set where
   _⊢_==_ : (Γ : Ctx n) → TyExpr n → TyExpr n → Judgment
   _⊢_==_:>_ : (Γ : Ctx n) → TmExpr n → TmExpr n → TyExpr n → Judgment
 
-
 {- Derivability of judgments, the typing rules of the type theory -}
 
 data Derivable : Judgment → Prop where
@@ -1285,3 +1284,17 @@ dΓ= ,, dA= =
 TmTran' : {Γ : Ctx n} {u v w : TmExpr n} {A : TyExpr n} → ⊢ Γ
         → Derivable (Γ ⊢ u == v :> A)→ Derivable (Γ ⊢ v == w :> A) → Derivable (Γ ⊢ u == w :> A)
 TmTran' dΓ du= dv= = TmTran (TmEqTm1 dΓ dv=) du= dv=
+
+{- ap rules for judgments -}
+ap-jdg-ty : {Γ Δ : Ctx n} {A B : TyExpr n} → Γ ≡ Δ → A ≡ B → (Γ ⊢ A) ≡ (Δ ⊢ B)
+ap-jdg-ty refl refl = refl
+
+ap-jdg-tm : {Γ Δ : Ctx n} {A B : TyExpr n} {u v : TmExpr n} → Γ ≡ Δ → A ≡ B → u ≡ v → (Γ ⊢ u :> A) ≡ (Δ ⊢ v :> B)
+ap-jdg-tm refl refl refl = refl
+
+ap-jdg-tyEq : {Γ Δ : Ctx n} {A A₁ B B₁ : TyExpr n} → Γ ≡ Δ → A ≡ B → A₁ ≡ B₁ → (Γ ⊢ A == A₁) ≡ (Δ ⊢ B == B₁)
+ap-jdg-tyEq refl refl refl = refl
+
+ap-jdg-tmEq : {Γ Δ : Ctx n} {A B : TyExpr n} {u u₁ v v₁ : TmExpr n} → Γ ≡ Δ → A ≡ B → u ≡ v → u₁ ≡ v₁ → (Γ ⊢ u == u₁ :> A) ≡ (Δ ⊢ v == v₁ :> B)
+ap-jdg-tmEq refl refl refl refl = refl
+
