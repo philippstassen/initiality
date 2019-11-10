@@ -10,6 +10,8 @@ open import typetheoryexplicit
 _×R_ : (A B : Set) → Set
 A ×R B = ΣSS A (λ _ → B)
 
+infixr 42 _×R_
+
 instance
   TCMonad : Monad {ℓ = lzero} TC
   return {{TCMonad}} = returnTC
