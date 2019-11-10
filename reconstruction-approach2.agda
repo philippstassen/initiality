@@ -117,7 +117,7 @@ lift-weakenTy {Γ = Γ} {el i v} = {!!}
 lift-weakenTy {Γ = Γ} {pi A A₁} = {!!}
 
 Lift-Der : {jdg : Judgment} → Derivable (jdg) → ex.Derivable (liftJdg jdg)
-Lift-Der (VarLast dj) = {!ex.Conv ?!}
+Lift-Der (VarLast dj) = {!!}
 Lift-Der (VarPrev dj dj₁) = {!!}
 Lift-Der (VarLastCong dj) = {!!}
 Lift-Der (VarPrevCong dj dj₁) = {!!}
