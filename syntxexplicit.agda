@@ -770,3 +770,8 @@ getTy (Γ , A) (var (prev x)) = weakenTy (getTy Γ (var x))
 getTy Γ (lam A B u) = pi A B
 getTy Γ (app A B u u₁) = substTy B u₁
 getTy Γ (coerc S T u) = T
+
+{- To define how to weaken a Context -}
+cutCtx : (k : Fin (suc n)) → (Γ : Ctx n) → Ctx (n -F' k)
+cutCtx last Γ = Γ
+cutCtx (prev k) (Γ , A) = cutCtx k Γ
