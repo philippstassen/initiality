@@ -7,53 +7,6 @@ open ex.shared
 open ex.Judgment renaming (_⊢_ to _⊢ₑ_) renaming (_⊢_:>_ to _⊢ₑ_:>_) renaming (_⊢_==_ to _⊢ₑ_==_) renaming (_⊢_==_:>_ to _⊢ₑ_==_:>_)
 open import translation
 
-{- feels like I also need to put a coerc in the beginning, to translate a derivation that uses as final step Conversion, this would not be trackable anymore probably, possibly it can be fixed later in the derivation translation by hand -}
-{-
-+-it : List ℕ → ℕ
-+-it [] = zero
-+-it (n ∷ ns) = (+-it ns) + n
-
-sizeTy' : TyExpr n → List ℕ
-sizeTm' : TmExpr n → List ℕ
-
-sizeTy : TyExpr n → ℕ
-sizeTy A = suc (+-it (sizeTy' A))
-
-sizeTm : TmExpr n → ℕ
-sizeTm u = suc (+-it (sizeTm' u))
-
-sizeTy' (uu i) = []
-sizeTy' (el i v) = sizeTm v ∷ []
-sizeTy' (pi A B) = sizeTy A ∷ (sizeTy A + sizeTy B) ∷ []
-
-sizeTm' (var _) = []
-
-sizeTm' (lam A B u) = sizeTy A ∷ (sizeTy A + sizeTy B) ∷ (sizeTy A + sizeTm u) ∷ []
-sizeTm' (app A B f a) = sizeTy A ∷ (sizeTy A + sizeTy B) ∷ sizeTm f ∷ sizeTm a ∷ []
-
-sizeCtx : Ctx n → ℕ
-sizeCtx ◇ = 0
-sizeCtx (Γ , A) = sizeCtx Γ + sizeTy A
-
-sizeMor : Mor n m → ℕ
-sizeMor {m = 0} ◇ = 0
-sizeMor {m = suc m} (δ , u) = sizeTm u + sizeMor δ
--}
-
--- sizeTy : TyExpr n → ℕ
--- sizeTm : TmExpr n → ℕ
-
--- sizeTy (uu i) = zero
--- sizeTy (el i v) = suc (sizeTm v)
--- sizeTy (pi A A₁) = suc (sizeTy A + sizeTy A₁)
--- sizeTm (var x) = zero
--- sizeTm (lam A B u) = suc (sizeTy A + sizeTy B + sizeTm u)
--- sizeTm (app A B u u₁) = suc (sizeTy A + sizeTy B + sizeTm u + sizeTm u₁)
-
--- sizeCtx : Ctx n → ℕ
--- sizeCtx ◇ = zero
--- sizeCtx (Γ , A) = sizeCtx Γ + sizeTy A
-
 liftTy : {n : ℕ} → (Γ : (ex.Ctx n)) → (A : TyExpr n) → ex.TyExpr n
 liftTm : {n : ℕ} → (Γ : (ex.Ctx n)) → (u : TmExpr n) → ex.TmExpr n
 
