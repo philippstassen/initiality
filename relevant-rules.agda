@@ -27,26 +27,23 @@ data Derivation : rules.Judgment → Set where
     → Derivation (Γ ⊢ A)
     → Derivation (Γ ⊢ var k == var k' :> A)
     → Derivation ((Γ , B) ⊢ var (prev k) == var (prev k') :> weakenTy A)
-          
-  -- Symmetry and transitivity for types
-  TySymm : {Γ : Ctx n} {A B : TyExpr n}
-    → Derivation (Γ ⊢ A == B) → Derivation (Γ ⊢ B == A)
-  TyTran : {Γ : Ctx n} {A B C : TyExpr n}
-    → Derivation (Γ ⊢ B) → Derivation (Γ ⊢ A == B)→ Derivation (Γ ⊢ B == C) → Derivation (Γ ⊢ A == C)
 
-  -- Symmetry and transitivity for terms
+   -- Symmetry and transitivity for types
+  TySymm : {Γ : Ctx n} {A B : TyExpr n} → Derivation (Γ ⊢ A == B) → Derivation (Γ ⊢ B == A)
+  TyTran : {Γ : Ctx n} {A B C : TyExpr n} → Derivation (Γ ⊢ B) → Derivation (Γ ⊢ A == B)→ Derivation (Γ ⊢ B == C) → Derivation (Γ ⊢ A == C)
+
+   -- Symmetry and transitivity for terms
   TmSymm : {Γ : Ctx n} {u v : TmExpr n} {A : TyExpr n}
-    → Derivation (Γ ⊢ u == v :> A) → Derivation (Γ ⊢ v == u :> A)
+   → Derivation (Γ ⊢ u == v :> A) → Derivation (Γ ⊢ v == u :> A)
   TmTran : {Γ : Ctx n} {u v w : TmExpr n} {A : TyExpr n}
-    → Derivation (Γ ⊢ v :> A) → Derivation (Γ ⊢ u == v :> A)→ Derivation (Γ ⊢ v == w :> A) → Derivation (Γ ⊢ u == w :> A)
+   → Derivation (Γ ⊢ v :> A) → Derivation (Γ ⊢ u == v :> A)→ Derivation (Γ ⊢ v == w :> A) → Derivation (Γ ⊢ u == w :> A)
 
   -- Conversion rules
   Conv : {Γ : Ctx n} {u : TmExpr n} {A B : TyExpr n} → Derivation (Γ ⊢ A)
     → Derivation (Γ ⊢ u :> A) → Derivation (Γ ⊢ A == B) → Derivation (Γ ⊢ u :> B)
   ConvEq : {Γ : Ctx n} {u u' : TmExpr n} {A B : TyExpr n} → Derivation (Γ ⊢ A)
-    → Derivation (Γ ⊢ u == u' :> A) → Derivation (Γ ⊢ A == B) → Derivation (Γ ⊢ u == u' :> B)
-
-
+    → Derivation (Γ ⊢ u :> A) → Derivation (Γ ⊢ u' :> A) → Derivation (Γ ⊢ u == u' :> A) → Derivation (Γ ⊢ A == B) → Derivation (Γ ⊢ u == u' :> B)
+        
   -- Rules for UU
   UU : {i : ℕ} {Γ : Ctx n}
     → Derivation (Γ ⊢ uu i)
@@ -64,16 +61,14 @@ data Derivation : rules.Judgment → Set where
   -- Rules for El
   El : {i : ℕ} {Γ : Ctx n} {v : TmExpr n}
     → Derivation (Γ ⊢ v :> uu i) → Derivation (Γ ⊢ el i v)
-  ElCong : {i : ℕ} {Γ : Ctx n} {v v' : TmExpr n}
-    → Derivation (Γ ⊢ v == v' :> uu i) → Derivation (Γ ⊢ el i v == el i v')
+  ElCong : {i : ℕ} {Γ : Ctx n} {v v' : TmExpr n} → Derivation (Γ ⊢ v :> uu i) → Derivation (Γ ⊢ v' :> uu i) → Derivation (Γ ⊢ v == v' :> uu i) → Derivation (Γ ⊢ el i v == el i v')
 
 
   -- Rules for Pi
   Pi : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} 
     → Derivation (Γ ⊢ A) → Derivation ((Γ , A) ⊢ B) → Derivation (Γ ⊢ pi A B)
   PiCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)}
-    → Derivation (Γ ⊢ A)
-    → Derivation (Γ ⊢ A == A') → Derivation ((Γ , A) ⊢ B == B') → Derivation (Γ ⊢ pi A B == pi A' B')
+    → Derivation (Γ ⊢ A) → Derivation (Γ ⊢ A') → Derivation (Γ ⊢ A == A') → Derivation ((Γ , A) ⊢ B == B') → Derivation ((Γ , A') ⊢ B == B') → Derivation (Γ ⊢ pi A B == pi A' B')
 
 --   -- Rules for pi
 --   PiUU : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
@@ -88,8 +83,8 @@ data Derivation : rules.Judgment → Set where
     → Derivation (Γ ⊢ A) → Derivation ((Γ , A) ⊢ B) → Derivation ((Γ , A) ⊢ u :> B)
     → Derivation (Γ ⊢ lam A B u :> pi A B)
   LamCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr (suc n)}
-    → Derivation (Γ ⊢ A)
-    → Derivation (Γ ⊢ A == A') → Derivation ((Γ , A) ⊢ B == B') → Derivation ((Γ , A) ⊢ u == u' :> B)
+    → Derivation (Γ ⊢ A) → Derivation (Γ ⊢ A') 
+    → Derivation (Γ ⊢ A == A') → Derivation ((Γ , A) ⊢ B == B') → Derivation ((Γ , A') ⊢ B == B') → Derivation ((Γ , A) ⊢ u == u' :> B) → Derivation ((Γ , A') ⊢ u == u' :> B')
     → Derivation (Γ ⊢ lam A B u == lam A' B' u' :> pi A B)
 
   -- Rules for app
@@ -98,7 +93,7 @@ data Derivation : rules.Judgment → Set where
     → Derivation (Γ ⊢ app A B f a :> substTy B a)
   AppCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {f f' a a' : TmExpr n}
     → Derivation (Γ ⊢ A)
-    → Derivation (Γ ⊢ A == A') → Derivation ((Γ , A) ⊢ B == B') → Derivation (Γ ⊢ f == f' :> pi A B) → Derivation (Γ ⊢ a == a' :> A)
+    → Derivation (Γ ⊢ A == A') → Derivation ((Γ , A) ⊢ B == B') → Derivation (Γ ⊢ f == f' :> pi A B) → Derivation (Γ ⊢ a == a' :> A) → Derivation ( Γ ⊢ app A' B' f' a' :> substTy B a) 
     → Derivation (Γ ⊢ app A B f a == app A' B' f' a' :> substTy B a)
 
 
@@ -328,15 +323,15 @@ CongTmR reflR reflR reflR = refl
 TyRefl' : {Γ : Ctx n} {A : TyExpr n} → Derivation (Γ ⊢ A) → Derivation (Γ ⊢ A == A)
 TmRefl' : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivation (Γ ⊢ u :> A) → Derivation (Γ ⊢ u == u :> A)
 
-TyRefl' (Pi dA dB) = PiCong dA (TyRefl' dA) (TyRefl' dB)
+TyRefl' (Pi dA dB) = PiCong dA dA (TyRefl' dA) (TyRefl' dB) (TyRefl' dB)
 TyRefl' UU = UUCong
-TyRefl' (El dv) = ElCong (TmRefl' dv)
+TyRefl' (El dv) = ElCong dv dv (TmRefl' dv)
 
 TmRefl' (VarLast dA) = VarLastCong dA
 TmRefl' (VarPrev dA dk) = VarPrevCong dA (TmRefl' dk) 
-TmRefl' (Conv dA du dA=) = ConvEq dA (TmRefl' du) dA=
-TmRefl' (Lam dA dB du) = LamCong dA (TyRefl' dA) (TyRefl' dB) (TmRefl' du)
-TmRefl' (App dA dB df da) = AppCong dA (TyRefl' dA) (TyRefl' dB) (TmRefl' df) (TmRefl' da)
+TmRefl' (Conv dA du dA=) = ConvEq dA du du (TmRefl' du) dA=
+TmRefl' (Lam dA dB du) = LamCong dA dA (TyRefl' dA) (TyRefl' dB) (TyRefl' dB) (TmRefl' du) (TmRefl' du)
+TmRefl' (App dA dB df da) = AppCong dA (TyRefl' dA) (TyRefl' dB) (TmRefl' df) (TmRefl' da) (App dA dB df da)
 
 CtxReflR : {Γ : Ctx n} → ⊢R Γ → ⊢R Γ == Γ
 CtxReflR {Γ = ◇} starU = starU
@@ -345,6 +340,7 @@ CtxReflR {Γ = Γ , A} (dΓ , dA) = (CtxReflR dΓ , dA , dA , TyRefl' dA , TyRef
 MorReflR : {Γ : Ctx n} {Δ : Ctx m} {δ : Mor n m} → (Γ ⊢R δ ∷> Δ) → (Γ ⊢R δ == δ ∷> Δ)
 MorReflR {Δ = ◇} {δ = ◇} dδ = starU
 MorReflR {Δ = Δ , B} {δ = δ , u} (dδ , du) = MorReflR dδ , TmRefl' du
+
 
 
 -- Weakening and Substitution for proof relevant
@@ -356,10 +352,10 @@ SubstTyREq : {Γ : Ctx n} {Δ : Ctx m} {A A' : TyExpr m} {δ : Mor n m}
        → Derivation (Δ ⊢ A == A') → Γ ⊢R δ ∷> Δ → Derivation (Γ ⊢ A [ δ ]Ty == A' [ δ ]Ty)
 SubstTmREq : {Γ : Ctx n} {Δ : Ctx m} {u u' : TmExpr m} {A : TyExpr m} {δ : Mor n m}
        → Derivation (Δ ⊢ u == u' :> A) → (Γ ⊢R δ ∷> Δ) → Derivation (Γ ⊢ u [ δ ]Tm == u' [ δ ]Tm :> A [ δ ]Ty)
-SubstTyMorEqR : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ δ' : Mor n m} → Derivation (Δ ⊢ A) → (Γ ⊢R δ ∷> Δ)
-       → (Γ ⊢R δ == δ' ∷> Δ) → Derivation (Γ ⊢ A [ δ ]Ty == A [ δ' ]Ty)
-SubstTmMorEqR : {Γ : Ctx n} {Δ : Ctx m} {u : TmExpr m} {A : TyExpr m} {δ δ' : Mor n m} →  Derivation (Δ ⊢ u :> A) → (Γ ⊢R δ ∷> Δ) 
-       → (Γ ⊢R δ == δ' ∷> Δ) → Derivation (Γ ⊢ u [ δ ]Tm == u [ δ' ]Tm :> A [ δ ]Ty)
+-- SubstTyMorEqR : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ δ' : Mor n m} → Derivation (Δ ⊢ A) → (Γ ⊢R δ ∷> Δ)
+--       → (Γ ⊢R δ == δ' ∷> Δ) → Derivation (Γ ⊢ A [ δ ]Ty == A [ δ' ]Ty)
+-- SubstTmMorEqR : {Γ : Ctx n} {Δ : Ctx m} {u : TmExpr m} {A : TyExpr m} {δ δ' : Mor n m} →  Derivation (Δ ⊢ u :> A) → (Γ ⊢R δ ∷> Δ) 
+--       → (Γ ⊢R δ == δ' ∷> Δ) → Derivation (Γ ⊢ u [ δ ]Tm == u [ δ' ]Tm :> A [ δ ]Ty)
 
 WeakTy' : {k : Fin (suc n)} {Γ : Ctx n} {T : TyExpr (n -F' k)} {A : TyExpr n}
      → Derivation (Γ ⊢ A) → Derivation (weakenCtx k Γ T ⊢ weakenTy' k A)
@@ -413,17 +409,17 @@ SubstTmR {u = app A B f a} {δ = δ} (App dA dB df da) dδ = congTmTyR! []Ty-sub
 SubstTyREq (TySymm dA=) dδ = TySymm (SubstTyREq dA= dδ)
 SubstTyREq (TyTran dB dA= dB=) dδ = TyTran (SubstTyR dB dδ) (SubstTyREq dA= dδ) (SubstTyREq dB= dδ)
 
-SubstTyREq (PiCong dA dA= dB=) dδ = PiCong (SubstTyR dA dδ) (SubstTyREq dA= dδ) (SubstTyREq dB= (WeakMorR+ dA dδ))
+SubstTyREq {δ = δ} (PiCong {A' = A'} dA dA' dA= dB= dB'=) dδ = PiCong (SubstTyR dA dδ) (SubstTyR dA' dδ) (SubstTyREq dA= dδ) (SubstTyREq dB= (WeakMorR+ dA dδ)) (SubstTyREq dB'= ((WeakMorR dδ) , congTmTyR (weaken[]TyR A' δ last) (VarLast (SubstTyR dA' dδ)) ))
 SubstTyREq UUCong dδ = UUCong
-SubstTyREq (ElCong dv=) dδ = ElCong (SubstTmREq dv= dδ)
+SubstTyREq (ElCong dv dv' dv=) dδ = ElCong (SubstTmR dv dδ) ( SubstTmR dv' dδ) (SubstTmREq dv= dδ)
 
 SubstTmREq {δ = _ , _} (VarLastCong _)     (_ , du) = congTmEqTyR! (weakenTyInsertR _ _ _) (TmRefl' du)
 SubstTmREq {δ = _ , _} (VarPrevCong _ dA=) (dδ , _) = congTmEqTyR! (weakenTyInsertR _ _ _) (SubstTmREq dA= dδ)
 SubstTmREq (TmSymm du=) dδ = TmSymm (SubstTmREq du= dδ)
 SubstTmREq (TmTran dv du= dv=) dδ = TmTran (SubstTmR dv dδ) (SubstTmREq du= dδ) (SubstTmREq dv= dδ)
-SubstTmREq (ConvEq dA du= dA=) dδ = ConvEq (SubstTyR dA dδ) (SubstTmREq du= dδ) (SubstTyREq dA= dδ) 
-SubstTmREq (LamCong dA dA= dB= du=) dδ = LamCong (SubstTyR dA dδ) (SubstTyREq dA= dδ) (SubstTyREq dB= (WeakMorR+ dA dδ)) (SubstTmREq du= (WeakMorR+ dA dδ))
-SubstTmREq (AppCong dA dA= dB= df= da=) dδ = congTmEqTyR! []Ty-substTyR (AppCong (SubstTyR dA dδ) (SubstTyREq dA= dδ) (SubstTyREq dB= (WeakMorR+ dA dδ)) (SubstTmREq df= dδ) (SubstTmREq da= dδ))
+SubstTmREq (ConvEq dA du dv du= dA=) dδ = ConvEq (SubstTyR dA dδ) ( SubstTmR du dδ) ( SubstTmR dv dδ) (SubstTmREq du= dδ) (SubstTyREq dA= dδ) 
+SubstTmREq {δ = δ} (LamCong {A' = A'} dA dA' dA= dB= dB'= du= du'=) dδ = LamCong (SubstTyR dA dδ) (SubstTyR dA' dδ) (SubstTyREq dA= dδ) (SubstTyREq dB= (WeakMorR+ dA dδ)) (SubstTyREq dB'= (WeakMorR dδ , congTmTyR (weaken[]TyR A' δ last) (VarLast (SubstTyR dA' dδ)))) (SubstTmREq du= (WeakMorR+ dA dδ)) (SubstTmREq du'= (WeakMorR dδ , congTmTyR (weaken[]TyR A' δ last) (VarLast (SubstTyR dA' dδ))))
+SubstTmREq (AppCong {B = B} {a = a} dA dA= dB= df= da= dBa) dδ = congTmEqTyR! []Ty-substTyR (AppCong (SubstTyR dA dδ) (SubstTyREq dA= dδ) (SubstTyREq dB= (WeakMorR+ dA dδ)) (SubstTmREq df= dδ) (SubstTmREq da= dδ) (congTmTyR []Ty-substTyR (SubstTmR dBa dδ)) )
 SubstTmREq (BetaPi {u = u} dA dB du da) dδ = congTmEqR! reflR ([]Tm-substTmR u) []Ty-substTyR (BetaPi (SubstTyR dA dδ) (SubstTyR dB (WeakMorR+ dA dδ)) (SubstTmR du (WeakMorR+ dA dδ )) (SubstTmR da dδ))
 SubstTmREq (EtaPi {f = f} dA dB df) dδ =
   congTmEqR! reflR (apR-lam-Tm reflR reflR (apR-app-Tm []Ty-weakenTyR []Ty-weakenTy1R ([]Tm-weakenTmR f) reflR)) reflR
@@ -447,9 +443,9 @@ WeakTm' (App dA dB df da) = congTmTyR! weakenTy-substTy' (App (WeakTy' dA) (Weak
 
 WeakTyEq' (TySymm dA=) = TySymm (WeakTyEq' dA=)
 WeakTyEq' (TyTran dB dA= dB=) = TyTran (WeakTy' dB) (WeakTyEq' dA=) (WeakTyEq' dB=)
-WeakTyEq' (PiCong dA dA= dB=) = PiCong (WeakTy' dA) (WeakTyEq' dA=) (WeakTyEq' dB=)
+WeakTyEq' (PiCong dA dA' dA= dB= dB'=) = PiCong (WeakTy' dA) (WeakTy' dA') (WeakTyEq' dA=) (WeakTyEq' dB=) (WeakTyEq' dB'= )
 WeakTyEq' UUCong = UUCong
-WeakTyEq' (ElCong dv=) = ElCong (WeakTmEq' dv=)
+WeakTyEq' (ElCong dv dv' dv=) = ElCong (WeakTm' dv) (WeakTm' dv') (WeakTmEq' dv=)
 
 WeakTmEq' {k = last}   (VarLastCong dA)     = VarPrevCong (WeakTy' dA) (VarLastCong dA)
 WeakTmEq' {k = last}   (VarPrevCong dA dk=) = VarPrevCong (WeakTy' dA) (WeakTmEq' dk=)
@@ -457,11 +453,11 @@ WeakTmEq' {k = prev k} (VarLastCong dA)     = congTmEqTyR! weakenTy-weakenTy' (V
 WeakTmEq' {k = prev k} (VarPrevCong dA dk=) = congTmEqTyR! weakenTy-weakenTy' (VarPrevCong (WeakTy' dA) (WeakTmEq' dk=))
 WeakTmEq' (TmSymm du=) = TmSymm (WeakTmEq' du=)
 WeakTmEq' (TmTran dv du= dv=) = TmTran (WeakTm' dv) (WeakTmEq' du=) (WeakTmEq' dv=)
-WeakTmEq' (ConvEq dA du= dA=) = ConvEq (WeakTy' dA) (WeakTmEq' du=) (WeakTyEq' dA=)
+WeakTmEq' (ConvEq dA du du' du= dA=) = ConvEq (WeakTy' dA) (WeakTm' du) (WeakTm' du') (WeakTmEq' du=) (WeakTyEq' dA=)
 -- WeakTmEq' UUUUCong = UUUUCong
 -- WeakTmEq' (PiUUCong da da= db=) = PiUUCong (WeakTm' da) (WeakTmEq' da=) (WeakTmEq' db=)
-WeakTmEq' (LamCong dA dA= dB= du=) = LamCong (WeakTy' dA) (WeakTyEq' dA=) (WeakTyEq' dB=) (WeakTmEq' du=)
-WeakTmEq' (AppCong dA dA= dB= df= da=) = congTmEqTyR! weakenTy-substTy' (AppCong (WeakTy' dA) (WeakTyEq' dA=) (WeakTyEq' dB=) (WeakTmEq'  df=) (WeakTmEq' da=))
+WeakTmEq' (LamCong dA dA' dA= dB= dB'= du= du'=) = LamCong (WeakTy' dA) (WeakTy' dA') (WeakTyEq' dA=) (WeakTyEq' dB=) (WeakTyEq' dB'=) (WeakTmEq' du=) (WeakTmEq' du'=)
+WeakTmEq' (AppCong dA dA= dB= df= da= dBa) = congTmEqTyR! weakenTy-substTy' (AppCong (WeakTy' dA) (WeakTyEq' dA=) (WeakTyEq' dB=) (WeakTmEq'  df=) (WeakTmEq' da=) (congTmTyR weakenTy-substTy' (WeakTm' dBa)))
 WeakTmEq' {u = app A B (lam A B u) a} (BetaPi dA dB du da) = congTmEqR! reflR (weakenTm-substTmR u) weakenTy-substTy' (BetaPi (WeakTy' dA) (WeakTy' dB) (WeakTm' du) (WeakTm' da))
 WeakTmEq' (EtaPi {f = f} dA dB df) =
   congTmEqR! reflR (apR-lam-Tm reflR reflR (apR-app-Tm weakenTy-weakenTy' weakenTy-weakenTy1R (!R (weakenTmCommutesR _ f)) reflR)) reflR
@@ -469,22 +465,22 @@ WeakTmEq' (EtaPi {f = f} dA dB df) =
                    (WeakTy' dB)
                    (WeakTm' df))
 
-SubstTyMorEqR (Pi dA dB) dδ dδ= = PiCong (SubstTyR dA dδ) (SubstTyMorEqR dA dδ dδ=) (SubstTyMorEqR dB (WeakMorR+ dA dδ) (WeakMorR+Eq dA dδ dδ=))
-SubstTyMorEqR UU dδ dδ= = UUCong
-SubstTyMorEqR (El dv) dδ dδ= = ElCong (SubstTmMorEqR dv dδ dδ=)
+-- SubstTyMorEqR (Pi dA dB) dδ dδ= = PiCong (SubstTyR dA dδ) (SubstTyMorEqR dA dδ dδ=) (SubstTyMorEqR dB (WeakMorR+ dA dδ) (WeakMorR+Eq dA dδ dδ=))
+-- SubstTyMorEqR UU dδ dδ= = UUCong
+-- SubstTyMorEqR (El dv) dδ dδ= = ElCong ( SubstTmR dv dδ) ( SubstTmR dv {!!}) (SubstTmMorEqR dv dδ dδ=)
 
-SubstTmMorEqR {δ = _ , _} {δ' = _ , _} (VarLast _) dδ (_ , du=) = congTmEqTyR! (weakenTyInsertR _ _ _) du=
-SubstTmMorEqR {δ = _ , _} {δ' = _ , _} (VarPrev _ dk) (dδ , _) (dδ= , _) = congTmEqTyR! (weakenTyInsertR _ _ _) (SubstTmMorEqR dk dδ dδ=)
-SubstTmMorEqR (Conv dA du dA=) dδ dδ= = ConvEq (SubstTyR dA dδ) (SubstTmMorEqR du dδ dδ=) (SubstTyREq dA= dδ)
-SubstTmMorEqR (Lam dA dB du) dδ dδ= = LamCong (SubstTyR dA dδ) (SubstTyMorEqR dA dδ dδ=) (SubstTyMorEqR dB (WeakMorR+ dA dδ) (WeakMorR+Eq dA dδ dδ=)) (SubstTmMorEqR du (WeakMorR+ dA dδ) (WeakMorR+Eq dA dδ dδ=))
-SubstTmMorEqR (App dA dB df da) dδ dδ= = congTmEqTyR! []Ty-substTyR (AppCong (SubstTyR dA dδ) (SubstTyMorEqR dA dδ dδ=) (SubstTyMorEqR dB (WeakMorR+ dA dδ) (WeakMorR+Eq dA dδ dδ=)) (SubstTmMorEqR df dδ dδ=) (SubstTmMorEqR da dδ dδ=))
+-- SubstTmMorEqR {δ = _ , _} {δ' = _ , _} (VarLast _) dδ (_ , du=) = congTmEqTyR! (weakenTyInsertR _ _ _) du=
+-- SubstTmMorEqR {δ = _ , _} {δ' = _ , _} (VarPrev _ dk) (dδ , _) (dδ= , _) = congTmEqTyR! (weakenTyInsertR _ _ _) (SubstTmMorEqR dk dδ dδ=)
+-- SubstTmMorEqR (Conv dA du dA=) dδ dδ= = ConvEq (SubstTyR dA dδ) {!!} {!!} (SubstTmMorEqR du dδ dδ=) (SubstTyREq dA= dδ)
+-- SubstTmMorEqR (Lam dA dB du) dδ dδ= = LamCong (SubstTyR dA dδ) (SubstTyMorEqR dA dδ dδ=) (SubstTyMorEqR dB (WeakMorR+ dA dδ) (WeakMorR+Eq dA dδ dδ=)) (SubstTmMorEqR du (WeakMorR+ dA dδ) (WeakMorR+Eq dA dδ dδ=))
+-- SubstTmMorEqR (App dA dB df da) dδ dδ= = congTmEqTyR! []Ty-substTyR (AppCong (SubstTyR dA dδ) (SubstTyMorEqR dA dδ dδ=) (SubstTyMorEqR dB (WeakMorR+ dA dδ) (WeakMorR+Eq dA dδ dδ=)) (SubstTmMorEqR df dδ dδ=) (SubstTmMorEqR da dδ dδ=))
 
 substTy-weakenTyR' : {k : Fin (suc m)} {A : TyExpr m} {δ : Mor n m} {t : TmExpr n} → weakenTy' k A [ insertMor k t δ ]Ty ≡R A [ δ ]Ty
 substTy-weakenTyR' = weakenTyInsert'R _ _ _ _
 
-SubstTyFullEqR : {Γ : Ctx n} {Δ : Ctx m} {A A' : TyExpr m} {δ δ' : Mor n m} → Derivation (Δ ⊢ A') → (Γ ⊢R δ ∷> Δ)
-       → Derivation (Δ ⊢ A == A') → (Γ ⊢R δ == δ' ∷> Δ) → Derivation (Γ ⊢ A [ δ ]Ty == A' [ δ' ]Ty)
-SubstTyFullEqR dA' dδ dA= dδ= = TyTran (SubstTyR dA' dδ) (SubstTyREq dA= dδ) (SubstTyMorEqR dA' dδ dδ=)
+-- SubstTyFullEqR : {Γ : Ctx n} {Δ : Ctx m} {A A' : TyExpr m} {δ δ' : Mor n m} → Derivation (Δ ⊢ A') → (Γ ⊢R δ ∷> Δ)
+--        → Derivation (Δ ⊢ A == A') → (Γ ⊢R δ == δ' ∷> Δ) → Derivation (Γ ⊢ A [ δ ]Ty == A' [ δ' ]Ty)
+-- SubstTyFullEqR dA' dδ dA= dδ= = TyTran {!!} (SubstTyR dA' dδ) {!!} (SubstTyREq dA= dδ) (SubstTyMorEqR dA' dδ dδ=)
 
 {- Derivability of the identity morphism -}
 
@@ -492,136 +488,170 @@ idMorDerivableR : {Γ : Ctx n} →  ⊢R Γ → (Γ ⊢R idMor n ∷> Γ)
 idMorDerivableR {Γ = ◇} starU = starU
 idMorDerivableR {Γ = Γ , A} (dΓ , dA) = (WeakMorR (idMorDerivableR dΓ) , congTmR (!R ([idMor]TyR _) R∙ substTy-weakenTyR') reflR (VarLast dA))
 
--- Conversion rules for proof relevant version are needed as well
+-- -- Conversion rules for proof relevant version are needed as well
 
-ConvTy' : {Γ Δ : Ctx n} {A : TyExpr n} → Derivation (Γ ⊢ A) → (⊢R Γ == Δ) → Derivation (Δ ⊢ A)
-ConvTm' : {Γ Δ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivation (Γ ⊢ u :> A) → (⊢R Γ == Δ) → Derivation (Δ ⊢ u :> A)
-ConvTyEq' : {Γ Δ : Ctx n} {A B : TyExpr n} → Derivation (Γ ⊢ A == B) → (⊢R Γ == Δ) → Derivation (Δ ⊢ A == B)
-ConvTmEq' : {Γ Δ : Ctx n} {A : TyExpr n} {u v : TmExpr n} → Derivation (Γ ⊢ u == v :> A) → (⊢R Γ == Δ) → Derivation (Δ ⊢ u == v :> A)
+-- ConvTy' : {Γ Δ : Ctx n} {A : TyExpr n} → Derivation (Γ ⊢ A) → (⊢R Γ == Δ) → Derivation (Δ ⊢ A)
+-- ConvTm' : {Γ Δ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivation (Γ ⊢ u :> A) → (⊢R Γ == Δ) → Derivation (Δ ⊢ u :> A)
+-- ConvTyEq' : {Γ Δ : Ctx n} {A B : TyExpr n} → Derivation (Γ ⊢ A == B) → (⊢R Γ == Δ) → Derivation (Δ ⊢ A == B)
+-- ConvTmEq' : {Γ Δ : Ctx n} {A : TyExpr n} {u v : TmExpr n} → Derivation (Γ ⊢ u == v :> A) → (⊢R Γ == Δ) → Derivation (Δ ⊢ u == v :> A)
 
-ConvTy' {Γ = Γ} {Δ = Δ} {A = A} (Pi dA dB) dΓ= = Pi (ConvTy' dA dΓ=) (ConvTy' dB (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=)))
-ConvTy' UU dΓ= = UU
-ConvTy' (El dv) dΓ= = El (ConvTm' dv dΓ=)
+-- ConvTy' {Γ = Γ} {Δ = Δ} {A = A} (Pi dA dB) dΓ= = Pi (ConvTy' dA dΓ=) (ConvTy' dB (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=)))
+-- ConvTy' UU dΓ= = UU
+-- ConvTy' (El dv) dΓ= = El (ConvTm' dv dΓ=)
 
-ConvTyEq'(TySymm dA=) dΓ= = TySymm (ConvTyEq' dA= dΓ=)
-ConvTyEq'(TyTran dB dA= dB=) dΓ= = TyTran (ConvTy' dB dΓ=) (ConvTyEq' dA= dΓ=) (ConvTyEq' dB= dΓ=)
-ConvTyEq' (PiCong dA dA= dB=) dΓ= = PiCong (ConvTy' dA dΓ=) (ConvTyEq' dA= dΓ=) (ConvTyEq' dB= (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=)))
-ConvTyEq' UUCong dΓ= = UUCong
-ConvTyEq' (ElCong dv=) dΓ= = ElCong (ConvTmEq' dv= dΓ=)
+-- ConvTyEq'(TySymm dA dB dA=) dΓ= = TySymm (ConvTy' dA dΓ=) (ConvTy' dB dΓ=) (ConvTyEq' dA= dΓ=)
+-- ConvTyEq'(TyTran dA dB dC dA= dB=) dΓ= = TyTran ( ConvTy' dA dΓ=) (ConvTy' dB dΓ=) ( ConvTy' dC dΓ=) (ConvTyEq' dA= dΓ=) (ConvTyEq' dB= dΓ=)
+-- ConvTyEq' (PiCong dA dA= dB=) dΓ= = PiCong (ConvTy' dA dΓ=) (ConvTyEq' dA= dΓ=) (ConvTyEq' dB= (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=)))
+-- ConvTyEq' UUCong dΓ= = UUCong
+-- ConvTyEq' (ElCong dv dv' dv=) dΓ= = ElCong (ConvTm' dv dΓ=) ( ConvTm' dv' dΓ=) (ConvTmEq' dv= dΓ=)
 
-ConvTm' {Δ = Δ , B} {var last} (VarLast {A = A} dA) (dΓ= , dA' , dB , dA= , dA=') = Conv (WeakTy' dB) (VarLast dB) (WeakTyEq' (TySymm dA='))
-{- changed dA to dA' -}
-ConvTm' {Γ = Γ , A} {Δ = Δ , B} (VarPrev dA dk) (dΓ= , dA' , dB , dA=) = VarPrev (ConvTy' dA dΓ=) (ConvTm' dk dΓ=)
-ConvTm' (Conv dA du dA=) dΓ= = Conv (ConvTy' dA dΓ=) (ConvTm' du dΓ=) (ConvTyEq' dA= dΓ=)
-ConvTm' (Lam dA dB du) dΓ= = Lam (ConvTy' dA dΓ=) (ConvTy' dB (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=))) (ConvTm' du (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=)))
-ConvTm' (App dA dB df da) dΓ= = App (ConvTy' dA dΓ=) (ConvTy' dB (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=))) (ConvTm' df dΓ=) (ConvTm' da dΓ=)
+-- ConvTm' {Δ = Δ , B} {var last} (VarLast {A = A} dA) (dΓ= , dA' , dB , dA= , dA=') = Conv (WeakTy' dB) (VarLast dB) (WeakTyEq' (TySymm (ConvTy' dA dΓ=) dB dA='))
+-- {- changed dA to dA' -}
+-- ConvTm' {Γ = Γ , A} {Δ = Δ , B} (VarPrev dA dk) (dΓ= , dA' , dB , dA=) = VarPrev (ConvTy' dA dΓ=) (ConvTm' dk dΓ=)
+-- ConvTm' (Conv dA du dA=) dΓ= = Conv (ConvTy' dA dΓ=) (ConvTm' du dΓ=) (ConvTyEq' dA= dΓ=)
+-- ConvTm' (Lam dA dB du) dΓ= = Lam (ConvTy' dA dΓ=) (ConvTy' dB (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=))) (ConvTm' du (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=)))
+-- ConvTm' (App dA dB df da) dΓ= = App (ConvTy' dA dΓ=) (ConvTy' dB (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=))) (ConvTm' df dΓ=) (ConvTm' da dΓ=)
 
-ConvTmEq'  {Δ = Δ , B} (VarLastCong {A = A} dA) (dΓ= , dA' , dB , dA= , dA=') = ConvEq (WeakTy' dB) (VarLastCong dB) (WeakTyEq' (TySymm dA='))
-{- changed dA to dA' -}
-ConvTmEq' {Γ = Γ , B} {Δ , B'} (VarPrevCong {A = A} dA dk=) (dΓ= , dA' , dB , dA=) = VarPrevCong (ConvTy' dA dΓ=) (ConvTmEq' dk= dΓ=)
-ConvTmEq' (TmSymm du=) dΓ= = TmSymm (ConvTmEq' du= dΓ=)
-ConvTmEq' (TmTran dv du= dv=) dΓ= = TmTran (ConvTm' dv dΓ=) (ConvTmEq' du= dΓ=) (ConvTmEq' dv= dΓ=)
-ConvTmEq' (ConvEq dA du= dA=) dΓ= = ConvEq (ConvTy' dA dΓ=) (ConvTmEq' du= dΓ=) (ConvTyEq' dA= dΓ=)
-ConvTmEq' (LamCong dA dA= dB= du=) dΓ= = LamCong (ConvTy' dA dΓ=) (ConvTyEq' dA= dΓ=) (ConvTyEq' dB= (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=))) (ConvTmEq' du= (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=)))
-ConvTmEq' (AppCong dA dA= dB= df= da=) dΓ= = AppCong (ConvTy' dA dΓ=) (ConvTyEq' dA= dΓ=) (ConvTyEq' dB= (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=))) (ConvTmEq' df= dΓ=) (ConvTmEq' da= dΓ=)
-ConvTmEq' (BetaPi dA dB du da) dΓ= = BetaPi (ConvTy' dA dΓ=) (ConvTy' dB (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=))) (ConvTm' du (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=))) (ConvTm' da dΓ=)
-ConvTmEq' (EtaPi dA dB df) dΓ= =
-  EtaPi (ConvTy' dA dΓ=)
-        (ConvTy' dB (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=)))
-        (ConvTm' df dΓ=)
-
-TyEqTy1R : {Γ : Ctx n} {A B : TyExpr n} → (⊢R Γ) → Derivation (Γ ⊢ A == B) → Derivation (Γ ⊢ A)
-TyEqTy2R : {Γ : Ctx n} {A B : TyExpr n} → (⊢R Γ) → Derivation (Γ ⊢ A == B) → Derivation (Γ ⊢ B)
-TmEqTm1R : {Γ : Ctx n} {u u' : TmExpr n} {A : TyExpr n} → (⊢R Γ) → Derivation (Γ ⊢ u == u' :> A) → Derivation (Γ ⊢ u :> A)
-TmEqTm2R : {Γ : Ctx n} {u u' : TmExpr n} {A : TyExpr n} → (⊢R Γ) → Derivation (Γ ⊢ u == u' :> A) → Derivation (Γ ⊢ u' :> A)
+-- ConvTmEq'  {Δ = Δ , B} (VarLastCong {A = A} dA) (dΓ= , dA' , dB , dA= , dA=') = ConvEq (WeakTy' dB) {!!} {!!} (VarLastCong dB) (WeakTyEq' (TySymm {!!} {!!} dA='))
+-- {- changed dA to dA' -}
+-- ConvTmEq' {Γ = Γ , B} {Δ , B'} (VarPrevCong {A = A} dA dk=) (dΓ= , dA' , dB , dA=) = VarPrevCong (ConvTy' dA dΓ=) (ConvTmEq' dk= dΓ=)
+-- ConvTmEq' (TmSymm du dv du=) dΓ= = TmSymm {!!} {!!} (ConvTmEq' du= dΓ=)
+-- ConvTmEq' (TmTran du dv dw du= dv=) dΓ= = TmTran {!!} (ConvTm' dv dΓ=) {!!} (ConvTmEq' du= dΓ=) (ConvTmEq' dv= dΓ=)
+-- ConvTmEq' (ConvEq dA du du' du= dA=) dΓ= = ConvEq (ConvTy' dA dΓ=) {!!} {!!} (ConvTmEq' du= dΓ=) (ConvTyEq' dA= dΓ=)
+-- ConvTmEq' (LamCong dA dA= dB= du=) dΓ= = LamCong (ConvTy' dA dΓ=) (ConvTyEq' dA= dΓ=) (ConvTyEq' dB= (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=))) (ConvTmEq' du= (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=)))
+-- ConvTmEq' (AppCong dA dA= dB= df= da=) dΓ= = AppCong (ConvTy' dA dΓ=) (ConvTyEq' dA= dΓ=) (ConvTyEq' dB= (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=))) (ConvTmEq' df= dΓ=) (ConvTmEq' da= dΓ=)
+-- ConvTmEq' (BetaPi dA dB du da) dΓ= = BetaPi (ConvTy' dA dΓ=) (ConvTy' dB (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=))) (ConvTm' du (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=))) (ConvTm' da dΓ=)
+-- ConvTmEq' (EtaPi dA dB df) dΓ= =
+--   EtaPi (ConvTy' dA dΓ=)
+--         (ConvTy' dB (dΓ= , dA , ConvTy' dA dΓ= , TyRefl' dA , TyRefl' (ConvTy' dA dΓ=)))
+--         (ConvTm' df dΓ=)
 
 
-TyEqTy1R dΓ (TySymm dA=) = TyEqTy2R dΓ dA=
-TyEqTy1R dΓ (TyTran _ dA= dB=) = TyEqTy1R dΓ dA=
-TyEqTy1R dΓ UUCong = UU
-TyEqTy1R dΓ (ElCong dv=) = El (TmEqTm1R dΓ dv=) 
-TyEqTy1R dΓ (PiCong dA dA= dB=) = Pi dA (TyEqTy1R (dΓ , dA) dB=)
+-- TyEqTy1R dΓ (TySymm dA=) = TyEqTy2R dΓ dA=
+-- TyEqTy1R dΓ (TyTran _ dA= dB=) = TyEqTy1R dΓ dA=
+-- TyEqTy1R dΓ UUCong = UU
+-- TyEqTy1R dΓ (ElCong dv=) = El (TmEqTm1R dΓ dv=) 
+-- TyEqTy1R dΓ (PiCong dA dA= dB=) = Pi dA (TyEqTy1R (dΓ , dA) dB=)
 
-TyEqTy2R dΓ (TySymm dA=) = TyEqTy1R dΓ dA=
-TyEqTy2R dΓ (TyTran dB dA= dB=) = TyEqTy2R dΓ dB=
-TyEqTy2R dΓ UUCong = UU
-TyEqTy2R dΓ (ElCong dv=) = El (TmEqTm2R dΓ dv=)
-TyEqTy2R dΓ (PiCong dA dA= dB=) = Pi (TyEqTy2R dΓ dA=) (ConvTy' (TyEqTy2R (dΓ , (TyEqTy1R dΓ dA=)) dB=) ((CtxReflR dΓ) , dA , TyEqTy2R dΓ dA= , dA= , dA=))
+-- TyEqTy2R dΓ (TySymm dA=) = TyEqTy1R dΓ dA=
+-- TyEqTy2R dΓ (TyTran dB dA= dB=) = TyEqTy2R dΓ dB=
+-- TyEqTy2R dΓ UUCong = UU
+-- TyEqTy2R dΓ (ElCong dv=) = El (TmEqTm2R dΓ dv=)
+-- TyEqTy2R dΓ (PiCong dA dA= dB=) = Pi (TyEqTy2R dΓ dA=) (ConvTy' (TyEqTy2R (dΓ , (TyEqTy1R dΓ dA=)) dB=) ((CtxReflR dΓ) , dA , TyEqTy2R dΓ dA= , dA= , dA=))
 
-TmEqTm1R dΓ (TmSymm du=) = TmEqTm2R dΓ du= 
-TmEqTm1R dΓ (TmTran _ du= dv=) = TmEqTm1R dΓ du=
-TmEqTm1R dΓ (ConvEq dA du= dA=) = Conv dA (TmEqTm1R dΓ du=) dA=
-TmEqTm1R dΓ (VarLastCong dA) = VarLast dA
-TmEqTm1R (dΓ , dA) (VarPrevCong dA' dk=) = VarPrev dA' (TmEqTm1R dΓ dk=)
-TmEqTm1R dΓ (LamCong dA dA= dB= du=) = Lam (TyEqTy1R dΓ dA=) (TyEqTy1R (dΓ , dA) dB=) (TmEqTm1R (dΓ , dA) du=)
-TmEqTm1R dΓ (AppCong dA dA= dB= df= da=) = App (TyEqTy1R dΓ dA=) (TyEqTy1R (dΓ , dA) dB=) (TmEqTm1R dΓ df=) (TmEqTm1R dΓ da=)
-TmEqTm1R dΓ (BetaPi dA dB du da) = App dA dB (Lam dA dB du) da
-TmEqTm1R dΓ (EtaPi dA dB df) = df
+-- TmEqTm1R dΓ (TmSymm du=) = TmEqTm2R dΓ du= 
+-- TmEqTm1R dΓ (TmTran _ du= dv=) = TmEqTm1R dΓ du=
+-- TmEqTm1R dΓ (ConvEq dA du= dA=) = Conv dA (TmEqTm1R dΓ du=) dA=
+-- TmEqTm1R dΓ (VarLastCong dA) = VarLast dA
+-- TmEqTm1R (dΓ , dA) (VarPrevCong dA' dk=) = VarPrev dA' (TmEqTm1R dΓ dk=)
+-- TmEqTm1R dΓ (LamCong dA dA= dB= du=) = Lam (TyEqTy1R dΓ dA=) (TyEqTy1R (dΓ , dA) dB=) (TmEqTm1R (dΓ , dA) du=)
+-- TmEqTm1R dΓ (AppCong dA dA= dB= df= da=) = App (TyEqTy1R dΓ dA=) (TyEqTy1R (dΓ , dA) dB=) (TmEqTm1R dΓ df=) (TmEqTm1R dΓ da=)
+-- TmEqTm1R dΓ (BetaPi dA dB du da) = App dA dB (Lam dA dB du) da
+-- TmEqTm1R dΓ (EtaPi dA dB df) = df
 
-TmEqTm2R dΓ (TmSymm du=) = TmEqTm1R dΓ du=
-TmEqTm2R dΓ (TmTran _ du= dv=) = TmEqTm2R dΓ dv=
-TmEqTm2R dΓ (ConvEq dA du= dA=) = Conv dA (TmEqTm2R dΓ du=) dA=
-TmEqTm2R dΓ (VarLastCong dA) = VarLast dA
-TmEqTm2R (dΓ , dA) (VarPrevCong dA' dk=) = VarPrev dA' (TmEqTm2R dΓ dk=)
-TmEqTm2R dΓ (LamCong dA dA= dB= du=) = 
-  Conv (Pi (TyEqTy2R dΓ dA=)
-           (ConvTy' (TyEqTy2R (dΓ , (TyEqTy1R dΓ dA=)) dB=) ((CtxReflR dΓ) , dA , TyEqTy2R dΓ dA= , dA= , dA=)))
-       (Lam (TyEqTy2R dΓ dA=)
-            (ConvTy' (TyEqTy2R (dΓ , TyEqTy1R dΓ dA=) dB=) (CtxReflR dΓ , dA , TyEqTy2R dΓ dA= , dA= , dA=))
-            (ConvTm' (Conv (TyEqTy1R (dΓ , dA) dB=) (TmEqTm2R (dΓ , dA) du=) dB=) (CtxReflR dΓ , dA , TyEqTy2R dΓ dA= , dA= , dA=)))
-       (PiCong (TyEqTy2R dΓ dA=)
-               (TySymm dA=)
-               (ConvTyEq' (TySymm dB=) (CtxReflR dΓ , dA , ConvTy' (TyEqTy2R dΓ dA=) (CtxReflR dΓ) , dA= , dA=)))
-TmEqTm2R dΓ (AppCong dA dA= dB= df= da=) =
-  Conv (SubstTyR (TyEqTy2R (dΓ , dA) dB=) (idMorDerivableR dΓ , Conv dA (TmEqTm2R dΓ da=) (congTyEqR! reflR ([idMor]TyR _) (TyRefl' dA))))
-       (App (TyEqTy2R dΓ dA=)
-            (ConvTy' (TyEqTy2R (dΓ , TyEqTy1R dΓ dA=) dB=) (CtxReflR dΓ , dA , TyEqTy2R dΓ dA= , dA= , dA=))
-            (Conv (Pi dA (TyEqTy1R (dΓ , dA) dB=)) (TmEqTm2R dΓ df=) (PiCong dA dA= dB=))
-            (Conv dA (TmEqTm2R dΓ da=) dA=))
-       (TySymm (SubstTyFullEqR (TyEqTy2R (dΓ , dA) dB=)
-                              (idMorDerivableR dΓ , congTmR! ([idMor]TyR _) reflR (TmEqTm1R dΓ da=))
-                              dB=
-                              (MorReflR (idMorDerivableR dΓ) , congTmEqTyR! ([idMor]TyR _) da=)))
-TmEqTm2R dΓ (BetaPi dA dB du da) = SubstTmR du (idMorDerivableR dΓ , congTmR! ([idMor]TyR _) reflR da)
-TmEqTm2R dΓ (EtaPi dA dB df) = Lam dA dB (congTmTyR (substTy-weakenTyR' R∙ [idMor]TyR _) (App (WeakTy' dA) (WeakTy' dB) (WeakTm' df) (VarLast dA)))
+-- TmEqTm2R dΓ (TmSymm du=) = TmEqTm1R dΓ du=
+-- TmEqTm2R dΓ (TmTran _ du= dv=) = TmEqTm2R dΓ dv=
+-- TmEqTm2R dΓ (ConvEq dA du= dA=) = Conv dA (TmEqTm2R dΓ du=) dA=
+-- TmEqTm2R dΓ (VarLastCong dA) = VarLast dA
+-- TmEqTm2R (dΓ , dA) (VarPrevCong dA' dk=) = VarPrev dA' (TmEqTm2R dΓ dk=)
+-- TmEqTm2R dΓ (LamCong dA dA= dB= du=) = 
+--   Conv (Pi (TyEqTy2R dΓ dA=)
+--            (ConvTy' (TyEqTy2R (dΓ , (TyEqTy1R dΓ dA=)) dB=) ((CtxReflR dΓ) , dA , TyEqTy2R dΓ dA= , dA= , dA=)))
+--        (Lam (TyEqTy2R dΓ dA=)
+--             (ConvTy' (TyEqTy2R (dΓ , TyEqTy1R dΓ dA=) dB=) (CtxReflR dΓ , dA , TyEqTy2R dΓ dA= , dA= , dA=))
+--             (ConvTm' (Conv (TyEqTy1R (dΓ , dA) dB=) (TmEqTm2R (dΓ , dA) du=) dB=) (CtxReflR dΓ , dA , TyEqTy2R dΓ dA= , dA= , dA=)))
+--        (PiCong (TyEqTy2R dΓ dA=)
+--                (TySymm dA=)
+--                (ConvTyEq' (TySymm dB=) (CtxReflR dΓ , dA , ConvTy' (TyEqTy2R dΓ dA=) (CtxReflR dΓ) , dA= , dA=)))
+-- TmEqTm2R dΓ (AppCong dA dA= dB= df= da=) =
+--   Conv (SubstTyR (TyEqTy2R (dΓ , dA) dB=) (idMorDerivableR dΓ , Conv dA (TmEqTm2R dΓ da=) (congTyEqR! reflR ([idMor]TyR _) (TyRefl' dA))))
+--        (App (TyEqTy2R dΓ dA=)
+--             (ConvTy' (TyEqTy2R (dΓ , TyEqTy1R dΓ dA=) dB=) (CtxReflR dΓ , dA , TyEqTy2R dΓ dA= , dA= , dA=))
+--             (Conv (Pi dA (TyEqTy1R (dΓ , dA) dB=)) (TmEqTm2R dΓ df=) (PiCong dA dA= dB=))
+--             (Conv dA (TmEqTm2R dΓ da=) dA=))
+--        (TySymm (SubstTyFullEqR (TyEqTy2R (dΓ , dA) dB=)
+--                               (idMorDerivableR dΓ , congTmR! ([idMor]TyR _) reflR (TmEqTm1R dΓ da=))
+--                               dB=
+--                               (MorReflR (idMorDerivableR dΓ) , congTmEqTyR! ([idMor]TyR _) da=)))
+-- TmEqTm2R dΓ (BetaPi dA dB du da) = SubstTmR du (idMorDerivableR dΓ , congTmR! ([idMor]TyR _) reflR da)
+-- TmEqTm2R dΓ (EtaPi dA dB df) = Lam dA dB (congTmTyR (substTy-weakenTyR' R∙ [idMor]TyR _) (App (WeakTy' dA) (WeakTy' dB) (WeakTm' df) (VarLast dA)))
+
+{- Lift1 branch specific idea: don't use derivation of context in these functions, but change system rules...-}
+TyEqTy1R : {Γ : Ctx n} {A B : TyExpr n} → Derivation (Γ ⊢ A == B) → Derivation (Γ ⊢ A)
+TyEqTy2R : {Γ : Ctx n} {A B : TyExpr n} → Derivation (Γ ⊢ A == B) → Derivation (Γ ⊢ B)
+TmEqTm1R : {Γ : Ctx n} {u u' : TmExpr n} {A : TyExpr n} → Derivation (Γ ⊢ u == u' :> A) → Derivation (Γ ⊢ u :> A)
+TmEqTm2R : {Γ : Ctx n} {u u' : TmExpr n} {A : TyExpr n} → Derivation (Γ ⊢ u == u' :> A) → Derivation (Γ ⊢ u' :> A)
+
+TyEqTy1R (TySymm dA=) = TyEqTy2R dA=
+TyEqTy1R (TyTran dA dA= dA=₁) = TyEqTy1R dA=
+TyEqTy1R UUCong = UU
+TyEqTy1R (ElCong dA= dA=₁ dA=₂) = El dA=
+TyEqTy1R (PiCong dA dA' dA= dB= dB'?) = Pi dA (TyEqTy1R dB=)
+
+TyEqTy2R (TySymm dA=) = TyEqTy1R dA=
+TyEqTy2R (TyTran dA dA= dA=₁) = TyEqTy2R dA=₁
+TyEqTy2R UUCong = UU
+TyEqTy2R (ElCong dA= dA=₁ dA=₂) = El dA=₁
+TyEqTy2R (PiCong dA dA' dA= dB= dB'=) = Pi (TyEqTy2R dA=) (TyEqTy2R dB'=)
+
+TmEqTm1R (VarLastCong du=) = VarLast du=
+TmEqTm1R (VarPrevCong du= du=₁) = VarPrev du= (TmEqTm1R du=₁)
+TmEqTm1R (TmSymm du=) = TmEqTm2R du=
+TmEqTm1R (TmTran du du= du=₁) = TmEqTm1R du=
+TmEqTm1R (ConvEq du= du=₁ du=₂ du=₃ du=₄) = Conv du= du=₁ du=₄
+TmEqTm1R (LamCong dA dA' du dB= dB'= du= du'=) = Lam dA (TyEqTy1R dB=) (TmEqTm1R du=)
+TmEqTm1R (AppCong du= du=₁ du=₂ du=₃ du=₄ dBa) = App du= (TyEqTy1R du=₂) (TmEqTm1R du=₃) (TmEqTm1R du=₄)
+TmEqTm1R (BetaPi du= du=₁ du=₂ du=₃) = App du= du=₁ (Lam du= du=₁ du=₂) du=₃
+TmEqTm1R (EtaPi du= du=₁ du=₂) = du=₂
+
+TmEqTm2R (VarLastCong du=) = VarLast du=
+TmEqTm2R (VarPrevCong du= du=₁) = VarPrev du= (TmEqTm2R du=₁)
+TmEqTm2R (TmSymm du=) = TmEqTm1R du=
+TmEqTm2R (TmTran du du= du=₁) = TmEqTm2R du=₁
+TmEqTm2R (ConvEq du= du=₁ du=₂ du=₃ du=₄) = Conv du= du=₂ du=₄
+TmEqTm2R (LamCong dA dA' dA= dB= dB'= du= du'=) = Conv (Pi (TyEqTy2R dA=) (TyEqTy2R dB'=)) (Lam (TyEqTy2R dA=) (TyEqTy2R dB'=) (TmEqTm2R du'=)) (PiCong (TyEqTy2R dA=) dA (TySymm dA=) (TySymm dB'=) (TySymm dB=))
+TmEqTm2R (AppCong du= du=₁ du=₂ du=₃ du=₄ dBa) = dBa
+-- Conv {!!} (App (TyEqTy2R du=₁) {!!} (Conv (Pi du= (TyEqTy1R du=₂)) (TmEqTm2R du=₃) {!!}) (Conv du= (TmEqTm2R du=₄) du=₁)) {!!}
+TmEqTm2R (BetaPi du= du=₁ du=₂ du=₃) = {!App ?!}
+TmEqTm2R (EtaPi du= du=₁ du=₂) = Lam du= du=₁ {!App ?!}
 
 
--- squashing for the proof relevant Derivations
-squashJdg : {jdg : Judgment} → Derivation (jdg) → Derivable (jdg)
-squashJdg (VarLast j) = VarLast (squashJdg j)
-squashJdg (VarPrev j j₁) = VarPrev (squashJdg (j)) (squashJdg j₁)
-squashJdg (VarLastCong j) = VarLastCong (squashJdg j)
-squashJdg (VarPrevCong j j₁) = VarPrevCong (squashJdg j) (squashJdg j₁)
-squashJdg (TySymm j) = TySymm (squashJdg j)
-squashJdg (TyTran j j₁ j₂) = TyTran (squashJdg j) (squashJdg j₁) (squashJdg j₂)
-squashJdg (TmSymm j) = TmSymm (squashJdg j)
-squashJdg (TmTran j j₁ j₂) = TmTran (squashJdg j) (squashJdg j₁) (squashJdg j₂)
-squashJdg (Conv j j₁ j₂) = Conv (squashJdg j) (squashJdg j₁) (squashJdg j₂)
-squashJdg (ConvEq j j₁ j₂) = ConvEq (squashJdg j) (squashJdg j₁) (squashJdg j₂)
-squashJdg UU = UU
-squashJdg UUCong = UUCong
-squashJdg (El j) = El (squashJdg j)
-squashJdg (ElCong j) = ElCong (squashJdg j)
-squashJdg (Pi j j₁) = Pi (squashJdg j) (squashJdg j₁)
-squashJdg (PiCong j j₁ j₂) = PiCong (squashJdg j) (squashJdg j₁) (squashJdg j₂)
-squashJdg (Lam j j₁ j₂) = Lam (squashJdg j) (squashJdg j₁) (squashJdg j₂)
-squashJdg (LamCong j j₁ j₂ j₃) = LamCong (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃)
-squashJdg (App j j₁ j₂ j₃) = App (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃)
-squashJdg (AppCong j j₁ j₂ j₃ j₄) = AppCong (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃) (squashJdg j₄)
-squashJdg (BetaPi j j₁ j₂ j₃) = BetaPi (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃)
-squashJdg (EtaPi j j₁ j₂) = EtaPi (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- -- squashing for the proof relevant Derivations
+-- squashJdg : {jdg : Judgment} → Derivation (jdg) → Derivable (jdg)
+-- squashJdg (VarLast j) = VarLast (squashJdg j)
+-- squashJdg (VarPrev j j₁) = VarPrev (squashJdg (j)) (squashJdg j₁)
+-- squashJdg (VarLastCong j) = VarLastCong (squashJdg j)
+-- squashJdg (VarPrevCong j j₁) = VarPrevCong (squashJdg j) (squashJdg j₁)
+-- squashJdg (TySymm j) = TySymm (squashJdg j)
+-- squashJdg (TyTran j j₁ j₂) = TyTran (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- squashJdg (TmSymm j) = TmSymm (squashJdg j)
+-- squashJdg (TmTran j j₁ j₂) = TmTran (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- squashJdg (Conv j j₁ j₂) = Conv (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- squashJdg (ConvEq j j₁ j₂) = ConvEq (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- squashJdg UU = UU
+-- squashJdg UUCong = UUCong
+-- squashJdg (El j) = El (squashJdg j)
+-- squashJdg (ElCong j) = ElCong (squashJdg j)
+-- squashJdg (Pi j j₁) = Pi (squashJdg j) (squashJdg j₁)
+-- squashJdg (PiCong j j₁ j₂) = PiCong (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- squashJdg (Lam j j₁ j₂) = Lam (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- squashJdg (LamCong j j₁ j₂ j₃) = LamCong (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃)
+-- squashJdg (App j j₁ j₂ j₃) = App (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃)
+-- squashJdg (AppCong j j₁ j₂ j₃ j₄) = AppCong (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃) (squashJdg j₄)
+-- squashJdg (BetaPi j j₁ j₂ j₃) = BetaPi (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃)
+-- squashJdg (EtaPi j j₁ j₂) = EtaPi (squashJdg j) (squashJdg j₁) (squashJdg j₂)
 
--- for some reason I cannot make case distinction over ⊢R
-squashCtx : (Γ : Ctx n) → (⊢R_ Γ) → ⊢ Γ
-squashCtx ◇ dΓ = tt
-squashCtx (Γ , A) dΓ = (squashCtx Γ (fst dΓ)) , (squashJdg (snd dΓ))
+-- -- for some reason I cannot make case distinction over ⊢R
+-- squashCtx : (Γ : Ctx n) → (⊢R_ Γ) → ⊢ Γ
+-- squashCtx ◇ dΓ = tt
+-- squashCtx (Γ , A) dΓ = (squashCtx Γ (fst dΓ)) , (squashJdg (snd dΓ))
 
--- Metatheorems
-TmTyR : {Γ : Ctx n} {A : TyExpr n} {u : TmExpr n} → (⊢R Γ) → Derivation (Γ ⊢ u :> A) → Derivation (Γ ⊢ A)
-TmTyR dΓ (VarLast du) = WeakTy' du
-TmTyR dΓ (VarPrev du du₁) = WeakTy' du
-TmTyR dΓ (Conv du du₁ du₂) = TyEqTy2R dΓ du₂
--- TmTy dΓ UUUU = UU
--- TmTy dΓ (PiUU du du₁) = UU
-TmTyR dΓ (Lam du du₁ du₂) = Pi du du₁
-TmTyR dΓ (App {Γ = Γ} {A = A} du du₁ du₂ du₃) = SubstTyR {Δ = Γ , A} du₁ ((idMorDerivableR dΓ) , congTmTyR! ([idMor]TyR _) du₃) 
+-- -- Metatheorems
+-- TmTyR : {Γ : Ctx n} {A : TyExpr n} {u : TmExpr n} → (⊢R Γ) → Derivation (Γ ⊢ u :> A) → Derivation (Γ ⊢ A)
+-- TmTyR dΓ (VarLast du) = WeakTy' du
+-- TmTyR dΓ (VarPrev du du₁) = WeakTy' du
+-- TmTyR dΓ (Conv du du₁ du₂) = TyEqTy2R dΓ du₂
+-- -- TmTy dΓ UUUU = UU
+-- -- TmTy dΓ (PiUU du du₁) = UU
+-- TmTyR dΓ (Lam du du₁ du₂) = Pi du du₁
+-- TmTyR dΓ (App {Γ = Γ} {A = A} du du₁ du₂ du₃) = SubstTyR {Δ = Γ , A} du₁ ((idMorDerivableR dΓ) , congTmTyR! ([idMor]TyR _) du₃) 
