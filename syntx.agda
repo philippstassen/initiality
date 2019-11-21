@@ -768,3 +768,10 @@ getTy Γ (app A B u u₁) = substTy B u₁
 cutCtx : (k : Fin (suc n)) → (Γ : Ctx n) → Ctx (n -F' k)
 cutCtx last Γ = Γ
 cutCtx (prev k) (Γ , A) = cutCtx k Γ
+
+weakenTy-getTy : {n : ℕ} → (Γ : Ctx n) → (v : TmExpr n) → (A : TyExpr n) → weakenTy (getTy Γ v) ≡ getTy (weakenCtx last Γ A) (weakenTm v)
+weakenTy-getTy Γ (var x) C = refl
+weakenTy-getTy ◇ (lam A B v) C = refl
+weakenTy-getTy (Γ , A₁) (lam A B v) C = refl
+weakenTy-getTy ◇ (app A B v v₁) C = weakenTy-substTy
+weakenTy-getTy (Γ , A₁) (app A B v v₁) C = weakenTy-substTy
