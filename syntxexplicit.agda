@@ -783,7 +783,7 @@ weakenTy'-getTy last (Γ , A₁) (app A B v v₁) C = weakenTy-substTy
 weakenTy'-getTy (prev k) (Γ , A₁) (app A B v v₁) C = weakenTy-substTy
 weakenTy'-getTy last ◇ (coerc A B u) C = refl
 weakenTy'-getTy last (Γ , A₁) (coerc A B u) C = refl
-weakenTy'-getTy (prev k) (Γ , A₁) (coerc A B u) C = {!refl!}
+weakenTy'-getTy (prev k) (Γ , A₁) (coerc A B u) C = refl
 
 weakenTy-getTy : {n : ℕ} → (Γ : Ctx n) → (v : TmExpr n) → (A : TyExpr n) → weakenTy (getTy Γ v) ≡ getTy (weakenCtx last Γ A) (weakenTm v)
 weakenTy-getTy Γ (var x) C = refl
