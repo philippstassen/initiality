@@ -771,6 +771,20 @@ getTy Γ (lam A B u) = pi A B
 getTy Γ (app A B u u₁) = substTy B u₁
 getTy Γ (coerc S T u) = T
 
+weakenTy'-getTy : {n : ℕ} (k : Fin (suc n)) (Γ : Ctx n) (v : TmExpr n) (A : TyExpr (n -F' k)) → weakenTy' k (getTy Γ v) ≡ getTy (weakenCtx k Γ A) (weakenTm' k v)
+weakenTy'-getTy last Γ (var x) C = refl
+weakenTy'-getTy (prev k) (Γ , A) (var last) C = weakenTy-weakenTy
+weakenTy'-getTy (prev k) (Γ , A) (var (prev x)) C rewrite weakenTy-weakenTy {k = k} {A = getTy Γ (var x)} =  ap (weakenTy) (weakenTy'-getTy k Γ (var x) C)
+weakenTy'-getTy last ◇ (lam A B v) C = refl
+weakenTy'-getTy last (Γ , A₁) (lam A B v) C = refl
+weakenTy'-getTy (prev k) (Γ , A₁) (lam A B v) C = refl
+weakenTy'-getTy last ◇ (app A B v v₁) C = weakenTy-substTy
+weakenTy'-getTy last (Γ , A₁) (app A B v v₁) C = weakenTy-substTy
+weakenTy'-getTy (prev k) (Γ , A₁) (app A B v v₁) C = weakenTy-substTy
+weakenTy'-getTy last ◇ (coerc A B u) C = refl
+weakenTy'-getTy last (Γ , A₁) (coerc A B u) C = refl
+weakenTy'-getTy (prev k) (Γ , A₁) (coerc A B u) C = {!refl!}
+
 weakenTy-getTy : {n : ℕ} → (Γ : Ctx n) → (v : TmExpr n) → (A : TyExpr n) → weakenTy (getTy Γ v) ≡ getTy (weakenCtx last Γ A) (weakenTm v)
 weakenTy-getTy Γ (var x) C = refl
 weakenTy-getTy ◇ (lam A B v) C = refl
