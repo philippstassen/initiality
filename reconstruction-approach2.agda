@@ -64,10 +64,18 @@ strip-lift (Γ ⊢ x :> x₁) = ap-jdg-tm (strip-liftCtx Γ) (strip-liftTy (lift
 strip-lift (Γ ⊢ x == x₁) = ap-jdg-tyEq (strip-liftCtx Γ) (strip-liftTy (liftCtx Γ) x) (strip-liftTy (liftCtx Γ) x₁)
 strip-lift (Γ ⊢ x == x₁ :> x₂) = ap-jdg-tmEq (strip-liftCtx Γ) (strip-liftTy (liftCtx Γ) x₂) (strip-liftTm (liftCtx Γ) x) (strip-liftTm (liftCtx Γ) x₁)
 
-lift-weakenTy : {Γ : ex.Ctx n} {A : TyExpr n} → liftTy (Γ ex., liftTy Γ A) (weakenTy A) ≡ ex.weakenTy (liftTy Γ A)
-lift-weakenTy {Γ = Γ} {uu i} = refl
-lift-weakenTy {Γ = Γ} {el i v} = {!!}
-lift-weakenTy {Γ = Γ} {pi A A₁} = {!!}
+{- when lifting a weakened type or term, the last type in the context does not matter -}
+weakenTm'-liftTm : (k : Fin (suc n)) (Γ : ex.Ctx n) (A : ex.TyExpr (n -F' k)) (u : TmExpr n) → liftTm (ex.weakenCtx k Γ A) (weakenTm' k u) ≡ ex.weakenTm' k (liftTm Γ u)
+weakenTy'-liftTy : (k : Fin (suc n)) (Γ : ex.Ctx n) (B : ex.TyExpr (n -F' k)) (A : TyExpr n) → liftTy (ex.weakenCtx k Γ B) (weakenTy' k A) ≡ ex.weakenTy' k (liftTy Γ A)
+
+weakenTy'-liftTy k Γ B (uu i) = refl
+weakenTy'-liftTy k Γ B (el i v) rewrite
+                ex.weakenTy'-getTy k Γ (liftTm Γ v) (B)
+                | weakenTm'-liftTm k Γ B v
+                = refl
+weakenTy'-liftTy k Γ B (pi A A₁) rewrite weakenTy'-liftTy k Γ B A | weakenTy'-liftTy (prev k) (Γ ex., (liftTy Γ A)) B A₁ = refl
+
+weakenTm'-liftTm k Γ A u = {!!}
 
 Lift-Der : {jdg : Judgment} → Derivable (jdg) → ex.Derivable (liftJdg jdg)
 Lift-Der (VarLast dj) = {!!}
