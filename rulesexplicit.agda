@@ -867,11 +867,12 @@ WeakTmEq (EtaPi {f = f} dA dB df) =
 
 
 
--- {- Derivability of the identity morphism -}
+{- Derivability of the identity morphism -}
 
--- idMorDerivable : {Γ : Ctx n} →  ⊢ Γ → (Γ ⊢ idMor n ∷> Γ)
--- idMorDerivable {Γ = ◇} tt = tt
--- idMorDerivable {Γ = Γ , A} (dΓ , dA) = (WeakMor (idMorDerivable dΓ) , congTm (! ([idMor]Ty _) ∙ substTy-weakenTy') refl (VarLast dA))
+idMorDerivable : {Γ : Ctx n} →  ⊢ Γ → (Γ ⊢ idMor n ∷> Γ)
+idMorDerivable {Γ = ◇} tt = tt
+idMorDerivable {Γ = Γ , A} (dΓ , dA) = (WeakMor (idMorDerivable dΓ) , congTm (! ([idMor]Ty _) ∙ substTy-weakenTy') refl (VarLast dA))
+
 
 
 -- {- Conversion rules for types and terms are admissible -}
@@ -1330,15 +1331,12 @@ WeakTmEq (EtaPi {f = f} dA dB df) =
 
 {- If the Term is derivable, then also its Type is -}
 
-helper : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n)} → getTy Γ (lam A B u) ≡ pi A B
-helper {.0} {◇} {A} {B} {u} = refl
-helper {.(suc _)} {Γ , A₁} {A} {B} {u} = refl
-
-getTy-Der : {n : ℕ} {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ getTy Γ u)
-getTy-Der {Γ = Γ , A₁} {var last} {.(weakenTy' last A₁)} (VarLast dj) = WeakTy dj
-getTy-Der {Γ = Γ , A₁} {var (prev x)} {.(weakenTy' last _)} (VarPrev dj dj₁) = WeakTy (getTy-Der dj₁)
-getTy-Der {Γ = ◇} {lam A₁ B u} {.(pi A₁ B)} (Lam dj dj₁ dj₂) = Pi dj dj₁
-getTy-Der {Γ = Γ , A} {lam A₁ B u} {.(pi A₁ B)} (Lam dj dj₁ dj₂) = Pi dj dj₁
-getTy-Der {Γ = ◇} {app A₁ B u u₁} {.(B [ ◇ , u₁ ]Ty)} (App dj dj₁ dj₂ dj₃) = {!!}
-getTy-Der {Γ = Γ , A} {app A₁ B u u₁} {.(B [ (weakenMor' last (idMor _) , var last) , u₁ ]Ty)} (App dj dj₁ dj₂ dj₃) = {!!}
-getTy-Der {Γ = Γ} {coerc A₁ B u} {.B} (Conv dj dj₁ dj₂ dj₃) = {!!}
+getTy-Der : {n : ℕ} {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ u :> A) → ⊢ Γ → Derivable (Γ ⊢ getTy Γ u)
+getTy-Der {Γ = Γ , A₁} {var last} {.(weakenTy' last A₁)} (VarLast dj) dΓ = WeakTy dj
+getTy-Der {Γ = Γ , A₁} {var (prev x)} {.(weakenTy' last _)} (VarPrev dj dj₁) (dΓ , dA) = WeakTy (getTy-Der dj₁ dΓ)
+getTy-Der {Γ = ◇} {lam A₁ B u} {.(pi A₁ B)} (Lam dj dj₁ dj₂) dΓ = Pi dj dj₁
+getTy-Der {Γ = Γ , A} {lam A₁ B u} {.(pi A₁ B)} (Lam dj dj₁ dj₂) dΓ = Pi dj dj₁
+getTy-Der {Γ = ◇} {app A₁ B u u₁} {.(B [ ◇ , u₁ ]Ty)} (App dj dj₁ dj₂ dj₃) dΓ = SubstTy dj₁ (tt , congTmTy! ([idMor]Ty A₁) dj₃)
+getTy-Der {Γ = Γ , A} {app A₁ B u u₁} {.(B [ (weakenMor' last (idMor _) , var last) , u₁ ]Ty)} (App dj dj₁ dj₂ dj₃) dΓ = SubstTy dj₁ ((idMorDerivable dΓ) , congTmTy! ([idMor]Ty A₁) dj₃)
+getTy-Der {Γ = ◇} {coerc A₁ B u} {.B} (Conv dj dj₁ dj₂ dj₃) dΓ = dj₁
+getTy-Der {Γ = Γ , A} {coerc A₁ B u} {.B} (Conv dj dj₁ dj₂ dj₃) dΓ = {!dj₁!}
