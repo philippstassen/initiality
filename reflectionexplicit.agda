@@ -233,6 +233,7 @@ unquoteDecl ap-pi-Ty = generate-ap (quote TyExpr.pi) ap-pi-Ty
 -- unquoteDecl ap-pi-Tm = generate-ap (quote TmExpr.pi) ap-pi-Tm
 unquoteDecl ap-lam-Tm = generate-ap (quote TmExpr.lam) ap-lam-Tm
 unquoteDecl ap-app-Tm = generate-ap (quote TmExpr.app) ap-app-Tm
+unquoteDecl ap-coerc-Tm = generate-ap (quote TmExpr.coerc) ap-coerc-Tm
 -- unquoteDecl ap-sig-Tm = generate-ap (quote TmExpr.sig) ap-sig-Tm
 -- unquoteDecl ap-pair-Tm = generate-ap (quote TmExpr.pair) ap-pair-Tm
 -- unquoteDecl ap-pr1-Tm = generate-ap (quote TmExpr.pr1) ap-pr1-Tm
