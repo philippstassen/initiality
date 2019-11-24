@@ -67,8 +67,8 @@ open ΣSS public
 infixr 4 _,_
 
 
-_×_ : (A B : Prop) → Prop
-A × B = Σ A (λ _ → B)
+_×_ : (A B : Set) → Set 
+A × B = ΣSS A (λ _ → B)
 
 infixr 42 _×_
 
@@ -96,7 +96,7 @@ characΣSS= reflR = (reflR , reflR)
 
 {- Prop-valued equality -}
 
-data _≡_ {l} {A : Set l} (x : A) : A → Prop l where
+data _≡_ {l} {A : Set l} (x : A) : A → Set l where
   refl : x ≡ x
 {-# BUILTIN EQUALITY _≡_ #-}
 
