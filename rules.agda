@@ -1298,3 +1298,7 @@ ap-jdg-tyEq refl refl refl = refl
 ap-jdg-tmEq : {Γ Δ : Ctx n} {A B : TyExpr n} {u u₁ v v₁ : TmExpr n} → Γ ≡ Δ → A ≡ B → u ≡ v → u₁ ≡ v₁ → (Γ ⊢ u == u₁ :> A) ≡ (Δ ⊢ v == v₁ :> B)
 ap-jdg-tmEq refl refl refl refl = refl
 
+-- getTy-Der : {n : ℕ} {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ u :> A) → ⊢ Γ → Derivable (Γ ⊢ getTy Γ u)
+-- getTy-Der {Γ = ◇} {lam A B u} du dΓ = {!!}
+-- getTy-Der {Γ = ◇} {app A B u u₁} du dΓ = {!!}
+-- getTy-Der {Γ = Γ , A} {u} du dΓ = {!!}
