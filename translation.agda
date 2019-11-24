@@ -1,6 +1,6 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
 
-open import common renaming (Unit to metaUnit)
+open import common renaming (UnitR to metaUnit)
 open import normal
 import ex 
 open ex.shared
@@ -195,7 +195,7 @@ subst3TyCommStrip {n = n} A u v w rewrite ! (idMorCommStrip n) = []TyCommStrip A
 -- subst3Ty-weakenprev3CommStrip P A rewrite subst3TyCommStrip (ex.weakenTy' (prev (prev (prev last))) P) (ex.var last) (ex.var last) ({!!}) | WeakenTy'CommStrip (prev (prev (prev last))) P | WeakenTyCommStrip A = {!!}
 -- refl (ex.weakenTy A) (ex.var last)
 -- Stripping respects derivability 
-DerToNormal : {judg : ex.Judgment} → (ex.Derivable judg) → (Derivable (|| judg ||))
+DerToNormal : {judg : ex.Judgment} → (ex.Derivation judg) → (Derivation (|| judg ||))
 DerToNormal (ex.VarLast {A = A} dj) rewrite WeakenTyCommStrip A = VarLast (DerToNormal dj)
 DerToNormal (ex.VarPrev {A = A} dj dj₁) rewrite WeakenTyCommStrip A = VarPrev (DerToNormal dj) (DerToNormal dj₁)
 DerToNormal (ex.VarLastCong {A = A} dj) rewrite WeakenTyCommStrip A = VarLastCong (DerToNormal dj)
@@ -283,3 +283,6 @@ DerToNormal (ex.BetaPi {B = B} {u = u} {a = a} dj dj₁ dj₂ dj₃) = congTmEqT
 DerToNormal (ex.EtaPi {A = A} {B = B} {f = f} dj dj₁ dj₂) = congTmEq! refl (ap (lam || A ||Ty || B ||Ty) (ap-app-Tm (WeakenTyCommStrip A) (WeakenTy'CommStrip (prev last) B) (WeakenTmCommStrip f) refl)) refl (EtaPi (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂))
 -- DerToNormal (ex.EtaSig dj dj₁ dj₂) = EtaSig (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
 
+SquashCtx : {Γ : ex.Ctx n} → ex.⊢ Γ → ⊢ || Γ ||Ctx
+SquashCtx {Γ = ex.◇} dΓ = starU
+SquashCtx {Γ = Γ ex., A} (dΓ , dA) = SquashCtx dΓ , DerToNormal dA
