@@ -1339,4 +1339,4 @@ getTy-Der {Γ = Γ , A} {lam A₁ B u} {.(pi A₁ B)} (Lam dj dj₁ dj₂) dΓ =
 getTy-Der {Γ = ◇} {app A₁ B u u₁} {.(B [ ◇ , u₁ ]Ty)} (App dj dj₁ dj₂ dj₃) dΓ = SubstTy dj₁ (tt , congTmTy! ([idMor]Ty A₁) dj₃)
 getTy-Der {Γ = Γ , A} {app A₁ B u u₁} {.(B [ (weakenMor' last (idMor _) , var last) , u₁ ]Ty)} (App dj dj₁ dj₂ dj₃) dΓ = SubstTy dj₁ ((idMorDerivable dΓ) , congTmTy! ([idMor]Ty A₁) dj₃)
 getTy-Der {Γ = ◇} {coerc A₁ B u} {.B} (Conv dj dj₁ dj₂ dj₃) dΓ = dj₁
-getTy-Der {Γ = Γ , A} {coerc A₁ B u} {.B} (Conv dj dj₁ dj₂ dj₃) dΓ = {!dj₁!}
+getTy-Der {Γ = Γ , A} {coerc A₁ B u} {.B} (Conv dj dj₁ dj₂ dj₃) dΓ = dj₁
