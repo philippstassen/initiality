@@ -39,7 +39,7 @@ liftMor (δ , u) Γ = liftMor δ Γ ex., liftTm Γ u
 
 liftJdg : Judgment → ex.Judgment
 liftJdg (Γ ⊢ x) = liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) x
-liftJdg (Γ ⊢ x :> x₁) = liftCtx Γ ⊢ₑ liftTm (liftCtx Γ) x :> liftTy (liftCtx Γ) x₁
+liftJdg (Γ ⊢ x :> x₁) = liftCtx Γ ⊢ₑ ex.coerc (ex.getTy (liftCtx Γ) (liftTm (liftCtx Γ) x)) (liftTy (liftCtx Γ) x₁) (liftTm (liftCtx Γ) x) :> liftTy (liftCtx Γ) x₁
 liftJdg (Γ ⊢ x == x₁) = liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) x == liftTy (liftCtx Γ) x₁
 liftJdg (Γ ⊢ x == x₁ :> x₂) = liftCtx Γ ⊢ₑ liftTm (liftCtx Γ) x == liftTm (liftCtx Γ) x₁ :> liftTy (liftCtx Γ) x₂
 
@@ -64,6 +64,12 @@ strip-lift (Γ ⊢ x :> x₁) = ap-jdg-tm (strip-liftCtx Γ) (strip-liftTy (lift
 strip-lift (Γ ⊢ x == x₁) = ap-jdg-tyEq (strip-liftCtx Γ) (strip-liftTy (liftCtx Γ) x) (strip-liftTy (liftCtx Γ) x₁)
 strip-lift (Γ ⊢ x == x₁ :> x₂) = ap-jdg-tmEq (strip-liftCtx Γ) (strip-liftTy (liftCtx Γ) x₂) (strip-liftTm (liftCtx Γ) x) (strip-liftTm (liftCtx Γ) x₁)
 
+{- weakenVar and ex.weakenVar are the same -}
+weakenVar-weakenVar : (k : Fin (suc n)) → (x : Fin n) → weakenVar' k x ≡ ex.weakenVar' k x
+weakenVar-weakenVar last x = refl
+weakenVar-weakenVar (prev k) last = refl
+weakenVar-weakenVar (prev k) (prev x) = ap prev (weakenVar-weakenVar k x)
+
 {- when lifting a weakened type or term, the last type in the context does not matter -}
 weakenTm'-liftTm : (k : Fin (suc n)) (Γ : ex.Ctx n) (A : ex.TyExpr (n -F' k)) (u : TmExpr n) → liftTm (ex.weakenCtx k Γ A) (weakenTm' k u) ≡ ex.weakenTm' k (liftTm Γ u)
 weakenTy'-liftTy : (k : Fin (suc n)) (Γ : ex.Ctx n) (B : ex.TyExpr (n -F' k)) (A : TyExpr n) → liftTy (ex.weakenCtx k Γ B) (weakenTy' k A) ≡ ex.weakenTy' k (liftTy Γ A)
@@ -75,28 +81,46 @@ weakenTy'-liftTy k Γ B (el i v) rewrite
                 = refl
 weakenTy'-liftTy k Γ B (pi A A₁) rewrite weakenTy'-liftTy k Γ B A | weakenTy'-liftTy (prev k) (Γ ex., (liftTy Γ A)) B A₁ = refl
 
-weakenTm'-liftTm k Γ A u = {!!}
+weakenTm'-liftTm last Γ A (var x) = refl
+weakenTm'-liftTm (prev k) Γ A (var last) = refl
+weakenTm'-liftTm (prev k) (Γ ex., A₁) A (var (prev x)) = ap ex.var (ap prev (weakenVar-weakenVar k x))
+weakenTm'-liftTm k Γ A (lam A₁ B u) rewrite weakenTy'-liftTy k Γ A A₁ | weakenTm'-liftTm (prev k) (Γ ex., (liftTy Γ A₁)) A u = ex.ap-lam-Tm (refl) (weakenTy'-liftTy (prev k) (Γ ex., (liftTy Γ A₁)) A B) (ex.ap-coerc-Tm (! (ex.weakenTy'-getTy (prev k) (Γ ex., liftTy Γ A₁) (liftTm (Γ ex., liftTy Γ A₁) u) A)) (weakenTy'-liftTy (prev k) (Γ ex., (liftTy Γ A₁)) A B) refl)
+weakenTm'-liftTm k Γ A (app A₁ B u u₁) rewrite weakenTy'-liftTy k Γ A A₁ = ex.ap-app-Tm refl (weakenTy'-liftTy (prev k) (Γ ex., (liftTy Γ A₁)) A B) (ex.ap-coerc-Tm {!!} {!!} {!!}) {!!}
 
-Lift-Der : {jdg : Judgment} → Derivable (jdg) → ex.Derivable (liftJdg jdg)
-Lift-Der (VarLast dj) = {!!}
-Lift-Der (VarPrev dj dj₁) = {!!}
-Lift-Der (VarLastCong dj) = {!!}
-Lift-Der (VarPrevCong dj dj₁) = {!!}
-Lift-Der (TySymm dj) = {!!}
-Lift-Der (TyTran dj dj₁ dj₂) = {!!}
-Lift-Der (TmSymm dj) = {!!}
-Lift-Der (TmTran dj dj₁ dj₂) = {!!}
-Lift-Der (Conv dj dj₁ dj₂) = {!!}
-Lift-Der (ConvEq dj dj₁ dj₂) = {!!}
-Lift-Der UU = {!!}
-Lift-Der UUCong = {!!}
-Lift-Der (El dj) = {!!}
-Lift-Der (ElCong dj) = {!!}
-Lift-Der (Pi dj dj₁) = {!!}
-Lift-Der (PiCong dj dj₁ dj₂) = {!!}
-Lift-Der (Lam dj dj₁ dj₂) = {!!}
-Lift-Der (LamCong dj dj₁ dj₂ dj₃) = {!!}
-Lift-Der (App dj dj₁ dj₂ dj₃) = {!!}
-Lift-Der (AppCong dj dj₁ dj₂ dj₃ dj₄) = {!!}
-Lift-Der (BetaPi dj dj₁ dj₂ dj₃) = {!!}
-Lift-Der (EtaPi dj dj₁ dj₂) = {!!}
+
+{- getTy commutes with lifting -}
+getTy-liftTy : {n : ℕ} (Γ : Ctx n) (u : TmExpr n) → ex.getTy (liftCtx Γ) (liftTm (liftCtx Γ) u) ≡ liftTy (liftCtx Γ) (getTy Γ u)
+getTy-liftTy (Γ , A) (var last) = ! (weakenTy'-liftTy last (liftCtx Γ) (liftTy (liftCtx Γ) A) A)
+getTy-liftTy (Γ , A) (var (prev x)) rewrite getTy-liftTy Γ (var x) = ! (weakenTy'-liftTy last (liftCtx Γ) (liftTy (liftCtx Γ) A) (getTy Γ (var x)))
+getTy-liftTy Γ (lam A B u) = {!!}
+getTy-liftTy Γ (app A B u u₁) = {!!}
+
+Lift-Der : {jdg : Judgment} → Derivable (jdg) → ⊢ snd (getCtx jdg) → ex.Derivable (liftJdg jdg)
+Lift-Der (VarLast {Γ = Γ} {A = A} dj) (dΓ , dA) rewrite weakenTy'-liftTy last (liftCtx Γ) (liftTy (liftCtx Γ) A) A = ex.Conv (ex.WeakTy (Lift-Der dj dΓ)) {!!} (ex.VarLast (Lift-Der dj dΓ)) (ex.TyRefl (ex.WeakTy (Lift-Der dj dΓ)))
+Lift-Der (VarPrev dj dj₁) dΓ = {!!}
+Lift-Der (VarLastCong dj) dΓ = {!!}
+Lift-Der (VarPrevCong dj dj₁) dΓ = {!!}
+Lift-Der (TySymm dj) dΓ = {!!}
+Lift-Der (TyTran dj dj₁ dj₂) dΓ = {!!}
+Lift-Der (TmSymm dj) dΓ = {!!}
+Lift-Der (TmTran dj dj₁ dj₂) dΓ = {!!}
+{- we need to make the case distinctions so that getTy reduces to cases -}
+{- how to get derivation of equality weakenTy (lift A) ≡ lift B , seems to come out of nothing -}
+Lift-Der (Conv {Γ = Γ} dA dB dA=) dΓ = ex.Conv (ex.getTy-Der ? ?) {!!} {!!} {!!}
+-- Lift-Der (Conv {Γ = Γ , A} {var last} dj dj₁ dj₂) (dΓ , dA) = ex.Conv (ex.WeakTy (Lift-Der dA dΓ)) (Lift-Der {!!} {!!}) {!!} {!!} 
+-- Lift-Der (Conv {Γ = Γ , A} {var (prev x)} dj dj₁ dj₂) dΓ = {!!}
+-- Lift-Der (Conv {u = lam A B u} dj dj₁ dj₂) dΓ = ex.Conv {!!} {!!} {!!} {!!}
+-- Lift-Der (Conv {u = app A B u u₁} dj dj₁ dj₂) dΓ = ex.Conv {!!} {!!} {!!} {!!}
+Lift-Der (ConvEq dj dj₁ dj₂) dΓ = {!!}
+Lift-Der UU dΓ = {!!}
+Lift-Der UUCong dΓ = {!!}
+Lift-Der (El dj) dΓ = {!!}
+Lift-Der (ElCong dj) dΓ = {!!}
+Lift-Der (Pi dj dj₁) dΓ = {!!}
+Lift-Der (PiCong dj dj₁ dj₂) dΓ = {!!}
+Lift-Der (Lam dj dj₁ dj₂) dΓ = {!!}
+Lift-Der (LamCong dj dj₁ dj₂ dj₃) dΓ = {!!}
+Lift-Der (App dj dj₁ dj₂ dj₃) dΓ = {!!}
+Lift-Der (AppCong dj dj₁ dj₂ dj₃ dj₄) dΓ = {!!}
+Lift-Der (BetaPi dj dj₁ dj₂ dj₃) dΓ = {!!}
+Lift-Der (EtaPi dj dj₁ dj₂) dΓ = {!!}
