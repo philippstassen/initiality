@@ -1340,3 +1340,11 @@ getTy-Der {Γ = ◇} {app A₁ B u u₁} {.(B [ ◇ , u₁ ]Ty)} (App dj dj₁ d
 getTy-Der {Γ = Γ , A} {app A₁ B u u₁} {.(B [ (weakenMor' last (idMor _) , var last) , u₁ ]Ty)} (App dj dj₁ dj₂ dj₃) dΓ = SubstTy dj₁ ((idMorDerivable dΓ) , congTmTy! ([idMor]Ty A₁) dj₃)
 getTy-Der {Γ = ◇} {coerc A₁ B u} {.B} (Conv dj dj₁ dj₂ dj₃) dΓ = dj₁
 getTy-Der {Γ = Γ , A} {coerc A₁ B u} {.B} (Conv dj dj₁ dj₂ dj₃) dΓ = dj₁
+
+{- get Context from a judgment -}
+getCtx : Judgment → ΣSS ℕ Ctx 
+getCtx ( _⊢_ {n = n} Γ x) = (n , Γ)
+getCtx (_⊢_:>_ {n = n} Γ x x₁) = n , Γ
+getCtx (_⊢_==_ {n = n} Γ x x₁) = n , Γ
+getCtx (_⊢_==_:>_ {n = n} Γ x x₁ x₂) = n , Γ
+getCtx (_⊢_≃_ {n = n} Γ x x₁) = n , Γ
