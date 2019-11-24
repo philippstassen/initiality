@@ -2,7 +2,7 @@
 
 open import common renaming (Unit to metaUnit)
 open import normal
-import ex 
+import ex
 open ex.shared
 open ex.Judgment renaming (_⊢_ to _⊢ₑ_) renaming (_⊢_:>_ to _⊢ₑ_:>_) renaming (_⊢_==_ to _⊢ₑ_==_) renaming (_⊢_==_:>_ to _⊢ₑ_==_:>_)
 open import translation
@@ -95,8 +95,8 @@ getTy-liftTy (Γ , A) (var (prev x)) rewrite getTy-liftTy Γ (var x) = ! (weaken
 getTy-liftTy Γ (lam A B u) = {!!}
 getTy-liftTy Γ (app A B u u₁) = {!!}
 
-Lift-Der : {jdg : Judgment} → Derivable (jdg) → ⊢ snd (getCtx jdg) → ex.Derivable (liftJdg jdg)
-Lift-Der (VarLast {Γ = Γ} {A = A} dj) (dΓ , dA) rewrite weakenTy'-liftTy last (liftCtx Γ) (liftTy (liftCtx Γ) A) A = ex.Conv (ex.WeakTy (Lift-Der dj dΓ)) {!!} (ex.VarLast (Lift-Der dj dΓ)) (ex.TyRefl (ex.WeakTy (Lift-Der dj dΓ)))
+Lift-Der : {jdg : Judgment} → Derivable (jdg) → ex.⊢ snd (ex.getCtx (liftJdg jdg)) → ex.Derivable (liftJdg jdg)
+Lift-Der (VarLast {Γ = Γ} {A = A} dj) (dΓ , dA) rewrite weakenTy'-liftTy last (liftCtx Γ) (liftTy (liftCtx Γ) A) A = ex.Conv (ex.WeakTy (Lift-Der dj dΓ)) (ex.WeakTy (Lift-Der dj dΓ)) (ex.VarLast (Lift-Der dj dΓ)) (ex.TyRefl (ex.WeakTy (Lift-Der dj dΓ)))
 Lift-Der (VarPrev dj dj₁) dΓ = {!!}
 Lift-Der (VarLastCong dj) dΓ = {!!}
 Lift-Der (VarPrevCong dj dj₁) dΓ = {!!}
@@ -106,7 +106,7 @@ Lift-Der (TmSymm dj) dΓ = {!!}
 Lift-Der (TmTran dj dj₁ dj₂) dΓ = {!!}
 {- we need to make the case distinctions so that getTy reduces to cases -}
 {- how to get derivation of equality weakenTy (lift A) ≡ lift B , seems to come out of nothing -}
-Lift-Der (Conv {Γ = Γ} dA dB dA=) dΓ = ex.Conv (ex.getTy-Der ? ?) {!!} {!!} {!!}
+Lift-Der (Conv {Γ = Γ} dA dB dA=) dΓ = ex.Conv (ex.getTy-Der {!!} dΓ) {!Lift!} {!!} {!!}
 -- Lift-Der (Conv {Γ = Γ , A} {var last} dj dj₁ dj₂) (dΓ , dA) = ex.Conv (ex.WeakTy (Lift-Der dA dΓ)) (Lift-Der {!!} {!!}) {!!} {!!} 
 -- Lift-Der (Conv {Γ = Γ , A} {var (prev x)} dj dj₁ dj₂) dΓ = {!!}
 -- Lift-Der (Conv {u = lam A B u} dj dj₁ dj₂) dΓ = ex.Conv {!!} {!!} {!!} {!!}
