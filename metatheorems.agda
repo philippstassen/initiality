@@ -8,7 +8,7 @@ open import rules
 TmTy : {Γ : Ctx n} {A : TyExpr n} {u : TmExpr n} → (⊢ Γ) → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A)
 TmTy dΓ (VarLast du) = WeakTy du
 TmTy dΓ (VarPrev du du₁) = WeakTy du
-TmTy dΓ (Conv du du₁ du₂) = TyEqTy2 dΓ du₂
+TmTy dΓ (Conv du du₁ du₂ du₃) = TyEqTy2 dΓ du₃
 -- TmTy dΓ UUUU = UU
 -- TmTy dΓ (PiUU du du₁) = UU
 TmTy dΓ (Lam du du₁ du₂) = Pi du du₁
