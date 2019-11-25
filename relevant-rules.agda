@@ -612,7 +612,8 @@ TmEqTm2R (ConvEq du= du=₁ du=₂ du=₃ du=₄) = Conv du= du=₂ du=₄
 TmEqTm2R (LamCong dA dA' dA= dB= dB'= du= du'=) = Conv (Pi (TyEqTy2R dA=) (TyEqTy2R dB'=)) (Lam (TyEqTy2R dA=) (TyEqTy2R dB'=) (TmEqTm2R du'=)) (PiCong (TyEqTy2R dA=) dA (TySymm dA=) (TySymm dB'=) (TySymm dB=))
 TmEqTm2R (AppCong du= du=₁ du=₂ du=₃ du=₄ dBa) = dBa
 -- Conv {!!} (App (TyEqTy2R du=₁) {!!} (Conv (Pi du= (TyEqTy1R du=₂)) (TmEqTm2R du=₃) {!!}) (Conv du= (TmEqTm2R du=₄) du=₁)) {!!}
-TmEqTm2R (BetaPi du= du=₁ du=₂ du=₃) = {!App ?!}
+-- Here I definitely need the derivable context. So I think the experiment failed
+TmEqTm2R (BetaPi {n = n} {A = A} du= du=₁ du=₂ du=₃) = SubstTmR du=₂ ((idMorDerivableR {!!}) , congTmTyR (!R ([idMor]TyR A)) du=₃)
 TmEqTm2R (EtaPi du= du=₁ du=₂) = Lam du= du=₁ {!App ?!}
 
 
