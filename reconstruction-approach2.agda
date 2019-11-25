@@ -108,7 +108,7 @@ Lift-Der (TmTran dj dj₁ dj₂) dΓ = {!!}
 {- how to get derivation of equality weakenTy (lift A) ≡ lift B , seems to come out of nothing -}
 Lift-Der (Conv {Γ = .(_ , _)} dA (VarLast du) dA=) dΓ = ex.Conv (ex.WeakTy (Lift-Der du (fst dΓ))) {!!} {!!} {!!}
 Lift-Der (Conv {Γ = .(_ , _)} dA (VarPrev du du₁) dA=) dΓ = {!!}
-Lift-Der (Conv {Γ = Γ} dA (Conv du du₁ du₂) dA=) dΓ = ex.Conv ? {!!} {!!} {!!}
+Lift-Der (Conv {Γ = Γ} dA (Conv du du₁ du₂) dA=) dΓ = ex.Conv {!!} {!!} {!!} {!!}
 Lift-Der (Conv {Γ = Γ} dA (Lam du du₁ du₂) dA=) dΓ = {!!}
 Lift-Der (Conv {Γ = Γ} dA (App du du₁ du₂ du₃) dA=) dΓ = {!!}
 -- Lift-Der (Conv {Γ = Γ , A} {var last} dj dj₁ dj₂) (dΓ , dA) = ex.Conv (ex.WeakTy (Lift-Der dA dΓ)) (Lift-Der {!!} {!!}) {!!} {!!} 
