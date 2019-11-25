@@ -204,11 +204,11 @@ DerToNormal (ex.TySymm dj) = TySymm (DerToNormal dj)
 DerToNormal (ex.TyTran dj dj₁ dj₂) = TyTran (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
 DerToNormal (ex.TmSymm dj) = TmSymm (DerToNormal dj)
 DerToNormal (ex.TmTran dj dj₁ dj₂) = TmTran (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
-DerToNormal (ex.Conv dA dB du dA=) = Conv (DerToNormal dA) (DerToNormal du) (DerToNormal dA=)
+DerToNormal (ex.Conv dA dB du dA=) = Conv (DerToNormal dA) (DerToNormal dB) (DerToNormal du) (DerToNormal dA=)
 DerToNormal (ex.ConvEq dj dj₁ dj₂) = ConvEq (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
 DerToNormal (ex.CoercRefl {u = u} dj) = TmRefl (DerToNormal dj)
 DerToNormal (ex.CoercRefl! dj) = TmRefl (DerToNormal dj)
-DerToNormal (ex.CoercTrans dj dj₁ dj₂ dj₃ dj₄) = TmRefl (Conv (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₄))
+DerToNormal (ex.CoercTrans dA dB dC du dA= dB= dC=) = TmRefl (Conv (DerToNormal dA) (DerToNormal dC) (DerToNormal du) (DerToNormal dC=))
 DerToNormal ex.UU = UU
 DerToNormal ex.UUCong = UUCong
 -- DerToNormal ex.UUUU = UUUU
