@@ -59,7 +59,7 @@ data Derivable : Judgment → Prop where
     → Derivable (Γ ⊢ coerc A A u == u :> A)
   CoercRefl! : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ u :> A)
     → Derivable (Γ ⊢ u == coerc A A u :> A)
-  CoercTrans : {Γ : Ctx n} {u : TmExpr n} {A B C : TyExpr n} → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ B == C) → Derivable (Γ ⊢ A == C) → Derivable (Γ ⊢ coerc B C (coerc A B u) == coerc A C u :> C)
+  CoercTrans : {Γ : Ctx n} {u : TmExpr n} {A B C : TyExpr n} → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ B) → Derivable (Γ ⊢ C) → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ B == C) → Derivable (Γ ⊢ A == C) → Derivable (Γ ⊢ coerc B C (coerc A B u) == coerc A C u :> C)
   -- Rules for UU
   UU : {i : ℕ} {Γ : Ctx n}
     → Derivable (Γ ⊢ uu i)
@@ -542,7 +542,7 @@ SubstTmEq (TmTran dv du= dv=) dδ = TmTran (SubstTm dv dδ) (SubstTmEq du= dδ) 
 SubstTmEq (ConvEq dA du= dA=) dδ = ConvEq (SubstTy dA dδ) (SubstTmEq du= dδ) (SubstTyEq dA= dδ) 
 SubstTmEq {δ = δ} (CoercRefl du) dδ = CoercRefl (SubstTm du dδ)
 SubstTmEq {δ = δ} (CoercRefl! du) dδ = CoercRefl! (SubstTm du dδ)
-SubstTmEq {δ = δ} (CoercTrans dA du dA= dB= dA₁=) dδ = CoercTrans (SubstTy dA dδ) (SubstTm du dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= dδ) (SubstTyEq dA₁= dδ)
+SubstTmEq {δ = δ} (CoercTrans dA dB dC du dA= dB= dA₁=) dδ = CoercTrans (SubstTy dA dδ) (SubstTy dB dδ) (SubstTy dC dδ) (SubstTm du dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= dδ) (SubstTyEq dA₁= dδ)
 
 -- SubstTmEq UUUUCong dδ = UUUUCong
 -- SubstTmEq (PiUUCong da da= db=) dδ = PiUUCong (SubstTm da dδ) (SubstTmEq da= dδ) (SubstTmEq db= (WeakMor+ (El da) dδ))
@@ -765,7 +765,7 @@ WeakTmEq (TmTran dv du= dv=) = TmTran (WeakTm dv) (WeakTmEq du=) (WeakTmEq dv=)
 WeakTmEq (ConvEq dA du= dA=) =  ConvEq (WeakTy dA) (WeakTmEq du=) (WeakTyEq dA=)
 WeakTmEq {k = k} (CoercRefl x) = CoercRefl (WeakTm x)
 WeakTmEq (CoercRefl! x) = CoercRefl! (WeakTm x)
-WeakTmEq (CoercTrans x x₁ x₂ x₃ x₄) = CoercTrans (WeakTy x) (WeakTm x₁) (WeakTyEq x₂) (WeakTyEq x₃) (WeakTyEq x₄)
+WeakTmEq (CoercTrans dA dB dC du x x₁ x₂) = CoercTrans (WeakTy dA) (WeakTy dB) (WeakTy dC) (WeakTm du) (WeakTyEq x) (WeakTyEq x₁) (WeakTyEq x₂)
 -- ConvEq (WeakTy dA) (WeakTmEq du=) (WeakTyEq dA=)
 
 -- WeakTmEq UUUUCong = UUUUCong
