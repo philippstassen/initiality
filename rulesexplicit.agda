@@ -1348,3 +1348,6 @@ getCtx (_⊢_:>_ {n = n} Γ x x₁) = n , Γ
 getCtx (_⊢_==_ {n = n} Γ x x₁) = n , Γ
 getCtx (_⊢_==_:>_ {n = n} Γ x x₁ x₂) = n , Γ
 getCtx (_⊢_≃_ {n = n} Γ x x₁) = n , Γ
+
+-- helper : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ u :> B) → ΣSS (TyExpr n) (λ A → ΣS (TmExpr n) (λ u → Derivable (Γ ⊢ u :> A)))
+-- helper du = {!!}
