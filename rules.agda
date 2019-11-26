@@ -1289,18 +1289,18 @@ Subst3TyEq dΓ dA' du dv dw dA= du= dv= dw= = SubstTyFullEq dA' (((idMorDerivati
 --         → Derivation (Γ ⊢ u == v :> A)→ Derivation (Γ ⊢ v == w :> A) → Derivation (Γ ⊢ u == w :> A)
 -- TmTran' dΓ du= dv= = TmTran (TmEqTm1 dΓ dv=) du= dv=
 
--- {- ap rules for judgments -}
--- ap-jdg-ty : {Γ Δ : Ctx n} {A B : TyExpr n} → Γ ≡ Δ → A ≡ B → (Γ ⊢ A) ≡ (Δ ⊢ B)
--- ap-jdg-ty refl refl = refl
+{- ap rules for judgments -}
+ap-jdg-ty : {Γ Δ : Ctx n} {A B : TyExpr n} → Γ ≡ Δ → A ≡ B → (Γ ⊢ A) ≡ (Δ ⊢ B)
+ap-jdg-ty refl refl = refl
 
--- ap-jdg-tm : {Γ Δ : Ctx n} {A B : TyExpr n} {u v : TmExpr n} → Γ ≡ Δ → A ≡ B → u ≡ v → (Γ ⊢ u :> A) ≡ (Δ ⊢ v :> B)
--- ap-jdg-tm refl refl refl = refl
+ap-jdg-tm : {Γ Δ : Ctx n} {A B : TyExpr n} {u v : TmExpr n} → Γ ≡ Δ → A ≡ B → u ≡ v → (Γ ⊢ u :> A) ≡ (Δ ⊢ v :> B)
+ap-jdg-tm refl refl refl = refl
 
--- ap-jdg-tyEq : {Γ Δ : Ctx n} {A A₁ B B₁ : TyExpr n} → Γ ≡ Δ → A ≡ B → A₁ ≡ B₁ → (Γ ⊢ A == A₁) ≡ (Δ ⊢ B == B₁)
--- ap-jdg-tyEq refl refl refl = refl
+ap-jdg-tyEq : {Γ Δ : Ctx n} {A A₁ B B₁ : TyExpr n} → Γ ≡ Δ → A ≡ B → A₁ ≡ B₁ → (Γ ⊢ A == A₁) ≡ (Δ ⊢ B == B₁)
+ap-jdg-tyEq refl refl refl = refl
 
--- ap-jdg-tmEq : {Γ Δ : Ctx n} {A B : TyExpr n} {u u₁ v v₁ : TmExpr n} → Γ ≡ Δ → A ≡ B → u ≡ v → u₁ ≡ v₁ → (Γ ⊢ u == u₁ :> A) ≡ (Δ ⊢ v == v₁ :> B)
--- ap-jdg-tmEq refl refl refl refl = refl
+ap-jdg-tmEq : {Γ Δ : Ctx n} {A B : TyExpr n} {u u₁ v v₁ : TmExpr n} → Γ ≡ Δ → A ≡ B → u ≡ v → u₁ ≡ v₁ → (Γ ⊢ u == u₁ :> A) ≡ (Δ ⊢ v == v₁ :> B)
+ap-jdg-tmEq refl refl refl refl = refl
 
 -- -- getTy-Der : {n : ℕ} {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivation (Γ ⊢ u :> A) → ⊢ Γ → Derivation (Γ ⊢ getTy Γ u)
 -- -- getTy-Der {Γ = ◇} {lam A B u} du dΓ = {!!}
