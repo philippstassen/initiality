@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop #-}
 
 open import common renaming (Unit to metaUnit)
 open import normal
