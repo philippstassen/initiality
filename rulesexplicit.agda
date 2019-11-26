@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop #-}
 open import common renaming (Unit to metaUnit)
 open import typetheoryexplicit
 open import syntxexplicit
@@ -1349,5 +1349,14 @@ getCtx (_⊢_==_ {n = n} Γ x x₁) = n , Γ
 getCtx (_⊢_==_:>_ {n = n} Γ x x₁ x₂) = n , Γ
 getCtx (_⊢_≃_ {n = n} Γ x x₁) = n , Γ
 
--- helper : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ u :> B) → ΣSS (TyExpr n) (λ A → ΣS (TmExpr n) (λ u → Derivable (Γ ⊢ u :> A)))
--- helper du = {!!}
+coercTm : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ u :> A)
+coercTm (Conv du du₁ du₂ du₃) = du₂
+
+coercTy1 : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ A)
+coercTy1 (Conv du du₁ du₂ du₃) = du
+
+coercTy2 : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ B)
+coercTy2 (Conv du du₁ du₂ du₃) = du₁
+
+coercEq : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ A == B)
+coercEq (Conv du du₁ du₂ du₃) = du₃
