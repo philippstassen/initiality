@@ -111,7 +111,7 @@ Lift-Der (TmSymm dj) dΓ = {!!}
 Lift-Der (TmTran dj dj₁ dj₂) dΓ = {!!}
 {- we need to make the case distinctions so that getTy reduces to cases -}
 {- how to get derivation of equality weakenTy (lift A) ≡ lift B , seems to come out of nothing -}
-Lift-Der (Conv {u = u} {A = A} {B = B} dA dB du dA=) dΓ = ex.Conv (ex.getTy-Der {!!} {!!}) {!!} {!!} {!!}
+Lift-Der (Conv {u = u} {A = A} {B = B} dA dB du dA=) dΓ = ex.Conv (ex.getTy-Der {!Lift-Der du dΓ!} {!!}) {!!} {!!} {!!}
 -- Lift-Der (Conv {Γ = Γ , A} {var last} dj dj₁ dj₂ dj₃) (dΓ , dA) = ex.Conv ({!!}) (Lift-Der dj₁ (dΓ , dA)) {!!} {!!} 
 -- Lift-Der (Conv {Γ = Γ , A} {var (prev x)} dj dj₁ dj₂ dj₃) dΓ = {!!}
 -- Lift-Der (Conv {u = lam A B u} dj dj₁ dj₂ dj₃) dΓ = ex.Conv {!!} {!!} {!!} {!!}
