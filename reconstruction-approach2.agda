@@ -100,7 +100,7 @@ getTy-liftTy (Γ , A) (var (prev x)) rewrite getTy-liftTy Γ (var x) = ! (weaken
 getTy-liftTy Γ (lam A B u) = {!!}
 getTy-liftTy Γ (app A B u u₁) = {!!}
 
-Lift-Der : {jdg : Judgment} → Derivable (jdg) → ex.⊢ snd (ex.getCtx (liftJdg jdg)) → ex.Derivable (liftJdg jdg)
+Lift-Der : {jdg : Judgment} → Derivation (jdg) → ex.⊢ snd (ex.getCtx (liftJdg jdg)) → ex.Derivation (liftJdg jdg)
 Lift-Der (VarLast {Γ = Γ} {A = A} dj) (dΓ , dA) rewrite weakenTy'-liftTy last (liftCtx Γ) (liftTy (liftCtx Γ) A) A = ex.Conv (ex.WeakTy (Lift-Der dj dΓ)) (ex.WeakTy (Lift-Der dj dΓ)) (ex.VarLast (Lift-Der dj dΓ)) (ex.TyRefl (ex.WeakTy (Lift-Der dj dΓ)))
 Lift-Der (VarPrev dj dj₁) dΓ = {!!}
 Lift-Der (VarLastCong dj) dΓ = {!!}
