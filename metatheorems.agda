@@ -5,7 +5,7 @@ open import reflection
 open import syntx
 open import rules
 
-TmTy : {Γ : Ctx n} {A : TyExpr n} {u : TmExpr n} → (⊢ Γ) → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A)
+TmTy : {Γ : Ctx n} {A : TyExpr n} {u : TmExpr n} → (⊢ Γ) → Derivation (Γ ⊢ u :> A) → Derivation (Γ ⊢ A)
 TmTy dΓ (VarLast du) = WeakTy du
 TmTy dΓ (VarPrev du du₁) = WeakTy du
 TmTy dΓ (Conv du du₁ du₂ du₃) = TyEqTy2 dΓ du₃
@@ -30,7 +30,7 @@ TmTy dΓ (App {Γ = Γ} {A = A} du du₁ du₂ du₃) = SubstTy {Δ = Γ , A} du
 -- TmTy dΓ (Refl du du₁) = Id du du₁ du₁
 -- TmTy dΓ (JJ {A = A} {P = P} {a = a} {b = b} du du₁ du₂ du₃ du₄ du₅) = SubstTy du₁ (((((idMorDerivable dΓ) , congTmTy! ([idMor]Ty _) du₃) , congTmTy! (weakenTyInsert A (idMor _) a) (congTmTy! ([idMor]Ty _) du₄) ) , congTmTy! (ap-id-Ty (subst2Ty-weakenTy) refl refl) du₅))
 
-TmEqTy : {Γ : Ctx n} {A : TyExpr n} {u v : TmExpr n} → (⊢ Γ) → Derivable (Γ ⊢ u == v :> A) → Derivable (Γ ⊢ A)
+TmEqTy : {Γ : Ctx n} {A : TyExpr n} {u v : TmExpr n} → (⊢ Γ) → Derivation (Γ ⊢ u == v :> A) → Derivation (Γ ⊢ A)
 TmEqTy dΓ (VarLastCong du=) = WeakTy du=
 TmEqTy dΓ (VarPrevCong du= du=₁) = WeakTy du=
 TmEqTy dΓ (TmSymm du=) = TmEqTy dΓ du=
