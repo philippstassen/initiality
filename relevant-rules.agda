@@ -587,34 +587,34 @@ TmEqTm2R dΓ (EtaPi dA dB df) = Lam dA dB (congTmTyR (substTy-weakenTyR' R∙ [i
 
 
 -- squashing for the proof relevant Derivations
-squashJdg : {jdg : Judgment} → Derivation (jdg) → Derivable (jdg)
-squashJdg (VarLast j) = VarLast (squashJdg j)
-squashJdg (VarPrev j j₁) = VarPrev (squashJdg (j)) (squashJdg j₁)
-squashJdg (VarLastCong j) = VarLastCong (squashJdg j)
-squashJdg (VarPrevCong j j₁) = VarPrevCong (squashJdg j) (squashJdg j₁)
-squashJdg (TySymm j) = TySymm (squashJdg j)
-squashJdg (TyTran j j₁ j₂) = TyTran (squashJdg j) (squashJdg j₁) (squashJdg j₂)
-squashJdg (TmSymm j) = TmSymm (squashJdg j)
-squashJdg (TmTran j j₁ j₂) = TmTran (squashJdg j) (squashJdg j₁) (squashJdg j₂)
-squashJdg (Conv j j₁ j₂) = Conv (squashJdg j) (squashJdg j₁) (squashJdg j₂)
-squashJdg (ConvEq j j₁ j₂) = ConvEq (squashJdg j) (squashJdg j₁) (squashJdg j₂)
-squashJdg UU = UU
-squashJdg UUCong = UUCong
-squashJdg (El j) = El (squashJdg j)
-squashJdg (ElCong j) = ElCong (squashJdg j)
-squashJdg (Pi j j₁) = Pi (squashJdg j) (squashJdg j₁)
-squashJdg (PiCong j j₁ j₂) = PiCong (squashJdg j) (squashJdg j₁) (squashJdg j₂)
-squashJdg (Lam j j₁ j₂) = Lam (squashJdg j) (squashJdg j₁) (squashJdg j₂)
-squashJdg (LamCong j j₁ j₂ j₃) = LamCong (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃)
-squashJdg (App j j₁ j₂ j₃) = App (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃)
-squashJdg (AppCong j j₁ j₂ j₃ j₄) = AppCong (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃) (squashJdg j₄)
-squashJdg (BetaPi j j₁ j₂ j₃) = BetaPi (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃)
-squashJdg (EtaPi j j₁ j₂) = EtaPi (squashJdg j) (squashJdg j₁) (squashJdg j₂)
-
--- for some reason I cannot make case distinction over ⊢R
-squashCtx : (Γ : Ctx n) → (⊢R_ Γ) → ⊢ Γ
-squashCtx ◇ dΓ = tt
-squashCtx (Γ , A) dΓ = (squashCtx Γ (fst dΓ)) , (squashJdg (snd dΓ))
+-- squashJdg : {jdg : Judgment} → Derivation (jdg) → Derivable (jdg)
+-- squashJdg (VarLast j) = VarLast (squashJdg j)
+-- squashJdg (VarPrev j j₁) = VarPrev (squashJdg (j)) (squashJdg j₁)
+-- squashJdg (VarLastCong j) = VarLastCong (squashJdg j)
+-- squashJdg (VarPrevCong j j₁) = VarPrevCong (squashJdg j) (squashJdg j₁)
+-- squashJdg (TySymm j) = TySymm (squashJdg j)
+-- squashJdg (TyTran j j₁ j₂) = TyTran (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- squashJdg (TmSymm j) = TmSymm (squashJdg j)
+-- squashJdg (TmTran j j₁ j₂) = TmTran (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- squashJdg (Conv j j₁ j₂) = Conv (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- squashJdg (ConvEq j j₁ j₂) = ConvEq (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- squashJdg UU = UU
+-- squashJdg UUCong = UUCong
+-- squashJdg (El j) = El (squashJdg j)
+-- squashJdg (ElCong j) = ElCong (squashJdg j)
+-- squashJdg (Pi j j₁) = Pi (squashJdg j) (squashJdg j₁)
+-- squashJdg (PiCong j j₁ j₂) = PiCong (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- squashJdg (Lam j j₁ j₂) = Lam (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- squashJdg (LamCong j j₁ j₂ j₃) = LamCong (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃)
+-- squashJdg (App j j₁ j₂ j₃) = App (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃)
+-- squashJdg (AppCong j j₁ j₂ j₃ j₄) = AppCong (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃) (squashJdg j₄)
+-- squashJdg (BetaPi j j₁ j₂ j₃) = BetaPi (squashJdg j) (squashJdg j₁) (squashJdg j₂) (squashJdg j₃)
+-- squashJdg (EtaPi j j₁ j₂) = EtaPi (squashJdg j) (squashJdg j₁) (squashJdg j₂)
+-- 
+-- -- for some reason I cannot make case distinction over ⊢R
+-- squashCtx : (Γ : Ctx n) → (⊢R_ Γ) → ⊢ Γ
+-- squashCtx ◇ dΓ = tt
+-- squashCtx (Γ , A) dΓ = (squashCtx Γ (fst dΓ)) , (squashJdg (snd dΓ))
 
 -- Metatheorems
 TmTyR : {Γ : Ctx n} {A : TyExpr n} {u : TmExpr n} → (⊢R Γ) → Derivation (Γ ⊢ u :> A) → Derivation (Γ ⊢ A)
@@ -625,3 +625,10 @@ TmTyR dΓ (Conv du du₁ du₂) = TyEqTy2R dΓ du₂
 -- TmTy dΓ (PiUU du du₁) = UU
 TmTyR dΓ (Lam du du₁ du₂) = Pi du du₁
 TmTyR dΓ (App {Γ = Γ} {A = A} du du₁ du₂ du₃) = SubstTyR {Δ = Γ , A} du₁ ((idMorDerivableR dΓ) , congTmTyR! ([idMor]TyR _) du₃) 
+
+helper : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivation (Γ ⊢ u :> B) → ΣSS (TyExpr n) (λ A → ΣSS (TmExpr n) (λ u → Derivation (Γ ⊢ u :> A)))
+helper {B = A} {u = u} (VarLast du) = A , u , {!VarLast du!}
+helper (VarPrev du du₁) = {!!}
+helper (Conv du du₁ du₂) = {!!}
+helper (Lam du du₁ du₂) = {!!}
+helper (App du du₁ du₂ du₃) = {!!}
