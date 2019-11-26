@@ -1,5 +1,4 @@
 {-# OPTIONS --rewriting --prop --without-K #-}
-
 open import Agda.Primitive public
 open import Agda.Builtin.Nat public renaming (Nat to ℕ) hiding (_==_) renaming (_<_ to _<ₙ_)
 open import Agda.Builtin.List public
@@ -67,8 +66,8 @@ open ΣSS public
 infixr 4 _,_
 
 
-_×_ : (A B : Prop) → Prop
-A × B = Σ A (λ _ → B)
+_×_ : (A B : Set) → Set
+A × B = ΣSS A (λ _ → B)
 
 infixr 42 _×_
 
@@ -77,10 +76,10 @@ record Unit : Prop where
 
 
 data UnitR : Set where
-  starU : UnitR
+  ttR : UnitR
 
-UnitR-contr : (a : UnitR) → starU ≡R a
-UnitR-contr starU = reflR
+UnitR-contr : (a : UnitR) → ttR ≡R a
+UnitR-contr ttR = reflR
 
 data EmptyR : Set where
   
@@ -96,7 +95,7 @@ characΣSS= reflR = (reflR , reflR)
 
 {- Prop-valued equality -}
 
-data _≡_ {l} {A : Set l} (x : A) : A → Prop l where
+data _≡_ {l} {A : Set l} (x : A) : A → Set l where
   refl : x ≡ x
 {-# BUILTIN EQUALITY _≡_ #-}
 
@@ -361,13 +360,13 @@ code (suc m) zero = EmptyR
 code (suc m) (suc n) = code m n
 
 code-is-prop : (m n : ℕ) → (p q : code m n) → p ≡R q
-code-is-prop zero zero starU starU = reflR
+code-is-prop zero zero ttR ttR = reflR
 code-is-prop zero (suc n) () ()
 code-is-prop (suc m) zero () ()
 code-is-prop (suc m) (suc n) p q = code-is-prop m n p q
 
 r : (n : ℕ) → code n n
-r zero = starU
+r zero = ttR
 r (suc n) = r n
 
 encode : (m n : ℕ) → m ≡R n → code m n
