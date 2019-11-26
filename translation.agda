@@ -195,7 +195,7 @@ subst3TyCommStrip {n = n} A u v w rewrite ! (idMorCommStrip n) = []TyCommStrip A
 -- subst3Ty-weakenprev3CommStrip P A rewrite subst3TyCommStrip (ex.weakenTy' (prev (prev (prev last))) P) (ex.var last) (ex.var last) ({!!}) | WeakenTy'CommStrip (prev (prev (prev last))) P | WeakenTyCommStrip A = {!!}
 -- refl (ex.weakenTy A) (ex.var last)
 -- Stripping respects derivability 
-DerToNormal : {judg : ex.Judgment} → (ex.Derivable judg) → (Derivable (|| judg ||))
+DerToNormal : {judg : ex.Judgment} → (ex.Derivation judg) → (Derivation (|| judg ||))
 DerToNormal (ex.VarLast {A = A} dj) rewrite WeakenTyCommStrip A = VarLast (DerToNormal dj)
 DerToNormal (ex.VarPrev {A = A} dj dj₁) rewrite WeakenTyCommStrip A = VarPrev (DerToNormal dj) (DerToNormal dj₁)
 DerToNormal (ex.VarLastCong {A = A} dj) rewrite WeakenTyCommStrip A = VarLastCong (DerToNormal dj)
