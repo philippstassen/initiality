@@ -1308,3 +1308,12 @@ congMorRefl refl dδ = MorRefl dδ
 -- TmTran' : {Γ : Ctx n} {u v w : TmExpr n} {A : TyExpr n} → ⊢ Γ
 --         → Derivation (Γ ⊢ u == v :> A)→ Derivation (Γ ⊢ v == w :> A) → Derivation (Γ ⊢ u == w :> A)
 -- TmTran' dΓ du= dv= = TmTran (TmEqTm1 dΓ dv=) du= dv=
+
+helper : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivation (Γ ⊢ u :> A) → ΣSS (TyExpr n) (λ B → ΣSS (TmExpr n) (λ v → Derivation (Γ ⊢ v :> B)))
+helper {Γ = Γ} {.(coerc A B u)} {.B} (Conv {u = u} {A = A} {B = B} du du₁ du₂) = A , u , du₁
+helper {Γ = Γ} {u = u} {A = A} x = A , u , x
+
+-- helper {Γ = .(_ , _)} {.(var last)} {.(weakenTy' last _)} (VarLast du) = weakenTy _ , var last , VarLast du
+-- helper {Γ = .(_ , _)} {.(var (prev _))} {.(weakenTy' last _)} (VarPrev du du₁) = weakenTy _ , var (prev _) , VarPrev du du₁
+-- helper {Γ = Γ} {.(lam _ _ _)} {.(pi _ _)} (Lam du du₁ du₂) = {!!}
+-- helper {Γ = Γ} {.(app _ _ _ _)} {.(_ [ idMor _ , _ ]Ty)} (App du du₁ du₂ du₃) = {!!}
