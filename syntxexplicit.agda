@@ -793,3 +793,12 @@ weakenTy-getTy ◇ (app A B v v₁) C = weakenTy-substTy
 weakenTy-getTy (Γ , A₁) (app A B v v₁) C = weakenTy-substTy
 weakenTy-getTy ◇ (coerc A B u) C = refl
 weakenTy-getTy (Γ , A₁) (coerc A B u) C = refl
+
+{-Define alternative substitution that commutes with getTy -}
+-- []getTy : {n m : ℕ} → TmExpr m → (δ : Mor n m) → TmExpr n
+-- []getTy {n = n} (var last) δ = {!TmExpr.var {n = (suc n)} last!}
+-- []getTy (var (prev x)) δ = {!!}
+-- []getTy (lam A B u) δ = {!!}
+-- []getTy (app A B u u₁) δ = {!!}
+-- []getTy (coerc S T u) δ = {!!}
+
