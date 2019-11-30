@@ -99,7 +99,8 @@ weakenMor-liftMor : (Γ : ex.Ctx n) (Δ : ex.Ctx m) (A : ex.TyExpr n) (δ : Mor 
 weakenMor-liftMor Γ ex.◇ A ◇ = refl
 weakenMor-liftMor Γ (Δ ex., A₁) A (δ , u) rewrite weakenMor-liftMor Γ Δ A δ | ! (ex.weaken[]Ty A₁ (liftMor Γ Δ δ) last) | weakenTm-liftTm Γ A (A₁ ex.[ liftMor Γ Δ δ ]Ty) u = refl
 
-{- substitution does not commute with lifting, since getTy and substitution do not commute (see syntx explicit, this still is here the problem.  Maybe a similar statement holds judgmentally-}
+{- substitution does not commute with lifting, since getTy and substitution do not commute (see syntx explicit, this still is here the problem. -}
+{- Als not valid judgmentally, here the issue is that we cannot assume by induction hyp that B ≡ B' but only B == B'. But then we cannot use ConvEq-}
 []-liftTy : (Γ : ex.Ctx n) (Δ : ex.Ctx m) {A : TyExpr m} (δ : Mor n m) → (liftTy Δ A) ex.[ (liftMor Γ Δ δ) ]Ty ≡ liftTy Γ (A [ δ ]Ty)
 -- []-liftVar : (Γ : ex.Ctx n) (Δ : Ctx m) (A : TyExpr m) (var x : TmExpr m) (δ : Mor n m) → (liftVar (liftCtx (Δ , A)) (liftTy Δ A)) (var x)) ex.[ (liftMor Γ Δ δ) ]Tm ≡ liftTm Γ (liftTy Γ (A [ δ ]Ty)) ((var x) [ δ ]Tm)
 []-liftTm : (Γ : ex.Ctx n) (Δ : ex.Ctx m) (B : TyExpr m) (u : TmExpr m) (δ : Mor n m) → (liftTm Δ (liftTy Δ B) u) ex.[ (liftMor Γ Δ δ) ]Tm ≡ liftTm Γ (liftTy Γ (B [ δ ]Ty)) (u [ δ ]Tm)
@@ -112,7 +113,7 @@ weakenMor-liftMor Γ (Δ ex., A₁) A (δ , u) rewrite weakenMor-liftMor Γ Δ A
 -- []-liftVar Γ (Δ , A) (var x) δ = {!!}
 []-liftTm (Γ ex., A₁) (Δ ex., A) B (var last) (δ , var last) = ex.ap-coerc-Tm {!!} {!!} {!!}
 []-liftTm Γ (Δ ex., A) B (var last) (δ , var (prev x)) = {!!}
-[]-liftTm Γ (Δ ex., A) B (var last) (δ , lam A₁ B₁ u) = {!!}
+[]-liftTm Γ (Δ ex., A) B (var last) (δ , lam A₁ B₁ u) = ex.ap-coerc-Tm {!!} {!!} {!!}
 []-liftTm Γ (Δ ex., A) B (var last) (δ , app A₁ B₁ u u₁) = {!!}
 []-liftTm Γ (Δ ex., A) B (var (prev x)) (δ , u) = {!!}
 []-liftTm Γ Δ B (lam A B₁ u) δ = {!!}
