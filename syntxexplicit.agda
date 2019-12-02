@@ -771,6 +771,9 @@ getTy Γ (lam A B u) = pi A B
 getTy Γ (app A B u u₁) = substTy B u₁
 getTy Γ (coerc S T u) = T
 
+ap-getTy : {Γ Δ : Ctx n} → {u v : TmExpr n} → Γ ≡ Δ → u ≡ v → getTy Γ u ≡ getTy Γ v
+ap-getTy refl refl = refl
+
 weakenTy'-getTy : {n : ℕ} (k : Fin (suc n)) (Γ : Ctx n) (v : TmExpr n) (A : TyExpr (n -F' k)) → weakenTy' k (getTy Γ v) ≡ getTy (weakenCtx k Γ A) (weakenTm' k v)
 weakenTy'-getTy last Γ (var x) C = refl
 weakenTy'-getTy (prev k) (Γ , A) (var last) C = weakenTy-weakenTy

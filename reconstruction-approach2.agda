@@ -20,6 +20,9 @@ liftTy Γ (pi A A₁) = ex.pi (liftTy Γ A ) (liftTy (Γ ex., (liftTy Γ A)) A�
 liftTm Γ (var x) = ex.var x
 liftTm Γ (lam A B u) = ex.lam (liftTy Γ A) (liftTy (Γ ex., (liftTy Γ A)) B) (ex.coerc (ex.getTy (Γ ex., liftTy Γ A) (liftTm (Γ ex., liftTy Γ A) u)) (liftTy (Γ ex., liftTy Γ A) B) (liftTm (Γ ex., liftTy Γ A) u))
 liftTm Γ (app A B u u₁) = ex.app (liftTy Γ A) (liftTy (Γ ex., liftTy Γ A) B) (ex.coerc (ex.getTy Γ (liftTm Γ u)) (liftTy Γ (pi A B)) (liftTm Γ u)) (ex.coerc (ex.getTy Γ (liftTm Γ u₁)) (liftTy Γ A) (liftTm Γ u₁))
+
+ap-liftTy : {Γ Δ : ex.Ctx n} {A B : TyExpr n} → Γ ≡ Δ → A ≡ B → liftTy Γ A ≡ liftTy Δ B
+ap-liftTy refl refl = refl
 {- 
 liftTy zero Γ (uu i) = ex.uu i
 liftTy Γ (el i v) = ex.el i (ex.coerc (ex.getTy (liftCtx Γ) (liftTm Γ v)) (ex.uu i) (liftTm Γ v))
@@ -36,7 +39,7 @@ liftCtx (Γ , A) = liftCtx Γ ex., liftTy (liftCtx Γ) A
 {- morphism lifting needs coercions. Aim: Define lifting that preserves wellformed-ness -}
 liftMor : {n m : ℕ} → ex.Ctx n → ex.Ctx m → Mor n m → ex.Mor n m
 liftMor Γ Δ ◇ = ex.◇
-liftMor Γ (Δ ex., A) (δ , u) =  liftMor Γ Δ δ ex., ex.coerc (ex.getTy Γ (liftTm Γ u)) (A ex.[ liftMor Γ Δ δ ]Ty) (liftTm Γ u)
+liftMor Γ (Δ ex., A) (δ , u) =  liftMor Γ Δ δ ex., liftTm Γ u
 -- liftMor δ Γ ex., coerc (ex.getTy Γ (liftTm Γ u)) liftTm Γ u
 
 liftJdg : Judgment → ex.Judgment
@@ -109,13 +112,16 @@ ap-lift-Mor+ {Γ = Γ} {Δ ex., A₁} {A} {pi B B₁} {δ} eq = {!!}
 []-liftTm : {Γ : ex.Ctx n} {Δ : ex.Ctx m} {u : TmExpr m} {δ : Mor n m} → (liftTm Δ u) ex.[ (liftMor Γ Δ δ) ]Tm ≡ liftTm Γ (u [ δ ]Tm)
 
 []-liftTy {Γ = Γ} {Δ} {uu i} {δ} = refl
-[]-liftTy {Γ = ex.◇} {ex.◇} {el i (lam A B v)} {δ = ◇} = ex.ap-el-Ty refl (ex.ap-coerc-Tm (ex.ap-pi-Ty []-liftTy {![]-liftTy {Γ = ex.◇ ex., liftTy ex.◇ (A [ ◇ ]Ty)} {Δ = ex.◇ ex., liftTy ex.◇ A} {A = B} {δ = weakenMor+ ◇}!}) refl (ex.ap-lam-Tm []-liftTy {!!} {!!}))
+[]-liftTy {Γ = ex.◇} {ex.◇} {el i (lam A B v)} {δ = ◇} = ex.ap-el-Ty refl (ex.ap-coerc-Tm (ex.ap-pi-Ty []-liftTy []-liftTy) refl (ex.ap-lam-Tm []-liftTy []-liftTy (ex.ap-coerc-Tm {!ex.ap-getTy (ex.Ctx+= {Γ = ex.◇} refl (ap-liftTy {Γ = ex.◇} refl (! ([idMor]Ty A)))) ([]-liftTm {Γ = ex.◇ ex., liftTy ex.◇ (A [ ◇ ]Ty)} {Δ = ex.◇ ex., liftTy ex.◇ A} {u = v} {δ = weakenMor+ ◇}) !} {!!} {!!}))) where
 []-liftTy {Γ = ex.◇} {ex.◇} {el i (app A B v v₁)} {δ} = {!!}
 []-liftTy {Γ = ex.◇} {Δ ex., A} {el i v} {δ} = {!!}
 []-liftTy {Γ = Γ ex., A} {Δ} {el i v} {δ} = {!!}
 []-liftTy {Γ = Γ} {Δ} {pi A A₁} {δ} = {!!}
 
-[]-liftTm {Γ = Γ} {Δ} {u = u} {δ = δ} = {!!}
+[]-liftTm {Γ = Γ} {Δ ex., A} {var last} {δ , u} = refl
+[]-liftTm {Γ = Γ} {Δ ex., A} {var (prev x)} {δ , u} = {!!}
+[]-liftTm {Γ = Γ} {Δ} {lam A B u} {δ} = {!!}
+[]-liftTm {Γ = Γ} {Δ} {app A B u u₁} {δ} = {!!}
 
 -- []-substTy : {Γ : ex.Ctx n} (A : ex.TyExpr n) (B : TyExpr (suc n)) (u : TmExpr n) → ex.substTy (liftTy (Γ ex., A) B) (ex.coerc (ex.getTy Γ (liftTm Γ u)) A (liftTm Γ u)) ≡ liftTy Γ (substTy B u)
 -- []-substTm : {Γ : ex.Ctx n} (A : ex.TyExpr n) (u : TmExpr (suc n)) (u₁ : TmExpr n) → ex.substTm (liftTm (Γ ex., A) u) (ex.coerc (ex.getTy Γ (liftTm Γ u)) A (liftTm Γ u)) ≡ liftTy Γ (substTy B u)
