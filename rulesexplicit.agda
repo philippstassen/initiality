@@ -77,11 +77,11 @@ data Derivable : Judgment → Prop where
   Pi : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} 
     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ pi A B)
   PiCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)}
-    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A') → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A') ⊢ convTy B' A A') → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ pi A B == pi A' B')
+    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A') → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A') ⊢ coercTy B' A A') → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ pi A B == pi A' B')
 
 {- Version two PiCong, should be equivalent, but the first on might be nicer to work with -}
 --  PiCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)}
---    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A') → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A') ⊢ B') → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == convTy B' A' A) → Derivable (Γ ⊢ pi A B == pi A' (convTy B' A' A))
+--    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A') → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A') ⊢ B') → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == coercTy B' A' A) → Derivable (Γ ⊢ pi A B == pi A' (coercTy B' A' A))
 
   -- Rules for lambda
   Lam : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n)}
@@ -89,7 +89,7 @@ data Derivable : Judgment → Prop where
     → Derivable (Γ ⊢ lam A B u :> pi A B)
   LamCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr (suc n)}
     → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A') → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A') ⊢ B') → Derivable ((Γ , A) ⊢ u :> B) → Derivable ((Γ , A') ⊢ u' :> B') 
-    → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == (convTy B' A' A)) → Derivable ((Γ , A) ⊢ u == coerc (convTy B' A' A) B (convTm u' A' A) :> B) → Derivable (Γ ⊢ lam A B u == lam A B (coerc (convTy B' A' A) B (convTm u' A' A)) :> pi A B) 
+    → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == (coercTy B' A' A)) → Derivable ((Γ , A) ⊢ u == coerc (coercTy B' A' A) B (coercTm u' A' A) :> B) → Derivable (Γ ⊢ lam A B u == lam A B (coerc (coercTy B' A' A) B (coercTm u' A' A)) :> pi A B) 
 
 
   -- Rules for app
@@ -874,14 +874,14 @@ getCtx (_⊢_==_ {n = n} Γ x x₁) = n , Γ
 getCtx (_⊢_==_:>_ {n = n} Γ x x₁ x₂) = n , Γ
 getCtx (_⊢_≃_ {n = n} Γ x x₁) = n , Γ
 
-coercTm : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ u :> A)
-coercTm (Conv du du₁ du₂ du₃) = du₂
+coercInvTm : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ u :> A)
+coercInvTm (Conv du du₁ du₂ du₃) = du₂
 
-coercTy1 : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ A)
-coercTy1 (Conv du du₁ du₂ du₃) = du
+coercInvTy1 : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ A)
+coercInvTy1 (Conv du du₁ du₂ du₃) = du
 
-coercTy2 : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ B)
-coercTy2 (Conv du du₁ du₂ du₃) = du₁
+coercInvTy2 : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ B)
+coercInvTy2 (Conv du du₁ du₂ du₃) = du₁
 
-coercEq : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ A == B)
-coercEq (Conv du du₁ du₂ du₃) = du₃
+coercInvEq : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ A == B)
+coercInvEq (Conv du du₁ du₂ du₃) = du₃
