@@ -808,3 +808,7 @@ convTy {n = n} B A A' = B [ weakenMor (idMor n) , coerc (weakenTy A') (weakenTy 
 
 convTm : {n : ℕ} → TmExpr (suc n) → TyExpr n → TyExpr n → TmExpr (suc n)
 convTm {n = n} u A A' = u [ weakenMor (idMor n) , coerc (weakenTy A') (weakenTy A) (var last) ]Tm
+
+{- EtaPi is well defined in explicit syntax -}
+etaExpl : {n : ℕ} → (A : TyExpr n) → (B : TyExpr (suc n)) → _≡_ {A = TyExpr n} (pi A B) (pi A (substTy (weakenTy' (prev last) B) (var last)))
+etaExpl {n = n} A B = ap-pi-Ty refl (! (substTy-weakenTy' {k = prev (last {n = n})} {A = B} {δ = idMor (suc n)} {t = var last} ∙ ([idMor]Ty B)))
