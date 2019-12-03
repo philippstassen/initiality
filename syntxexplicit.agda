@@ -802,3 +802,9 @@ weakenTy-getTy (Γ , A₁) (coerc A B u) C = refl
 -- []getTy (app A B u u₁) δ = {!!}
 -- []getTy (coerc S T u) δ = {!!}
 
+{- Substitution that converts last variable -}
+convTy : {n : ℕ} → TyExpr (suc n) → TyExpr n → TyExpr n → TyExpr (suc n)
+convTy {n = n} B A A' = B [ weakenMor (idMor n) , coerc (weakenTy A') (weakenTy A) (var last) ]Ty
+
+convTm : {n : ℕ} → TmExpr (suc n) → TyExpr n → TyExpr n → TmExpr (suc n)
+convTm {n = n} u A A' = u [ weakenMor (idMor n) , coerc (weakenTy A') (weakenTy A) (var last) ]Tm
