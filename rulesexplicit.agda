@@ -41,7 +41,7 @@ data Derivable : Judgment → Prop where
   TySymm : {Γ : Ctx n} {A B : TyExpr n}
     → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ B == A)
   TyTran : {Γ : Ctx n} {A B C : TyExpr n}
-    → Derivable (Γ ⊢ B) → Derivable (Γ ⊢ A == B)→ Derivable (Γ ⊢ B == C) → Derivable (Γ ⊢ A == C)
+    → Derivable (Γ ⊢ B) → Derivable (Γ ⊢ A == B) → Derivable (Γ ⊢ B == C) → Derivable (Γ ⊢ A == C)
 
   -- Symmetry and transitivity for terms
   TmSymm : {Γ : Ctx n} {u v : TmExpr n} {A : TyExpr n}
@@ -85,8 +85,11 @@ data Derivable : Judgment → Prop where
   Pi : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} 
     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ pi A B)
   PiCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)}
-    → Derivable (Γ ⊢ A)
-    → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ pi A B == pi A' B')
+    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A') → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A') ⊢ convTy B' A A') → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ pi A B == pi A' B')
+
+{- Version two PiCong, should be equivalent, but the first on might be nicer to work with -}
+--  PiCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)}
+--    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A') → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A') ⊢ B') → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == convTy B' A' A) → Derivable (Γ ⊢ pi A B == pi A' (convTy B' A' A))
 
 --   -- Rules for pi
 --   PiUU : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
@@ -101,19 +104,17 @@ data Derivable : Judgment → Prop where
     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A) ⊢ u :> B)
     → Derivable (Γ ⊢ lam A B u :> pi A B)
   LamCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr (suc n)}
-    → Derivable (Γ ⊢ A)
-    → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable ((Γ , A) ⊢ u == u' :> B)
-    → Derivable (Γ ⊢ lam A B u == lam A' B' u' :> pi A B)
+    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A') → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A') ⊢ B') → Derivable ((Γ , A) ⊢ u :> B) → Derivable ((Γ , A') ⊢ u' :> B') 
+    → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == (convTy B' A' A)) → Derivable ((Γ , A) ⊢ u == coerc (convTy B' A' A) B (convTm u' A' A) :> B) → Derivable (Γ ⊢ lam A B u == lam A B (coerc (convTy B' A' A) B (convTm u' A' A)) :> pi A B) 
+
 
   -- Rules for app
   App : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {f a : TmExpr n}
     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ f :> pi A B) → Derivable (Γ ⊢ a :> A)
     → Derivable (Γ ⊢ app A B f a :> substTy B a)
-  AppCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {f f' a a' : TmExpr n}
-    → Derivable (Γ ⊢ A)
-    → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable (Γ ⊢ f == f' :> pi A B) → Derivable (Γ ⊢ a == a' :> A)
-    → Derivable (Γ ⊢ app A B f a == app A' B' f' a' :> substTy B a)
-
+  AppCong : {Γ : Ctx n} {A A' : TyExpr n} {B : TyExpr (suc n)} {f f' a a' : TmExpr n}
+    → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A') → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ f :> pi A B) → Derivable (Γ ⊢ f' :> pi A B) → Derivable (Γ ⊢ a :> A) → Derivable (Γ ⊢ a' :> A') → Derivable (Γ ⊢ f == f' :> pi A B) → Derivable (Γ ⊢ a == coerc A' A a' :> A)
+    → Derivable (Γ ⊢ app A B f a == coerc (substTy B (coerc A' A a')) (substTy B a) (app A B f' (coerc A' A a')) :> substTy B a)
 
 --   -- Rules for Sigma
 --   Sig : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)}
@@ -275,7 +276,7 @@ data Derivable : Judgment → Prop where
 --     → Derivable (Γ ⊢ A) → Derivable ((((Γ , A) , weakenTy A) , id (weakenTy (weakenTy A)) (var (prev last)) (var last)) ⊢ P) → Derivable ((Γ , A) ⊢ d :> subst3Ty (weakenTy' (prev (prev (prev last))) P) (var last) (var last) (refl (weakenTy A) (var last))) → Derivable (Γ ⊢ a :> A)
 --     → Derivable (Γ ⊢ jj A P d a a (refl A a) == substTm d a :> subst3Ty P a a (refl A a))
 
-  -- Eta-equivalences
+  -- Eta-equivalences: I still well-defined for Explicit syntax (see syntaxexplicit bottom)
   EtaPi : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {f : TmExpr n}
     → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ f :> pi A B)
     → Derivable (Γ ⊢ f == lam A B (app (weakenTy A) (weakenTy' (prev last) B) (weakenTm f) (var last)) :> pi A B)
@@ -361,7 +362,8 @@ congMorEq refl refl refl refl dδ= = dδ=
 TyRefl : {Γ : Ctx n} {A : TyExpr n} → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A == A)
 TmRefl : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ u == u :> A)
 
-TyRefl (Pi dA dB) = PiCong dA (TyRefl dA) (TyRefl dB)
+TyRefl (Pi dA dB) = PiCong dA dA dB {!!} (TyRefl dA) (TyRefl dB)
+-- PiCong dA (TyRefl dA) (TyRefl dB)
 TyRefl UU = UUCong
 TyRefl (El dv) = ElCong (TmRefl dv)
 -- TyRefl (Sig dA dB) = SigCong dA (TyRefl dA) (TyRefl dB)
@@ -373,8 +375,10 @@ TyRefl (El dv) = ElCong (TmRefl dv)
 TmRefl (VarLast dA) = VarLastCong dA
 TmRefl (VarPrev dA dk) = VarPrevCong dA (TmRefl dk) 
 TmRefl (Conv dA dB du dA=) = ConvEq dA (TmRefl du) dA=
-TmRefl (Lam dA dB du) = LamCong dA (TyRefl dA) (TyRefl dB) (TmRefl du)
-TmRefl (App dA dB df da) = AppCong dA (TyRefl dA) (TyRefl dB) (TmRefl df) (TmRefl da)
+TmRefl (Lam dA dB du) = {!LamCong dA dA dB dB du du (TyRefl dA)!}
+-- LamCong dA (TyRefl dA) (TyRefl dB) (TmRefl du)
+TmRefl (App dA dB df da) = {!!}
+-- AppCong dA (TyRefl dA) (TyRefl dB) (TmRefl df) (TmRefl da)
 -- TmRefl UUUU = UUUUCong
 -- TmRefl (PiUU da db) = PiUUCong da (TmRefl da) (TmRefl db)
 -- TmRefl (SigUU da db) = SigUUCong da (TmRefl da) (TmRefl db)
@@ -518,7 +522,8 @@ SubstTm {u = app A B f a} {δ = δ} (App dA dB df da) dδ = congTmTy! []Ty-subst
 SubstTyEq (TySymm dA=) dδ = TySymm (SubstTyEq dA= dδ)
 SubstTyEq (TyTran dB dA= dB=) dδ = TyTran (SubstTy dB dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= dδ)
 
-SubstTyEq (PiCong dA dA= dB=) dδ = PiCong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor+ dA dδ))
+SubstTyEq {δ = δ} (PiCong {A = A} dA dA' dB dB' dA= dB=) dδ = PiCong (SubstTy dA dδ) (SubstTy dA' dδ) (SubstTy dB (WeakMor {T = A [ δ ]Ty} dδ , congTmTy (weaken[]Ty A δ last) (VarLast (SubstTy dA dδ)))) {!!} (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor+ dA dδ))
+-- PiCong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor+ dA dδ))
 SubstTyEq UUCong dδ = UUCong
 SubstTyEq (ElCong dv=) dδ = ElCong (SubstTmEq dv= dδ)
 -- SubstTyEq ElUU= dδ = ElUU=
@@ -546,8 +551,10 @@ SubstTmEq {δ = δ} (CoercTrans dA dB dC du dA= dB= dA₁=) dδ = CoercTrans (Su
 
 -- SubstTmEq UUUUCong dδ = UUUUCong
 -- SubstTmEq (PiUUCong da da= db=) dδ = PiUUCong (SubstTm da dδ) (SubstTmEq da= dδ) (SubstTmEq db= (WeakMor+ (El da) dδ))
-SubstTmEq (LamCong dA dA= dB= du=) dδ = LamCong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor+ dA dδ)) (SubstTmEq du= (WeakMor+ dA dδ))
-SubstTmEq (AppCong dA dA= dB= df= da=) dδ = congTmEqTy! []Ty-substTy (AppCong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor+ dA dδ)) (SubstTmEq df= dδ) (SubstTmEq da= dδ))
+SubstTmEq (LamCong dA dA' dB dB' du du' dA= dB= du=) dδ = {!!}
+-- LamCong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor+ dA dδ)) (SubstTmEq du= (WeakMor+ dA dδ))
+SubstTmEq (AppCong dA dA' dB df df' da da' df= da=) dδ = {!!}
+-- congTmEqTy! []Ty-substTy (AppCong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor+ dA dδ)) (SubstTmEq df= dδ) (SubstTmEq da= dδ))
 -- SubstTmEq (SigUUCong da da= db=) dδ = SigUUCong (SubstTm da dδ) (SubstTmEq da= dδ) (SubstTmEq db= (WeakMor+ (El da) dδ))
 -- SubstTmEq (PairCong dA dA= dB= da= db=) dδ = PairCong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor+ dA dδ)) (SubstTmEq da= dδ) (congTmEqTy []Ty-substTy (SubstTmEq db= dδ))
 -- SubstTmEq (Pr1Cong dA dA= dB= du=) dδ = Pr1Cong (SubstTy dA dδ) (SubstTyEq dA= dδ) (SubstTyEq dB= (WeakMor+ dA dδ)) (SubstTmEq du= dδ)
@@ -739,7 +746,8 @@ WeakTm (App dA dB df da) = congTmTy! weakenTy-substTy (App (WeakTy dA) (WeakTy d
 
 WeakTyEq (TySymm dA=) = TySymm (WeakTyEq dA=)
 WeakTyEq (TyTran dB dA= dB=) = TyTran (WeakTy dB) (WeakTyEq dA=) (WeakTyEq dB=)
-WeakTyEq (PiCong dA dA= dB=) = PiCong (WeakTy dA) (WeakTyEq dA=) (WeakTyEq dB=)
+WeakTyEq (PiCong dA dA' dB dB' dA= dB=) = {!!}
+-- PiCong (WeakTy dA) (WeakTyEq dA=) (WeakTyEq dB=)
 WeakTyEq UUCong = UUCong
 WeakTyEq (ElCong dv=) = ElCong (WeakTmEq dv=)
 
@@ -770,8 +778,10 @@ WeakTmEq (CoercTrans dA dB dC du x x₁ x₂) = CoercTrans (WeakTy dA) (WeakTy d
 
 -- WeakTmEq UUUUCong = UUUUCong
 -- WeakTmEq (PiUUCong da da= db=) = PiUUCong (WeakTm da) (WeakTmEq da=) (WeakTmEq db=)
-WeakTmEq (LamCong dA dA= dB= du=) = LamCong (WeakTy dA) (WeakTyEq dA=) (WeakTyEq dB=) (WeakTmEq du=)
-WeakTmEq (AppCong dA dA= dB= df= da=) = congTmEqTy! weakenTy-substTy (AppCong (WeakTy dA) (WeakTyEq dA=) (WeakTyEq dB=) (WeakTmEq  df=) (WeakTmEq da=))
+WeakTmEq (LamCong dA dA' dB dB' du du' dA= dB= du=) = {!!}
+-- LamCong (WeakTy dA) (WeakTyEq dA=) (WeakTyEq dB=) (WeakTmEq du=)
+WeakTmEq (AppCong dA dA' dB df df' da da' df= da=) = {!!}
+-- congTmEqTy! weakenTy-substTy (AppCong (WeakTy dA) (WeakTyEq dA=) (WeakTyEq dB=) (WeakTmEq  df=) (WeakTmEq da=))
 -- WeakTmEq (SigUUCong da da= db=) = SigUUCong (WeakTm da) (WeakTmEq da=) (WeakTmEq db=)
 -- WeakTmEq (PairCong dA dA= dB= da= db=) = PairCong (WeakTy dA) (WeakTyEq dA=) (WeakTyEq dB=) (WeakTmEq da=) (congTmEqTy weakenTy-substTy (WeakTmEq db=))
 -- WeakTmEq (Pr1Cong dA dA= dB= du=) = Pr1Cong (WeakTy dA) (WeakTyEq dA=) (WeakTyEq dB=) (WeakTmEq du=)
