@@ -803,11 +803,11 @@ weakenTy-getTy (Γ , A₁) (coerc A B u) C = refl
 -- []getTy (coerc S T u) δ = {!!}
 
 {- Substitution that converts last variable -}
-convTy : {n : ℕ} → TyExpr (suc n) → TyExpr n → TyExpr n → TyExpr (suc n)
-convTy {n = n} B A A' = B [ weakenMor (idMor n) , coerc (weakenTy A') (weakenTy A) (var last) ]Ty
+coercTy : {n : ℕ} → TyExpr (suc n) → TyExpr n → TyExpr n → TyExpr (suc n)
+coercTy {n = n} B A A' = B [ weakenMor (idMor n) , coerc (weakenTy A') (weakenTy A) (var last) ]Ty
 
-convTm : {n : ℕ} → TmExpr (suc n) → TyExpr n → TyExpr n → TmExpr (suc n)
-convTm {n = n} u A A' = u [ weakenMor (idMor n) , coerc (weakenTy A') (weakenTy A) (var last) ]Tm
+coercTm : {n : ℕ} → TmExpr (suc n) → TyExpr n → TyExpr n → TmExpr (suc n)
+coercTm {n = n} u A A' = u [ weakenMor (idMor n) , coerc (weakenTy A') (weakenTy A) (var last) ]Tm
 
 {- EtaPi is well defined in explicit syntax -}
 etaExpl : {n : ℕ} → (A : TyExpr n) → (B : TyExpr (suc n)) → _≡_ {A = TyExpr n} (pi A B) (pi A (substTy (weakenTy' (prev last) B) (var last)))
