@@ -1,5 +1,4 @@
 {-# OPTIONS --rewriting --prop --without-K -v tc.unquote:10 #-}
- 
 open import common
 open import typetheoryexplicit
 open import reflectionexplicit
@@ -592,9 +591,16 @@ weakenCommutesSubstTy : (k : Fin (suc n)) (B : TyExpr (suc n)) (a : TmExpr n) �
 weakenCommutesSubstTy k B a = ap (λ z → substTy (weakenTy' (prev k) z) _) (! ([idMor]Ty B)) ∙
                               ap (λ z → substTy z _) (weaken[]Ty B (idMor _) _) ∙
                               []Ty-assoc _ _ B ∙
-                              ap (λ z → B [ z [ (weakenMor' last (idMor _) , var last) , weakenTm' _ _ ]Mor , weakenTm' k a ]Ty) (! (weakenMorCommutes _ (idMor _))) ∙
-                              ap (λ z → B [ z , weakenTm' _ _ ]Ty) (weakenMorInsert _ _ _ ∙ [idMor]Mor (weakenMor' _ (idMor _))) ∙
-                              ! (weaken[]Ty B (idMor _ , _) _)
+                               ap (λ z → B [ z [ (weakenMor' last (idMor _) , var last) , weakenTm' _ _ ]Mor , weakenTm' k a ]Ty) (! (weakenMorCommutes _ (idMor _))) ∙
+                               ap (λ z → B [ z , weakenTm' k a ]Ty) (weakenMorInsert _ _ (weakenTm' k a) ∙ [idMor]Mor (weakenMor' k (idMor _))) ∙
+                               ! (weaken[]Ty B (idMor _ , _) _)
+
+-- ap (λ z → substTy (weakenTy' (prev k) z) _) (! ([idMor]Ty B)) ∙
+--                               ap (λ z → substTy z _) (weaken[]Ty B (idMor _) _) ∙
+--                               []Ty-assoc _ _ B ∙
+--                               ap (λ z → B [ z [ (weakenMor' last (idMor _) , var last) , weakenTm' _ _ ]Mor , weakenTm' k a ]Ty) (! (weakenMorCommutes _ (idMor _))) ∙
+--                               ap (λ z → B [ z , weakenTm' _ _ ]Ty) (weakenMorInsert _ _ _ ∙ [idMor]Mor (weakenMor' _ (idMor _))) ∙
+--                               ! (weaken[]Ty B (idMor _ , _) _)
 
 weakenCommutesSubstTm : (k : Fin (suc n)) (u : TmExpr (suc n)) (a : TmExpr n) → substTm (weakenTm' (prev k) u) (weakenTm' k a) ≡ weakenTm' k (substTm u a)
 weakenCommutesSubstTm k u a = ap (λ z → substTm (weakenTm' (prev k) z) _) (! ([idMor]Tm u)) ∙
@@ -762,6 +768,11 @@ weakenMor-to-[]Mor {δ = δ} = ap weakenMor (! ([idMor]Mor _)) ∙ weaken[]Mor �
 ap-[]Ty : {A A' : TyExpr n} {δ δ' : Mor m n} → A ≡ A' → δ ≡ δ' → A [ δ ]Ty ≡ A' [ δ' ]Ty
 ap-[]Ty refl refl = refl
 
+-- Weaken Mor commutes as types do
+
+weakenMor-weakenMor : {k : Fin (suc n)} {δ : Mor n m} → weakenMor' (prev k) (weakenMor δ) ≡ weakenMor (weakenMor' k δ)
+weakenMor-weakenMor = ! (weakenMorCommutes _ _)
+
 -- Explicit syntax
 -- Term of a type is uniquely determined by context
 getTy : {n : ℕ} → (Γ : Ctx (n)) → (u : TmExpr n) → TyExpr n
@@ -810,16 +821,46 @@ coercTm : {n : ℕ} → TmExpr (suc n) → TyExpr n → TyExpr n → TmExpr (suc
 coercTm {n = n} u A A' = u [ weakenMor (idMor n) , coerc (weakenTy A') (weakenTy A) (var last) ]Tm
 
 {- Converting a type commutes with weakenMor+ -}
-coercTy[weakenMor+] : (A A' : TyExpr n) → (B : TyExpr (suc n)) → (δ : Mor m n) → coercTy B A A' [ weakenMor+ δ ]Ty ≡ coercTy (B [ weakenMor+ δ ]Ty) (A [ δ ]Ty) (A' [ δ ]Ty)
-coercTy[weakenMor+] A A' B δ = ([]Ty-assoc (weakenMor+ δ) (weakenMor' last (idMor _) , coerc (weakenTy A') (weakenTy A) (var last)) B) ∙ MorRewrite ∙ ! ([]Ty-assoc (weakenMor (idMor _) , coerc (weakenTy (A' [ δ ]Ty)) (weakenTy (A [ δ ]Ty)) (var last)) (weakenMor δ , var last) B)
+coercTy[weakenMor+] : (B : TyExpr (suc n)) (A A' : TyExpr n) (δ : Mor m n) → coercTy B A A' [ weakenMor+ δ ]Ty ≡ coercTy (B [ weakenMor+ δ ]Ty) (A [ δ ]Ty) (A' [ δ ]Ty)
+coercTy[weakenMor+] B A A' δ = ([]Ty-assoc (weakenMor+ δ) (weakenMor' last (idMor _) , coerc (weakenTy A') (weakenTy A) (var last)) B) ∙ MorRewrite ∙ ! ([]Ty-assoc (weakenMor (idMor _) , coerc (weakenTy (A' [ δ ]Ty)) (weakenTy (A [ δ ]Ty)) (var last)) (weakenMor δ , var last) B)
                     where
                   MorRewrite =  (ap (λ δ → B [ δ ]Ty) (Mor+= (weakenMorInsert (idMor _) (weakenMor δ) (var last) ∙ idMor[]Mor (weakenMor δ) ∙ ! ([idMor]Mor (weakenMor δ)) ∙ (weakenMorInsert δ (weakenMor (idMor _)) (var last)) ∙ ! (weakenMorInsert δ (weakenMor (idMor _)) (coerc (weakenTy (A' [ δ ]Ty)) (weakenTy (A [ δ ]Ty)) (var last)) )) ((ap-coerc-Tm ([]Ty-weakenTy) ([]Ty-weakenTy)(refl))) ))
               
+coercTm[weakenMor+] : (u' : TmExpr (suc n)) (A' A : TyExpr n) (δ : Mor m n) → coercTm u' A' A [ weakenMor+ δ ]Tm ≡ coercTm (u' [ weakenMor+ δ ]Tm) (A' [ δ ]Ty) (A [ δ ]Ty)
+coercTm[weakenMor+] u' A A' δ =  ([]Tm-assoc (weakenMor+ δ) (weakenMor' last (idMor _) , coerc (weakenTy A') (weakenTy A) (var last)) u') ∙ MorRewrite ∙ ! ([]Tm-assoc (weakenMor (idMor _) , coerc (weakenTy (A' [ δ ]Ty)) (weakenTy (A [ δ ]Ty)) (var last)) (weakenMor δ , var last) u')
+                  where
+                  MorRewrite =  (ap (λ δ → u' [ δ ]Tm) (Mor+= (weakenMorInsert (idMor _) (weakenMor δ) (var last) ∙ idMor[]Mor (weakenMor δ) ∙ ! ([idMor]Mor (weakenMor δ)) ∙ (weakenMorInsert δ (weakenMor (idMor _)) (var last)) ∙ ! (weakenMorInsert δ (weakenMor (idMor _)) (coerc (weakenTy (A' [ δ ]Ty)) (weakenTy (A [ δ ]Ty)) (var last)) )) ((ap-coerc-Tm ([]Ty-weakenTy) ([]Ty-weakenTy)(refl))) ))
 
--- ap (λ δ → B [ δ ]Ty) 
--- (weakenMorInsert (idMor _) (weakenMor δ) (var last) ∙ idMor[]Mor (weakenMor δ))
--- Mor+= ((ap-coerc-Tm ([]Ty-weakenTy) ([]Ty-weakenTy)(refl)) 
--- exchange last element of weakend morphism (weakenMorInsert δ (weakenMor (idMor _)) (var last)) ∙ ! (weakenMorInsert δ (weakenMor (idMor _)) (coerc (weakenTy (A' [ δ ]Ty)) (weakenTy (A [ δ ]Ty)) (var last)))
+
+coercTm[weakenMor+]^2 : (A A' : TyExpr n) (B B' : TyExpr (suc n)) (u' : TmExpr (suc n)) (δ : Mor m n) → coerc (coercTy B' A' A) B (coercTm u' A' A) [ weakenMor+ δ ]Tm ≡ coerc (coercTy (B' [ weakenMor+ δ ]Ty) (A' [ δ ]Ty) (A [ δ ]Ty)) (B [ weakenMor+ δ ]Ty) (coercTm (u' [ weakenMor+ δ ]Tm) (A' [ δ ]Ty) (A [ δ ]Ty))
+coercTm[weakenMor+]^2 A A' B B' u' δ = ap-coerc-Tm (coercTy[weakenMor+] B' A' A δ) refl (coercTm[weakenMor+] u' A' A δ)
+
+{- coercTy and coercTm commute with weakenTy resp weakenTm -}
+coercTy-weakenTy' : {k : Fin (suc n)} (B : TyExpr (suc n)) (A A' : TyExpr n) → coercTy (weakenTy' (prev k) B) (weakenTy' k A) (weakenTy' k A') ≡ weakenTy' (prev k) (coercTy B A A')
+coercTy-weakenTy' {k = k} B A A' =   ap (λ z → coercTy (weakenTy' (prev k) z) (weakenTy' k A) (weakenTy' k A')) (! ([idMor]Ty B)) ∙ 
+                                      ap (λ z → coercTy z _ _) (weaken[]Ty B (idMor _) _) ∙
+                                      []Ty-assoc ((weakenMor (weakenMor (idMor _)) , var (prev last)) , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last)) (weakenMor' (prev k) (weakenMor (idMor _) , var last))  B ∙
+                                      ap (λ z → B [ z [ weakenMor (weakenMor' last (idMor _) , var last) , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last) ]Mor , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last) ]Ty) (! (weakenMorCommutes _ (idMor _))) ∙ 
+                                      ap (λ z → B [ z , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last) ]Ty) (weakenMorInsert (weakenMor' k (idMor _)) (weakenMor (weakenMor' last (idMor _)), var (prev last)) (coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last)) ) ∙
+                                       ap (λ z → B [ z , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last) ]Ty) (! (weaken[]Mor (weakenMor' k (idMor _)) ((weakenMor (idMor _)) , var (last)) last)) ∙
+                                       ap (λ z → B [ weakenMor z , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last) ]Ty) ([idMor]Mor (weakenMor' k (idMor _))) ∙
+                                       ap (λ z → B [ z , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last) ]Ty) (! weakenMor-weakenMor) ∙
+                                       ap (λ z → B [ weakenMor' (prev k) (weakenMor (idMor _)) , z ]Ty) (ap-coerc-Tm (! weakenTy-weakenTy) (! weakenTy-weakenTy) (refl)) ∙
+                                       ! (weaken[]Ty B ((weakenMor (idMor _) , coerc (weakenTy A') (weakenTy A) (var last))) _) 
+
+coercTm-weakenTm' : {k : Fin (suc n)} (u : TmExpr (suc n)) (A A' : TyExpr n) → coercTm (weakenTm' (prev k) u) (weakenTy' k A) (weakenTy' k A') ≡ weakenTm' (prev k) (coercTm u A A')
+
+coercTm-weakenTm' {k = k} u A A' =  ap (λ z → coercTm (weakenTm' (prev k) z) (weakenTy' k A) (weakenTy' k A')) (! ([idMor]Tm u)) ∙
+                                    ap (λ z → coercTm z _ _) (weaken[]Tm u (idMor _) _) ∙
+                                    []Tm-assoc ((weakenMor (weakenMor (idMor _)) , var (prev last)) , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last)) (weakenMor' (prev k) (weakenMor (idMor _) , var last))  u ∙
+                                     ap (λ z → u [ z [ weakenMor (weakenMor' last (idMor _) , var last) , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last) ]Mor , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last) ]Tm) (! (weakenMorCommutes _ (idMor _))) ∙
+                                     ap (λ z → u [ z , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last) ]Tm) (weakenMorInsert (weakenMor' k (idMor _)) (weakenMor (weakenMor' last (idMor _)), var (prev last)) (coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last)) ) ∙
+                                     ap (λ z → u [ z , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last) ]Tm) (! (weaken[]Mor (weakenMor' k (idMor _)) ((weakenMor (idMor _)) , var (last)) last)) ∙
+                                     ap (λ z → u [ weakenMor z , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last) ]Tm) ([idMor]Mor (weakenMor' k (idMor _))) ∙
+                                      ap (λ z → u [ z , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last) ]Tm) (! weakenMor-weakenMor) ∙
+                                      ap (λ z → u [ weakenMor' (prev k) (weakenMor (idMor _)) , z ]Tm) (ap-coerc-Tm (! weakenTy-weakenTy) (! weakenTy-weakenTy) (refl)) ∙
+                                       ! (weaken[]Tm u ((weakenMor (idMor _) , coerc (weakenTy A') (weakenTy A) (var last))) _)
+
 {- EtaPi is well defined in explicit syntax -}
 etaExpl : {n : ℕ} → (A : TyExpr n) → (B : TyExpr (suc n)) → _≡_ {A = TyExpr n} (pi A B) (pi A (substTy (weakenTy' (prev last) B) (var last)))
 etaExpl {n = n} A B = ap-pi-Ty refl (! (substTy-weakenTy' {k = prev (last {n = n})} {A = B} {δ = idMor (suc n)} {t = var last} ∙ ([idMor]Ty B)))
