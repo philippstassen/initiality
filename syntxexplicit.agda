@@ -848,6 +848,8 @@ coercTy-weakenTy' {k = k} B A A' =   ap (λ z → coercTy (weakenTy' (prev k) z)
                                        ap (λ z → B [ weakenMor' (prev k) (weakenMor (idMor _)) , z ]Ty) (ap-coerc-Tm (! weakenTy-weakenTy) (! weakenTy-weakenTy) (refl)) ∙
                                        ! (weaken[]Ty B ((weakenMor (idMor _) , coerc (weakenTy A') (weakenTy A) (var last))) _) 
 
+
+
 coercTm-weakenTm' : {k : Fin (suc n)} (u : TmExpr (suc n)) (A A' : TyExpr n) → coercTm (weakenTm' (prev k) u) (weakenTy' k A) (weakenTy' k A') ≡ weakenTm' (prev k) (coercTm u A A')
 
 coercTm-weakenTm' {k = k} u A A' =  ap (λ z → coercTm (weakenTm' (prev k) z) (weakenTy' k A) (weakenTy' k A')) (! ([idMor]Tm u)) ∙
@@ -860,6 +862,10 @@ coercTm-weakenTm' {k = k} u A A' =  ap (λ z → coercTm (weakenTm' (prev k) z) 
                                       ap (λ z → u [ z , coerc (weakenTy (weakenTy' k A')) (weakenTy (weakenTy' k A)) (var last) ]Tm) (! weakenMor-weakenMor) ∙
                                       ap (λ z → u [ weakenMor' (prev k) (weakenMor (idMor _)) , z ]Tm) (ap-coerc-Tm (! weakenTy-weakenTy) (! weakenTy-weakenTy) (refl)) ∙
                                        ! (weaken[]Tm u ((weakenMor (idMor _) , coerc (weakenTy A') (weakenTy A) (var last))) _)
+
+coercTm-weakenTm'^2 : {k : Fin (suc n)} (A A' : TyExpr n) (B B' : TyExpr (suc n)) (u' : TmExpr (suc n)) → weakenTm' (prev k) (coerc (coercTy B' A' A) B (coercTm u' A' A)) ≡ coerc (coercTy (weakenTy' (prev k) B') (weakenTy' k A') (weakenTy' k A)) (weakenTy' (prev k) B) (coercTm (weakenTm' (prev k) u') (weakenTy' k A') (weakenTy' k A))
+
+coercTm-weakenTm'^2 A A' B B' u' = ap-coerc-Tm (! (coercTy-weakenTy' B' A' A)) refl (! (coercTm-weakenTm' u' A' A))
 
 {- EtaPi is well defined in explicit syntax -}
 etaExpl : {n : ℕ} → (A : TyExpr n) → (B : TyExpr (suc n)) → _≡_ {A = TyExpr n} (pi A B) (pi A (substTy (weakenTy' (prev last) B) (var last)))
