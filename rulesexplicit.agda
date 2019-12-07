@@ -250,9 +250,9 @@ SubstTyEq : {Γ : Ctx n} {Δ : Ctx m} {A A' : TyExpr m} {δ : Mor n m}
 SubstTmEq : {Γ : Ctx n} {Δ : Ctx m} {u u' : TmExpr m} {A : TyExpr m} {δ : Mor n m}
        → Derivable (Δ ⊢ u == u' :> A) → (Γ ⊢ δ ∷> Δ) → Derivable (Γ ⊢ u [ δ ]Tm == u' [ δ ]Tm :> A [ δ ]Ty)
 
-SubstTyMorEq : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ δ' : Mor n m} → Derivable (Δ ⊢ A) → (Γ ⊢ δ ∷> Δ)
+SubstTyMorEq : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ δ' : Mor n m} → Derivable (Δ ⊢ A) → (Γ ⊢ δ ∷> Δ) → (Γ ⊢ δ' ∷> Δ)
        → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ A [ δ ]Ty == A [ δ' ]Ty)
-SubstTmMorEq : {Γ : Ctx n} {Δ : Ctx m} {u : TmExpr m} {A : TyExpr m} {δ δ' : Mor n m} →  Derivable (Δ ⊢ u :> A) → (Γ ⊢ δ ∷> Δ) 
+SubstTmMorEq : {Γ : Ctx n} {Δ : Ctx m} {u : TmExpr m} {A : TyExpr m} {δ δ' : Mor n m} →  Derivable (Δ ⊢ u :> A) → (Γ ⊢ δ ∷> Δ) → (Γ ⊢ δ' ∷> Δ)  
        → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ u [ δ ]Tm == coerc (A [ δ' ]Ty) (A [ δ ]Ty) (u [ δ' ]Tm) :> A [ δ ]Ty)
 
 WeakTy : {k : Fin (suc n)} {Γ : Ctx n} {T : TyExpr (n -F' k)} {A : TyExpr n}
@@ -328,16 +328,16 @@ SubstTmEq (EtaPi {f = f} dA dB df) dδ =  congTmEq! refl (ap-lam-Tm refl refl (a
                         (SubstTy dB (WeakMor+ dA dδ))
                         (SubstTm df dδ))
 
-SubstTyMorEq (Pi dA dB) dδ dδ= = {!!}
+SubstTyMorEq (Pi dA dB) dδ dδ' dδ= = {!!}
 -- PiCong (SubstTy dA dδ) (SubstTyMorEq dA dδ dδ=) (SubstTyMorEq dB {!WeakMor+coerc!} {!!})
 -- (SubstTyMorEq dB (WeakMor+ dA dδ) ({!WeakMor+Eq dA dδ dδ=!}))
 -- WeakMor+Eq dA dδ dδ=
-SubstTyMorEq UU dδ dδ= = UUCong
-SubstTyMorEq (El dv) dδ dδ= = ElCong {!TmTran (Conv UU UU (SubstTy dv dδ) (UUCong)) (SubstTmMorEq dv dδ dδ=)!}
+SubstTyMorEq UU dδ dδ' dδ= = UUCong
+SubstTyMorEq (El dv) dδ dδ' dδ= = ElCong (TmTran (Conv UU UU (SubstTm dv dδ') UUCong) ( (SubstTmMorEq dv dδ dδ' dδ=)) (TmSymm (SubstTmMorEq dv dδ' dδ' (MorRefl dδ'))))
 -- ElCong (SubstTmMorEq dv dδ dδ=)
 
-SubstTmMorEq {δ = _ , _} {δ' = _ , _} (VarLast _) dδ (_ , du=) = congTmEqTy! (weakenTyInsert _ _ _) {!!}
-SubstTmMorEq {δ = _ , _} {δ' = _ , _} (VarPrev _ dk) (dδ , _) (dδ= , _) = congTmEqTy! (weakenTyInsert _ _ _) {!!}
+SubstTmMorEq {δ = _ , _} {δ' = _ , _} (VarLast _) dδ dδ' (_ , du=) = congTmEqTy! (weakenTyInsert _ _ _) {!!}
+SubstTmMorEq {δ = _ , _} {δ' = _ , _} (VarPrev _ dk) (dδ , _) dδ' (dδ= , _) = congTmEqTy! (weakenTyInsert _ _ _) {!!}
 -- (SubstTmMorEq dk dδ dδ=)
 SubstTmMorEq {δ = δ} {δ' = δ'} (Conv {u = t} {A = A} {B = B} dA dB du dA=) dδ dδ= = {!!}
 -- congTmEqTy! {!!} {!!}
@@ -347,7 +347,7 @@ SubstTmMorEq {δ = δ} {δ' = δ'} (Conv {u = t} {A = A} {B = B} dA dB du dA=) d
 SubstTmMorEq (Lam dA dB du) dδ dδ= = {!!}
 -- LamCong (SubstTy dA dδ) (SubstTyMorEq dA dδ dδ=) (SubstTyMorEq dB (WeakMor+ dA dδ) ({!!})) (SubstTmMorEq du (WeakMor+ dA dδ) ({!!}))
 -- WeakMor+Eq dA dδ dδ=
-SubstTmMorEq (App dA dB df da) dδ dδ= = congTmEqTy! []Ty-substTy {!!}
+SubstTmMorEq (App dA dB df da) dδ dδ' dδ= = congTmEqTy! []Ty-substTy {!!}
 -- (AppCong (SubstTy dA dδ) (SubstTyMorEq dA dδ dδ=) (SubstTyMorEq dB (WeakMor+ dA dδ) ({!!})) (SubstTmMorEq df dδ dδ=) (SubstTmMorEq da dδ dδ=))
 
 WeakTy (Pi dA dB) = Pi (WeakTy dA) (WeakTy dB)
@@ -883,17 +883,20 @@ idMorDerivable {Γ = Γ , A} (dΓ , dA) = (WeakMor (idMorDerivable dΓ) , congTm
 --         → Derivable (Γ ⊢ u == v :> A)→ Derivable (Γ ⊢ v == w :> A) → Derivable (Γ ⊢ u == w :> A)
 -- TmTran' dΓ du= dv= = TmTran (TmEqTm1 dΓ dv=) du= dv=
 
+{- extract type from Derivability -}
+TyofDerivation : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ u :> A) → TyExpr n
+TyofDerivation {A = A} dj = A
 {- If the Term is derivable, then also its Type is -}
 
-getTy-Der : {n : ℕ} {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ u :> A) → ⊢ Γ → Derivable (Γ ⊢ getTy Γ u)
-getTy-Der {Γ = Γ , A₁} {var last} {.(weakenTy' last A₁)} (VarLast dj) dΓ = WeakTy dj
-getTy-Der {Γ = Γ , A₁} {var (prev x)} {.(weakenTy' last _)} (VarPrev dj dj₁) (dΓ , dA) = WeakTy (getTy-Der dj₁ dΓ)
-getTy-Der {Γ = ◇} {lam A₁ B u} {.(pi A₁ B)} (Lam dj dj₁ dj₂) dΓ = Pi dj dj₁
-getTy-Der {Γ = Γ , A} {lam A₁ B u} {.(pi A₁ B)} (Lam dj dj₁ dj₂) dΓ = Pi dj dj₁
-getTy-Der {Γ = ◇} {app A₁ B u u₁} {.(B [ ◇ , u₁ ]Ty)} (App dj dj₁ dj₂ dj₃) dΓ = SubstTy dj₁ (tt , congTmTy! ([idMor]Ty A₁) dj₃)
-getTy-Der {Γ = Γ , A} {app A₁ B u u₁} {.(B [ (weakenMor' last (idMor _) , var last) , u₁ ]Ty)} (App dj dj₁ dj₂ dj₃) dΓ = SubstTy dj₁ ((idMorDerivable dΓ) , congTmTy! ([idMor]Ty A₁) dj₃)
-getTy-Der {Γ = ◇} {coerc A₁ B u} {.B} (Conv dj dj₁ dj₂ dj₃) dΓ = dj₁
-getTy-Der {Γ = Γ , A} {coerc A₁ B u} {.B} (Conv dj dj₁ dj₂ dj₃) dΓ = dj₁
+Derivable-getTy : {n : ℕ} {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → Derivable (Γ ⊢ u :> A) → ⊢ Γ → Derivable (Γ ⊢ getTy Γ u)
+Derivable-getTy {Γ = Γ , A₁} {var last} {.(weakenTy' last A₁)} (VarLast dj) dΓ = WeakTy dj
+Derivable-getTy {Γ = Γ , A₁} {var (prev x)} {.(weakenTy' last _)} (VarPrev dj dj₁) (dΓ , dA) = WeakTy (Derivable-getTy dj₁ dΓ)
+Derivable-getTy {Γ = ◇} {lam A₁ B u} {.(pi A₁ B)} (Lam dj dj₁ dj₂) dΓ = Pi dj dj₁
+Derivable-getTy {Γ = Γ , A} {lam A₁ B u} {.(pi A₁ B)} (Lam dj dj₁ dj₂) dΓ = Pi dj dj₁
+Derivable-getTy {Γ = ◇} {app A₁ B u u₁} {.(B [ ◇ , u₁ ]Ty)} (App dj dj₁ dj₂ dj₃) dΓ = SubstTy dj₁ (tt , congTmTy! ([idMor]Ty A₁) dj₃)
+Derivable-getTy {Γ = Γ , A} {app A₁ B u u₁} {.(B [ (weakenMor' last (idMor _) , var last) , u₁ ]Ty)} (App dj dj₁ dj₂ dj₃) dΓ = SubstTy dj₁ ((idMorDerivable dΓ) , congTmTy! ([idMor]Ty A₁) dj₃)
+Derivable-getTy {Γ = ◇} {coerc A₁ B u} {.B} (Conv dj dj₁ dj₂ dj₃) dΓ = dj₁
+Derivable-getTy {Γ = Γ , A} {coerc A₁ B u} {.B} (Conv dj dj₁ dj₂ dj₃) dΓ = dj₁
 
 {- get Context from a judgment -}
 getCtx : Judgment → ΣSS ℕ Ctx 
@@ -903,9 +906,35 @@ getCtx (_⊢_==_ {n = n} Γ x x₁) = n , Γ
 getCtx (_⊢_==_:>_ {n = n} Γ x x₁ x₂) = n , Γ
 getCtx (_⊢_≃_ {n = n} Γ x x₁) = n , Γ
 
+{- if welltyped getTy u is equal to the typing of u -}
+getTy=Ty : (Γ : Ctx n) (u : TmExpr n) {A : TyExpr n} → (dj : Derivable (Γ ⊢ u :> A)) → getTy Γ u ≡ TyofDerivation dj
+getTy=Ty .(_ , _) .(var last) (VarLast dj) = refl
+getTy=Ty .(Γ , _) .(var (prev _)) (VarPrev {Γ = Γ} dj dj₁) rewrite getTy=Ty Γ (var _) dj₁ = refl
+getTy=Ty Γ .(coerc _ _ _) (Conv dj dj₁ dj₂ dj₃) = refl
+getTy=Ty Γ .(lam _ _ _) (Lam dj dj₁ dj₂) = refl
+getTy=Ty Γ .(app _ _ _ _) (App dj dj₁ dj₂ dj₃) = refl
+
 {-getTy commutes with welltyped substitutions -}
 getTy-[]Ty : (Γ : Ctx n) (Δ : Ctx m) (δ : Mor n m) (u : TmExpr m) → Γ ⊢ δ ∷> Δ → (getTy Δ u) [ δ ]Ty ≡ getTy Γ (u [ δ ]Tm)
-getTy-[]Ty Γ Δ δ u dδ = {!u!}
+getTy-[]Ty Γ .(_ , _) .(_ , _) (var last) (dδ , x₁) rewrite getTy=Ty Γ _ x₁ = weakenTyInsert _ _ _
+getTy-[]Ty Γ .(_ , _) .(_ , _) (var (prev x)) (dδ , x₁) = weakenTyInsert _ _ _ ∙ getTy-[]Ty _ _ _ (var x) dδ
+getTy-[]Ty Γ Δ δ (lam A B u) dδ = refl
+getTy-[]Ty Γ Δ δ (app A B u u₁) dδ = []Ty-assoc δ ( idMor _ , u₁ ) B ∙
+                                     ap (λ z → B [ z , u₁ [ δ ]Tm ]Ty) (idMor[]Mor δ) ∙
+                                     {!(! (ap (λ z → B [ z , (u₁ [ δ ]Tm)]Ty) (weakenMorInsert δ (idMor _) (u₁ [ δ ]Tm) ∙ [idMor]Mor δ )))!} ∙ ! ([]Ty-assoc (idMor _ , (u₁ [ δ ]Tm)) (weakenMor δ , var last) B)
+getTy-[]Ty Γ Δ δ (coerc S T u) dδ = refl
+-- getTy-[]Ty ◇ .◇ .◇ (lam A B u) tt = refl
+-- getTy-[]Ty ◇ .◇ .◇ (app A B u u₁) tt = {!!}
+-- getTy-[]Ty ◇ .◇ .◇ (coerc S T u) tt = refl
+-- getTy-[]Ty (Γ , A) .◇ .◇ (lam A₁ B u) tt = refl
+-- getTy-[]Ty (Γ , A) .◇ .◇ (app A₁ B u u₁) tt = {!!}
+-- getTy-[]Ty (Γ , A) .◇ .◇ (coerc S T u) tt = refl
+-- getTy-[]Ty ◇ .(_ , _) .(_ , u) (var last) (_,_ {u = u} dδ x) rewrite getTy=Ty ◇ u x = weakenTyInsert _ _ _
+-- getTy-[]Ty ◇ .(_ , _) .(_ , _) (var (prev x₁)) (dδ , x) = {!!}
+-- getTy-[]Ty ◇ .(_ , _) .(_ , _) (lam A B u) (dδ , x) = {!!}
+-- getTy-[]Ty ◇ .(_ , _) .(_ , _) (app A B u u₁) (dδ , x) = {!!}
+-- getTy-[]Ty ◇ .(_ , _) .(_ , _) (coerc S T u) (dδ , x) = {!!}
+-- getTy-[]Ty (Γ , A) .(_ , _) .(_ , _) u (dδ , x) = {!!}
 
 coercInvTm : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ u :> A)
 coercInvTm (Conv du du₁ du₂ du₃) = du₂
