@@ -127,22 +127,40 @@ data Derivable : Judgment → Prop where
 
 {- Derivability of contexts, context equality, context morphisms, and context morphism equality -}
 
-⊢_ : Ctx n → Prop
-⊢ ◇ = metaUnit
-⊢ (Γ , A) = (⊢ Γ) × Derivable (Γ ⊢ A)
+data ⊢_ : Ctx n → Prop where
+  tt : ⊢ ◇
+  _,_ : {Γ : Ctx n} {A : _} → (⊢ Γ) → Derivable (Γ ⊢ A) → ⊢ (Γ , A)
 
-⊢_==_ : Ctx n → Ctx n → Prop
-⊢ ◇ == ◇ = metaUnit
-⊢ (Γ , A) == (Γ' , A') = (⊢ Γ == Γ') × Derivable (Γ ⊢ A) × Derivable (Γ' ⊢ A') × Derivable (Γ ⊢ A == A') × Derivable (Γ' ⊢ A == A')
+data ⊢_==_ : Ctx n → Ctx n → Prop where
+  tt : ⊢ ◇ == ◇
+  _,_ : {Γ Γ' : Ctx n} {A A' : TyExpr n} → (⊢ Γ == Γ') → Derivable (Γ' ⊢ A == A') → ⊢ (Γ , A) == (Γ' , A')
 
-_⊢_∷>_ : (Γ : Ctx n) → Mor n m → Ctx m → Prop
-Γ ⊢ ◇ ∷> ◇ = metaUnit
-Γ ⊢ (δ , u) ∷> (Δ , A) = (Γ ⊢ δ ∷> Δ) × Derivable (Γ ⊢ u :> A [ δ ]Ty) 
+data _⊢_∷>_ (Γ : Ctx n) : Mor n m → Ctx m → Prop where
+  tt : Γ ⊢ ◇ ∷> ◇
+  _,_ : {Δ : Ctx m} {δ : Mor n m} {u : TmExpr n} {A : TyExpr m} → (Γ ⊢ δ ∷> Δ) → Derivable (Γ ⊢ u :> A [ δ ]Ty) → (Γ ⊢ (δ , u) ∷> (Δ , A))
 
-{- Explicit coercion -}
-_⊢_==_∷>_ : (Γ : Ctx n) → Mor n m → Mor n m → Ctx m → Prop
-Γ ⊢ ◇ == ◇ ∷> ◇ = metaUnit
-Γ ⊢ (δ , u) == (δ' , u') ∷> (Δ , A) = (Γ ⊢ δ == δ' ∷> Δ) × Derivable (Γ ⊢ u == coerc (A [ δ' ]Ty) (A [ δ ]Ty) u' :> A [ δ ]Ty)
+data _⊢_==_∷>_ (Γ : Ctx n) : Mor n m → Mor n m → Ctx m → Prop where
+  tt : Γ ⊢ ◇ == ◇ ∷> ◇
+  _,_ : {Δ : Ctx m} {δ δ' : Mor n m} {u u' : TmExpr n} {A : TyExpr m} → (Γ ⊢ δ == δ' ∷> Δ) → Derivable (Γ ⊢ u == u' :> A [ δ ]Ty) → (Γ ⊢ (δ , u) == (δ' , u') ∷> (Δ , A))
+
+-- {- Derivability of contexts, context equality, context morphisms, and context morphism equality -}
+-- 
+-- ⊢_ : Ctx n → Prop
+-- ⊢ ◇ = metaUnit
+-- ⊢ (Γ , A) = (⊢ Γ) × Derivable (Γ ⊢ A)
+-- 
+-- ⊢_==_ : Ctx n → Ctx n → Prop
+-- ⊢ ◇ == ◇ = metaUnit
+-- ⊢ (Γ , A) == (Γ' , A') = (⊢ Γ == Γ') × Derivable (Γ ⊢ A) × Derivable (Γ' ⊢ A') × Derivable (Γ ⊢ A == A') × Derivable (Γ' ⊢ A == A')
+-- 
+-- _⊢_∷>_ : (Γ : Ctx n) → Mor n m → Ctx m → Prop
+-- Γ ⊢ ◇ ∷> ◇ = metaUnit
+-- Γ ⊢ (δ , u) ∷> (Δ , A) = (Γ ⊢ δ ∷> Δ) × Derivable (Γ ⊢ u :> A [ δ ]Ty) 
+-- 
+-- {- Explicit coercion -}
+-- _⊢_==_∷>_ : (Γ : Ctx n) → Mor n m → Mor n m → Ctx m → Prop
+-- Γ ⊢ ◇ == ◇ ∷> ◇ = metaUnit
+-- Γ ⊢ (δ , u) == (δ' , u') ∷> (Δ , A) = (Γ ⊢ δ == δ' ∷> Δ) × Derivable (Γ ⊢ u == coerc (A [ δ' ]Ty) (A [ δ ]Ty) u' :> A [ δ ]Ty)
 
 
 {- Congruence with respect to the type in derivability of term expressions -}
@@ -211,11 +229,12 @@ congTmRefl du refl = TmRefl du
 
 CtxRefl : {Γ : Ctx n} → ⊢ Γ → ⊢ Γ == Γ
 CtxRefl {Γ = ◇} tt = tt
-CtxRefl {Γ = Γ , A} (dΓ , dA) = (CtxRefl dΓ , dA , dA , TyRefl dA , TyRefl dA)
+CtxRefl {Γ = Γ , A} (dΓ , dA) = (CtxRefl dΓ , TyRefl dA)
 
 MorRefl : {Γ : Ctx n} {Δ : Ctx m} {δ : Mor n m} → (Γ ⊢ δ ∷> Δ) → (Γ ⊢ δ == δ ∷> Δ)
 MorRefl {Δ = ◇} {δ = ◇} dδ = tt
-MorRefl {Δ = Δ , B} {δ = δ , u} (dδ , du) = MorRefl dδ , CoercRefl! du
+MorRefl {Δ = Δ , B} {δ = δ , u} (dδ , du) = MorRefl dδ , TmRefl du
+-- MorRefl dδ , CoercRefl! du
 
 congMorRefl : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → δ ≡ δ' → Γ ⊢ δ ∷> Δ → Γ ⊢ δ == δ' ∷> Δ
 congMorRefl refl dδ = MorRefl dδ
@@ -251,7 +270,8 @@ WeakMor {Δ = Δ , B} {δ = δ , u} (dδ , du) =  (WeakMor dδ , congTmTy (weake
 
 WeakMorEq : {Γ : Ctx n } {Δ : Ctx m} {T : TyExpr n} {δ δ' : Mor n m} → (Γ ⊢ δ == δ' ∷> Δ) → ((Γ , T) ⊢ weakenMor δ == weakenMor δ' ∷> Δ)
 WeakMorEq {Δ = ◇} {δ = ◇} {◇} dδ = tt
-WeakMorEq {Δ = Δ , B} {δ = δ , u} {δ' , u'} (dδ , du) rewrite ! (weaken[]Ty B δ last) | ! (weaken[]Ty B δ' last) =  (WeakMorEq dδ , WeakTmEq du)
+WeakMorEq {Δ = Δ , B} {δ = δ , u} {δ' , u'} (dδ , du) rewrite ! (weaken[]Ty B δ last) | ! (weaken[]Ty B δ' last) = WeakMorEq dδ , congTmEqTy (weaken[]Ty B δ last) (WeakTmEq du)
+-- (WeakMorEq dδ , {!WeakTmEq du!})
 
 WeakMor+~ : {Γ : Ctx n} {Δ : Ctx m} (A : TyExpr m) {δ : Mor n m} → Derivable (Γ ⊢ A [ δ ]Ty) → Γ ⊢ δ ∷> Δ → (Γ , A [ δ ]Ty) ⊢ weakenMor+ δ ∷> (Δ , A)
 WeakMor+~ A dAδ dδ = (WeakMor dδ , congTmTy (weaken[]Ty _ _ _) (VarLast dAδ))
@@ -882,6 +902,10 @@ getCtx (_⊢_:>_ {n = n} Γ x x₁) = n , Γ
 getCtx (_⊢_==_ {n = n} Γ x x₁) = n , Γ
 getCtx (_⊢_==_:>_ {n = n} Γ x x₁ x₂) = n , Γ
 getCtx (_⊢_≃_ {n = n} Γ x x₁) = n , Γ
+
+{-getTy commutes with welltyped substitutions -}
+getTy-[]Ty : (Γ : Ctx n) (Δ : Ctx m) (δ : Mor n m) (u : TmExpr m) → Γ ⊢ δ ∷> Δ → (getTy Δ u) [ δ ]Ty ≡ getTy Γ (u [ δ ]Tm)
+getTy-[]Ty Γ Δ δ u dδ = {!u!}
 
 coercInvTm : {Γ : Ctx n} {A B : TyExpr n} {u : TmExpr n} → Derivable (Γ ⊢ coerc A B u :> B) → Derivable (Γ ⊢ u :> A)
 coercInvTm (Conv du du₁ du₂ du₃) = du₂
