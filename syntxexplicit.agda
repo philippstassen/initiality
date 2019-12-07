@@ -776,11 +776,11 @@ weakenMor-weakenMor = ! (weakenMorCommutes _ _)
 -- Explicit syntax
 -- Term of a type is uniquely determined by context
 getTy : {n : ℕ} → (Γ : Ctx (n)) → (u : TmExpr n) → TyExpr n
-getTy (Γ , A) (var last) = weakenTy A
-getTy (Γ , A) (var (prev x)) = weakenTy (getTy Γ (var x))
 getTy Γ (lam A B u) = pi A B
 getTy Γ (app A B u u₁) = substTy B u₁
 getTy Γ (coerc S T u) = T
+getTy (Γ , A) (var last) = weakenTy A
+getTy (Γ , A) (var (prev x)) = weakenTy (getTy Γ (var x))
 
 weakenTy'-getTy : {n : ℕ} (k : Fin (suc n)) (Γ : Ctx n) (v : TmExpr n) (A : TyExpr (n -F' k)) → weakenTy' k (getTy Γ v) ≡ getTy (weakenCtx k Γ A) (weakenTm' k v)
 weakenTy'-getTy last Γ (var x) C = refl
@@ -804,14 +804,6 @@ weakenTy-getTy ◇ (app A B v v₁) C = weakenTy-substTy
 weakenTy-getTy (Γ , A₁) (app A B v v₁) C = weakenTy-substTy
 weakenTy-getTy ◇ (coerc A B u) C = refl
 weakenTy-getTy (Γ , A₁) (coerc A B u) C = refl
-
-{-Define alternative substitution that commutes with getTy -}
--- []getTy : {n m : ℕ} → TmExpr m → (δ : Mor n m) → TmExpr n
--- []getTy {n = n} (var last) δ = {!TmExpr.var {n = (suc n)} last!}
--- []getTy (var (prev x)) δ = {!!}
--- []getTy (lam A B u) δ = {!!}
--- []getTy (app A B u u₁) δ = {!!}
--- []getTy (coerc S T u) δ = {!!}
 
 {- Substitution that converts last variable -}
 coercTy : {n : ℕ} → TyExpr (suc n) → TyExpr n → TyExpr n → TyExpr (suc n)
