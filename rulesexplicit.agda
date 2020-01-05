@@ -395,9 +395,9 @@ SubstTyMorEq {δ = δ} {δ' = δ'} (Pi {A = A} {B = B} dA dB) dδ dδ' dδ= dδ'
                            (SubstTyMorEq dB (WeakMor+ dA dδ) (WeakMor+coerc dA (SubstTy dA dδ) dδ' (SubstTyMorEq dA dδ dδ' dδ= dδ'=)) (WeakMor+Eq dA dδ' dδ dδ'= dδ=) (WeakMor+Eq! dA dδ' dδ dδ'= dδ=)))
              where
              MorRewrite = (((!(ap (λ x → B [ weakenMor x , coerc (weakenTy (A [ δ ]Ty)) (weakenTy (A [ δ' ]Ty)) (var last) ]Ty) ([idMor]Mor δ'))
-             ∙ ap (λ x → B [ x , coerc (weakenTy (A [ δ ]Ty)) (weakenTy (A [ δ' ]Ty)) (var last) ]Ty) (weaken[]Mor δ' (idMor _) last))
-             ∙ ! (ap (λ x → B [ x , coerc (weakenTy (A [ δ ]Ty)) (weakenTy (A [ δ' ]Ty)) (var last) ]Ty) (weakenMorInsert δ' (weakenMor (idMor _)) _)))
-             ∙ ! ([]Ty-assoc (weakenMor (idMor _) , coerc (weakenTy (A [ δ ]Ty)) (weakenTy (A [ δ' ]Ty)) (var last)) (weakenMor δ' , var last) B))
+                        ∙ ap (λ x → B [ x , coerc (weakenTy (A [ δ ]Ty)) (weakenTy (A [ δ' ]Ty)) (var last) ]Ty) (weaken[]Mor δ' (idMor _) last))
+                        ∙ ! (ap (λ x → B [ x , coerc (weakenTy (A [ δ ]Ty)) (weakenTy (A [ δ' ]Ty)) (var last) ]Ty) (weakenMorInsert δ' (weakenMor (idMor _)) _)))
+                        ∙ ! ([]Ty-assoc (weakenMor (idMor _) , coerc (weakenTy (A [ δ ]Ty)) (weakenTy (A [ δ' ]Ty)) (var last)) (weakenMor δ' , var last) B))
 
 -- PiCong (SubstTy dA dδ) (SubstTyMorEq dA dδ dδ=) (SubstTyMorEq dB {!WeakMor+coerc!} {!!})
 -- (SubstTyMorEq dB (WeakMor+ dA dδ) ({!WeakMor+Eq dA dδ dδ=!}))
