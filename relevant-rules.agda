@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --without-K --allow-unsolved-metas #-}
 
 open import common renaming (Unit to metaUnit) renaming (UnitR to metaUnitR)
 open import typetheory
@@ -48,24 +48,16 @@ data Derivation : rules.Judgment → Set where
 
 
   -- Rules for UU
-  UU : {i : ℕ} {Γ : Ctx n}
-    → Derivation (Γ ⊢ uu i)
-  UUCong :  {i : ℕ} {Γ : Ctx n}
-    → Derivation (Γ ⊢ uu i == uu i)
-
---   -- Rules for uu
---   UUUU : {i : ℕ} {Γ : Ctx n}
---     → Derivation (Γ ⊢ uu i :> uu (suc i))
---   UUUUCong : {i : ℕ} {Γ : Ctx n}
---     → Derivation (Γ ⊢ uu i == uu i :> uu (suc i))
---   ElUU=' : {i : ℕ} {Γ : Ctx n}
---     → Derivation (Γ ⊢ el (suc i) (uu i) == uu i)
+  UU : {Γ : Ctx n}
+    → Derivation (Γ ⊢ uu)
+  UUCong : {Γ : Ctx n}
+    → Derivation (Γ ⊢ uu == uu)
 
   -- Rules for El
-  El : {i : ℕ} {Γ : Ctx n} {v : TmExpr n}
-    → Derivation (Γ ⊢ v :> uu i) → Derivation (Γ ⊢ el i v)
-  ElCong : {i : ℕ} {Γ : Ctx n} {v v' : TmExpr n}
-    → Derivation (Γ ⊢ v == v' :> uu i) → Derivation (Γ ⊢ el i v == el i v')
+  El : {Γ : Ctx n} {v : TmExpr n}
+    → Derivation (Γ ⊢ v :> uu) → Derivation (Γ ⊢ el v)
+  ElCong : {Γ : Ctx n} {v v' : TmExpr n}
+    → Derivation (Γ ⊢ v == v' :> uu) → Derivation (Γ ⊢ el v == el v')
 
 
   -- Rules for Pi
@@ -77,11 +69,11 @@ data Derivation : rules.Judgment → Set where
 
 --   -- Rules for pi
 --   PiUU : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
---     → Derivation (Γ ⊢ a :> uu i) → Derivation ((Γ , el i a) ⊢ b :> uu i) → Derivation (Γ ⊢ pi i a b :> uu i)
+--     → Derivation (Γ ⊢ a :> uu) → Derivation ((Γ , el a) ⊢ b :> uu) → Derivation (Γ ⊢ pi i a b :> uu)
 --   PiUUCong : {i : ℕ} {Γ : Ctx n} {a a' : TmExpr n} {b b' : TmExpr (suc n)}
---     → Derivation (Γ ⊢ a :> uu i) → Derivation (Γ ⊢ a == a' :> uu i) → Derivation ((Γ , el i a) ⊢ b == b' :> uu i) → Derivation (Γ ⊢ pi i a b == pi i a' b' :> uu i)
+--     → Derivation (Γ ⊢ a :> uu) → Derivation (Γ ⊢ a == a' :> uu) → Derivation ((Γ , el a) ⊢ b == b' :> uu) → Derivation (Γ ⊢ pi i a b == pi i a' b' :> uu)
 --   ElPi=' : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
---     → Derivation (Γ ⊢ a :> uu i) → Derivation ((Γ , el i a) ⊢ b :> uu i) → Derivation (Γ ⊢ el i (pi i a b) == pi (el i a) (el i b))
+--     → Derivation (Γ ⊢ a :> uu) → Derivation ((Γ , el a) ⊢ b :> uu) → Derivation (Γ ⊢ el (pi i a b) == pi (el a) (el b))
 
   -- Rules for lambda
   Lam : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n)}
@@ -110,11 +102,11 @@ data Derivation : rules.Judgment → Set where
 
 --   -- Rules for sig
 --   SigUU : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
---     → Derivation (Γ ⊢ a :> uu i) → Derivation ((Γ , el i a) ⊢ b :> uu i) → Derivation (Γ ⊢ sig i a b :> uu i)
+--     → Derivation (Γ ⊢ a :> uu) → Derivation ((Γ , el a) ⊢ b :> uu) → Derivation (Γ ⊢ sig i a b :> uu)
 --   SigUUCong : {i : ℕ} {Γ : Ctx n} {a a' : TmExpr n} {b b' : TmExpr (suc n)}
---     → Derivation (Γ ⊢ a :> uu i) → Derivation (Γ ⊢ a == a' :> uu i) → Derivation ((Γ , el i a) ⊢ b == b' :> uu i) → Derivation (Γ ⊢ sig i a b == sig i a' b' :> uu i)
+--     → Derivation (Γ ⊢ a :> uu) → Derivation (Γ ⊢ a == a' :> uu) → Derivation ((Γ , el a) ⊢ b == b' :> uu) → Derivation (Γ ⊢ sig i a b == sig i a' b' :> uu)
 --   ElSig=' : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {b : TmExpr (suc n)}
---     → Derivation (Γ ⊢ a :> uu i) → Derivation ((Γ , el i a) ⊢ b :> uu i) → Derivation (Γ ⊢ el i (sig i a b) == sig (el i a) (el i b))
+--     → Derivation (Γ ⊢ a :> uu) → Derivation ((Γ , el a) ⊢ b :> uu) → Derivation (Γ ⊢ el (sig i a b) == sig (el a) (el b))
 
 --   -- Rules for pair
 --   Pair' : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {a : TmExpr n} {b : TmExpr n}
@@ -143,11 +135,11 @@ data Derivation : rules.Judgment → Set where
 
 --   -- Rules for empty
 --   EmptyUU : {i : ℕ} {Γ : Ctx n}
---      → Derivation (Γ ⊢ empty i :> uu i)
+--      → Derivation (Γ ⊢ empty i :> uu)
 --   EmptyUUCong : {i : ℕ} {Γ : Ctx n}
---      → Derivation (Γ ⊢ empty i == empty i :> uu i)
+--      → Derivation (Γ ⊢ empty i == empty i :> uu)
 --   ElEmpty=' : {i : ℕ} {Γ : Ctx n}
---      → Derivation (Γ ⊢ el i (empty i) == empty)
+--      → Derivation (Γ ⊢ el (empty i) == empty)
 
 --   -- Rules for emptyelim
 --   Emptyelim' : {Γ : Ctx n} {A : TyExpr (suc n)} {u : TmExpr n}
@@ -163,11 +155,11 @@ data Derivation : rules.Judgment → Set where
 
 --   -- Rules for unit
 --   UnitUU : {i : ℕ} {Γ : Ctx n}
---      → Derivation (Γ ⊢ unit i :> uu i)
+--      → Derivation (Γ ⊢ unit i :> uu)
 --   UnitUUCong : {i : ℕ} {Γ : Ctx n}
---      → Derivation (Γ ⊢ unit i == unit i :> uu i)
+--      → Derivation (Γ ⊢ unit i == unit i :> uu)
 --   ElUnit=' : {i : ℕ} {Γ : Ctx n}
---      → Derivation (Γ ⊢ el i (unit i) == unit)
+--      → Derivation (Γ ⊢ el (unit i) == unit)
 
 --   -- Rules for tt
 --   TT' : {Γ : Ctx n}
@@ -190,11 +182,11 @@ data Derivation : rules.Judgment → Set where
 
 --   -- Rules for nat
 --   NatUU : {i : ℕ} {Γ : Ctx n}
---     → Derivation (Γ ⊢ nat i :> uu i)
+--     → Derivation (Γ ⊢ nat i :> uu)
 --   NatUUCong : {i : ℕ} {Γ : Ctx n}
---     → Derivation (Γ ⊢ nat i == nat i :> uu i)
+--     → Derivation (Γ ⊢ nat i == nat i :> uu)
 --   ElNat=' : {i : ℕ} {Γ : Ctx n}
---     → Derivation (Γ ⊢ el i (nat i) == nat)
+--     → Derivation (Γ ⊢ el (nat i) == nat)
 
 --   -- Rules for zero
 --   Zero' : {Γ : Ctx n}
@@ -223,11 +215,11 @@ data Derivation : rules.Judgment → Set where
 
 --   -- Rules for id
 --   IdUU : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {u v : TmExpr n}
---     → Derivation (Γ ⊢ a :> uu i) → Derivation (Γ ⊢ u :> el i a) → Derivation (Γ ⊢ v :> el i a) → Derivation (Γ ⊢ id i a u v :> uu i)
+--     → Derivation (Γ ⊢ a :> uu) → Derivation (Γ ⊢ u :> el a) → Derivation (Γ ⊢ v :> el a) → Derivation (Γ ⊢ id i a u v :> uu)
 --   IdUUCong : {i : ℕ} {Γ : Ctx n} {a a' : TmExpr n} {u u' v v' : TmExpr n}
---     → Derivation (Γ ⊢ a == a' :> uu i) → Derivation (Γ ⊢ u == u' :> el i a) → Derivation (Γ ⊢ v == v' :> el i a) → Derivation (Γ ⊢ id i a u v == id i a' u' v' :> uu i)
+--     → Derivation (Γ ⊢ a == a' :> uu) → Derivation (Γ ⊢ u == u' :> el a) → Derivation (Γ ⊢ v == v' :> el a) → Derivation (Γ ⊢ id i a u v == id i a' u' v' :> uu)
 --   ElId=' : {i : ℕ} {Γ : Ctx n} {a : TmExpr n} {u v : TmExpr n}
---     → Derivation (Γ ⊢ a :> uu i) → Derivation (Γ ⊢ u :> el i a) → Derivation (Γ ⊢ v :> el i a) → Derivation (Γ ⊢ el i (id i a u v) == id (el i a) u v)
+--     → Derivation (Γ ⊢ a :> uu) → Derivation (Γ ⊢ u :> el a) → Derivation (Γ ⊢ v :> el a) → Derivation (Γ ⊢ el (id i a u v) == id (el a) u v)
   
 --   -- Rules for refl
 --   Refl' : {Γ : Ctx n} {A : TyExpr n} {a : TmExpr n}
@@ -401,8 +393,8 @@ WeakMorR+Eq dA dδ dδ= = (WeakMorEqR dδ= , TmRefl' (congTmTyR (weaken[]TyR _ _
 
 
 SubstTyR {A = pi A B} (Pi dA dB) dδ = Pi (SubstTyR dA dδ) (SubstTyR dB (WeakMorR+ dA dδ))
-SubstTyR {A = uu i} UU dδ = UU
-SubstTyR {A = el i v} (El dA) dδ = El (SubstTmR dA dδ)
+SubstTyR {A = uu} UU dδ = UU
+SubstTyR {A = el v} (El dA) dδ = El (SubstTmR dA dδ)
 
 SubstTmR (Conv dA du dA=) dδ = Conv (SubstTyR dA dδ) (SubstTmR du dδ) (SubstTyREq dA= dδ)
 SubstTmR {Δ = (_ , _)} {var last}     {δ = _ , _} (VarLast _) (_ , du) = congTmTyR! (weakenTyInsertR _ _ _) du
