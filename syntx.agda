@@ -166,8 +166,8 @@ weakenCommutesTm' : {n : ℕ} (m : ℕ) (k : ΣS ℕ (λ k → k < suc n)) (l : 
                   → weakenTm'sig (prev^sig m lastsig)  (weakenTm'sig (prev^sig m k) (l , u) p) (apR suc p) ≡R weakenTm'sig (prev^sig m (prevsig k)) (weakenTm'sig (prev^sig m lastsig) (l , u) p) (apR suc p)
 
 
-weakenCommutesTy' m k l (uu i) p = reflR
-weakenCommutesTy' m k l (el i v) p = ΣSS= (apR-el-Ty reflR (sndΣSSℕR (weakenCommutesTm' m k l v p)))
+weakenCommutesTy' m k l (uu) p = reflR
+weakenCommutesTy' m k l (el v) p = ΣSS= (apR-el-Ty (sndΣSSℕR (weakenCommutesTm' m k l v p)))
 weakenCommutesTy' m k l (pi A B) p = ΣSS= (apR-pi-Ty (sndΣSSℕR (weakenCommutesTy' m k l A p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) B (apR suc p R∙ n+suc _ m))))
 -- weakenCommutesTy' m k l (sig A B) p = ΣSS= (apR-sig-Ty (sndΣSSℕR (weakenCommutesTy' m k l A p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) B (apR suc p R∙ n+suc _ m))))
 -- weakenCommutesTy' m k l empty p = reflR
@@ -176,7 +176,7 @@ weakenCommutesTy' m k l (pi A B) p = ΣSS= (apR-pi-Ty (sndΣSSℕR (weakenCommut
 -- weakenCommutesTy' m k l (id A u v) p = ΣSS= (apR-id-Ty (sndΣSSℕR (weakenCommutesTy' m k l A p)) (sndΣSSℕR (weakenCommutesTm' m k l u p)) (sndΣSSℕR (weakenCommutesTm' m k l v p)))
 
 weakenCommutesTm' m k l (var x) p = weakenCommutesVar' m l k x p
--- weakenCommutesTm' m k l (uu i) p = reflR
+-- weakenCommutesTm' m k l (uu) p = reflR
 -- weakenCommutesTm' m k l (pi i a b) p = ΣSS= (apR-pi-Tm reflR (sndΣSSℕR (weakenCommutesTm' m k l (a) p)) (sndΣSSℕR (weakenCommutesTm' (suc m) k (suc l) (b) (apR suc p R∙ n+suc _ m))))
 weakenCommutesTm' m k l (lam A B u) p = ΣSS= (apR-lam-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' (suc m) k (suc l) (u) (apR suc p R∙ n+suc _ m))))
 weakenCommutesTm' m k l (app A B f a) p = ΣSS= (apR-app-Tm (sndΣSSℕR (weakenCommutesTy' m k l (A) p)) (sndΣSSℕR (weakenCommutesTy' (suc m) k (suc l) (B) (apR suc p R∙ n+suc _ m))) (sndΣSSℕR (weakenCommutesTm' m k l (f) p)) (sndΣSSℕR (weakenCommutesTm' m k l (a) p)))

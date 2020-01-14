@@ -8,8 +8,8 @@ data TyExpr : ℕ → Set
 data TmExpr : ℕ → Set
 
 data TyExpr where
-  uu : (i : ℕ) → TyExpr n
-  el : (i : ℕ) (v : TmExpr n) → TyExpr n
+  uu : TyExpr n
+  el : (v : TmExpr n) → TyExpr n
   pi : (A : TyExpr n) (B : TyExpr (suc n)) → TyExpr n
 --  sig : (A : TyExpr n) (B : TyExpr (suc n)) → TyExpr n
 --  empty : TyExpr n

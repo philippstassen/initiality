@@ -1,4 +1,4 @@
-{-# OPTIONS --rewriting --prop --without-K #-}
+{-# OPTIONS --rewriting --prop --allow-unsolved-metas #-}
 
 -- open import Agda.Builtin.Bool
 open import common renaming (Unit to metaUnit)
@@ -85,8 +85,8 @@ SizeTmEqTm2R {m = m} dΓ du= <m = {!!}
 embedTy : {n : ℕ} → TyExpr n → ex.TyExpr n
 embedTm : {n : ℕ} → TmExpr n → ex.TmExpr n
 
-embedTy (uu i) = ex.uu i
-embedTy (el i v) = ex.el i (embedTm v)
+embedTy (uu) = ex.uu
+embedTy (el v) = ex.el (embedTm v)
 embedTy (pi A A₁) = ex.pi (embedTy A) (embedTy A₁)
 
 embedTm (var x) = ex.var x
@@ -98,11 +98,11 @@ liftTy : {n : ℕ} {Γ : Ctx n} → (m : ℕ) → (A : TyExpr n) → ⊢R Γ →
 liftTm : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} → (m : ℕ) → (u : TmExpr n) → ⊢R Γ → (du : Derivation (Γ ⊢ u :> A)) → SizeDer (du) < m → ex.TmExpr n
 
 liftTy zero A dΓ dA () 
-liftTy (suc m) (uu i) dΓ UU <m = ex.uu i
-liftTy (suc m) (el i v) dΓ (El dA) <m = ex.el i (liftTm m v dΓ dA (suc-ref-< <m))
+liftTy (suc m) (uu) dΓ UU <m = ex.uu
+liftTy (suc m) (el v) dΓ (El dA) <m = ex.el (liftTm m v dΓ dA (suc-ref-< <m))
 liftTy (suc m) (pi A B) dΓ (Pi dA dB) <m = ex.pi (liftTy m A dΓ dA (<-+m (SizeDer dA) (SizeDer dB) m (suc-ref-< <m))) (liftTy m B (dΓ , dA) dB ( <-+m' (SizeDer dA) (SizeDer dB) m (suc-ref-< <m)))
--- liftTy (uu i) ctx UU = ex.uu i
--- liftTy (el i v) ctx (El dA) = ex.el i (liftTm v ctx dA)
+-- liftTy (uu) ctx UU = ex.uu
+-- liftTy (el v) ctx (El dA) = ex.el (liftTm v ctx dA)
 -- liftTy (pi A A₁) ctx  (Pi dA dA₁) = ex.pi (liftTy A ctx dA) (liftTy A₁ (ctx , dA) dA₁)
 
 {- Problem: Hopefully my treatment of the implicit variables is okay.
@@ -129,8 +129,8 @@ liftTm (app A B u u₁) ctx du = {!!}
 liftCtx : {n : ℕ} → (Γ : Ctx n) → (dj : ⊢R Γ) → ex.Ctx n
 
 liftCtx ◇ _ = ex.◇
-liftCtx (Γ , (uu i)) (fst₁ , UU) = (liftCtx Γ fst₁) ex., liftTy (suc 0) (uu i) fst₁ UU (suc-pos 0) 
-liftCtx (Γ , (el i v)) (fst₁ , El snd₁) = (liftCtx Γ fst₁) ex., liftTy (suc (SizeDer (El snd₁))) (el i v) fst₁ (El snd₁) <-refl 
+liftCtx (Γ , (uu)) (fst₁ , UU) = (liftCtx Γ fst₁) ex., liftTy (suc 0) (uu) fst₁ UU (suc-pos 0) 
+liftCtx (Γ , (el v)) (fst₁ , El snd₁) = (liftCtx Γ fst₁) ex., liftTy (suc (SizeDer (El snd₁))) (el v) fst₁ (El snd₁) <-refl 
 liftCtx (Γ , (pi A B)) (fst₁ , Pi snd₁ snd₂) = (liftCtx Γ fst₁) ex., liftTy (suc (SizeDer (Pi snd₁ snd₂))) (pi A B) fst₁ (Pi snd₁ snd₂) <-refl
 -- liftCtx (Γ , .(sig _ _)) (fst₁ , Sig snd₁ snd₂) = {!!}
 -- liftCtx (Γ , .empty) (fst₁ , Empty) = {!!}
@@ -167,8 +167,8 @@ liftSubstTy {B = B} dΓ du dB = ex.substTy (liftTy (suc (SizeDer dB)) B (dΓ , T
 {- Case distinction of derivations might have been unnecessary, see the last judgment cases -}
 liftJdg : (j : Judgment) → ( ⊢R (snd (getCtx j))) → Derivation (j) → ex.Judgment
 
-liftJdg (Γ ⊢ (uu i)) ctx UU = (liftCtx Γ ctx) ex.⊢ ex.uu i
-liftJdg (Γ ⊢ (el i v)) ctx (El dj) = (liftCtx Γ ctx) ex.⊢ liftTy (suc (SizeDer (El dj))) (el i v) ctx (El dj) (<-refl)
+liftJdg (Γ ⊢ (uu)) ctx UU = (liftCtx Γ ctx) ex.⊢ ex.uu
+liftJdg (Γ ⊢ (el v)) ctx (El dj) = (liftCtx Γ ctx) ex.⊢ liftTy (suc (SizeDer (El dj))) (el v) ctx (El dj) (<-refl)
 liftJdg (Γ ⊢ (pi A B)) ctx (Pi dj dj₁) =  (liftCtx Γ ctx) ex.⊢ liftTy (suc (SizeDer (Pi dj dj₁))) (pi A B) ctx (Pi dj dj₁) (<-refl)
 liftJdg ((Γ , A) ⊢ (var last) :> .(weakenTy' last A)) ctx (VarLast dj) = (liftCtx (Γ , A) ctx) ⊢ₑ ex.var last :> ex.weakenTy (liftTy (suc (SizeDer dj)) A (fst ctx) dj (<-refl))
 liftJdg ((Γ , A) ⊢ (var (prev k)) :> .(weakenTy' last _)) ctx (VarPrev dj dj₁) =  (liftCtx (Γ , _) ctx) ⊢ₑ ex.var (prev k) :> ex.weakenTy (liftTy (suc (SizeDer dj)) _ (fst ctx) (dj) (<-refl))
@@ -188,8 +188,8 @@ CtxisCtx : (Γ : Ctx n) → (dΓ : ⊢R Γ) → || (liftCtx Γ dΓ) ||Ctx ≡ Γ
 CtxisCtx Γ dΓ = {!!}
 
 JudgisJudg : (jdg : Judgment) → ( dΓ : ⊢R (snd (getCtx jdg))) → (dj : Derivation jdg) → || (liftJdg jdg dΓ dj) || ≡ jdg
-JudgisJudg (Γ ⊢ .(uu _)) dΓ UU = {!!}
-JudgisJudg (Γ ⊢ .(el _ _)) dΓ (El dj) = {!!}
+JudgisJudg (Γ ⊢ .(uu)) dΓ UU = {!!}
+JudgisJudg (Γ ⊢ .(el _)) dΓ (El dj) = {!!}
 JudgisJudg (Γ ⊢ .(pi _ _)) dΓ (Pi dj dj₁) = {!!}
 JudgisJudg (Γ ⊢ x :> x₁) dΓ dj = {!!}
 JudgisJudg (Γ ⊢ x == x₁) dΓ dj = {!!}

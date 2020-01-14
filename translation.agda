@@ -9,8 +9,8 @@ open ex.Judgment renaming (_⊢_ to _⊢ₑ_) renaming (_⊢_:>_ to _⊢ₑ_:>_)
 ||_||Ty : {n : ℕ} → ex.TyExpr n → TyExpr n
 ||_||Tm : {n : ℕ} → ex.TmExpr n → TmExpr n
 
-|| ex.uu i ||Ty = uu i
-|| ex.el i v ||Ty = el i (|| v ||Tm)
+|| ex.uu ||Ty = uu
+|| ex.el v ||Ty = el (|| v ||Tm)
 || ex.pi σ σ₁ ||Ty = pi (|| σ ||Ty) (|| σ₁ ||Ty)
 -- || ex.sig σ σ₁ ||Ty = sig (|| σ ||Ty) (|| σ₁ ||Ty)
 -- || ex.empty ||Ty = empty
@@ -19,7 +19,7 @@ open ex.Judgment renaming (_⊢_ to _⊢ₑ_) renaming (_⊢_:>_ to _⊢ₑ_:>_)
 -- || ex.id σ u v ||Ty = id (|| σ ||Ty) (|| u ||Tm) (|| v ||Tm)
 
 || ex.var x ||Tm = var x
--- || ex.uu i ||Tm = uu i
+-- || ex.uu ||Tm = uu
 -- || ex.pi i t t₁ ||Tm = pi i (|| t ||Tm) (|| t₁ ||Tm)
 || ex.lam A B t ||Tm = lam (|| A ||Ty) (|| B ||Ty) (|| t ||Tm)
 || ex.app A B t t₁ ||Tm = app (|| A ||Ty) (|| B ||Ty) (|| t ||Tm) (|| t₁ ||Tm)
@@ -54,7 +54,6 @@ open ex.Judgment renaming (_⊢_ to _⊢ₑ_) renaming (_⊢_:>_ to _⊢ₑ_:>_)
 || Γ ⊢ₑ x :> x₁ || = || Γ ||Ctx ⊢ || x ||Tm :> || x₁ ||Ty
 || Γ ⊢ₑ x == x₁ || = || Γ ||Ctx ⊢ || x ||Ty == || x₁ ||Ty
 || Γ ⊢ₑ x == x₁ :> x₂ || = || Γ ||Ctx ⊢ || x ||Tm == || x₁ ||Tm :> || x₂ ||Ty
-|| Γ ⊢ x ≃ x₁ || = || Γ ||Ctx ⊢ || x ||Ty == || x₁ ||Ty 
 
 {- weakening commutes with stripping -}
 WeakenVar'CommStrip : (k : Fin (suc n)) → (l : Fin n) → ex.weakenVar' k l ≡ weakenVar' k l
@@ -65,8 +64,8 @@ WeakenVar'CommStrip (prev k) (prev l) = ap prev (WeakenVar'CommStrip k l)
 WeakenTy'CommStrip : (k : Fin (suc n)) → (A : ex.TyExpr n) → || ex.weakenTy' k A ||Ty ≡ weakenTy' k (|| A ||Ty)
 WeakenTm'CommStrip : (k : Fin (suc n)) → (u : ex.TmExpr n) → || ex.weakenTm' k u ||Tm ≡ weakenTm' k (|| u ||Tm)
 
-WeakenTy'CommStrip k (ex.uu i) = refl
-WeakenTy'CommStrip k (ex.el i v) rewrite WeakenTm'CommStrip k v = refl
+WeakenTy'CommStrip k (ex.uu) = refl
+WeakenTy'CommStrip k (ex.el v) rewrite WeakenTm'CommStrip k v = refl
 WeakenTy'CommStrip k (ex.pi A A₁) rewrite WeakenTy'CommStrip k A | WeakenTy'CommStrip (prev k) A₁ = refl
 -- WeakenTy'CommStrip k (ex.sig A A₁) rewrite WeakenTy'CommStrip k A | WeakenTy'CommStrip (prev k) A₁ = refl
 -- WeakenTy'CommStrip k ex.empty = refl
@@ -75,7 +74,7 @@ WeakenTy'CommStrip k (ex.pi A A₁) rewrite WeakenTy'CommStrip k A | WeakenTy'Co
 -- WeakenTy'CommStrip k (ex.id A u v) rewrite WeakenTy'CommStrip k A | WeakenTm'CommStrip k u | WeakenTm'CommStrip k v = refl
 
 WeakenTm'CommStrip k (ex.var x) rewrite WeakenVar'CommStrip k x = refl
--- WeakenTm'CommStrip k (ex.uu i) = refl
+-- WeakenTm'CommStrip k (ex.uu) = refl
 -- WeakenTm'CommStrip k (ex.pi i u u₁) rewrite WeakenTm'CommStrip k u | WeakenTm'CommStrip (prev k) u₁ = refl
 WeakenTm'CommStrip k (ex.lam A B u) rewrite WeakenTy'CommStrip k A | WeakenTy'CommStrip (prev k) B | WeakenTm'CommStrip (prev k) u = refl
 WeakenTm'CommStrip k (ex.app A B u u₁) rewrite WeakenTy'CommStrip k A | WeakenTy'CommStrip (prev k) B | WeakenTm'CommStrip k u | WeakenTm'CommStrip k u₁ = refl
@@ -140,8 +139,8 @@ idMorCommStrip (suc n) = weakenMor+CommStrip (ex.idMor n) ∙ ap (weakenMor+) (i
 []TyCommStrip : (A : ex.TyExpr m) → (δ : ex.Mor n m) → || A ex.[ δ ]Ty ||Ty ≡ || A ||Ty [ || δ ||Mor ]Ty
 []TmCommStrip : (u : ex.TmExpr m) → (δ : ex.Mor n m) → || u ex.[ δ ]Tm ||Tm ≡ || u ||Tm [ || δ ||Mor ]Tm
 
-[]TyCommStrip (ex.uu i) δ = refl
-[]TyCommStrip (ex.el i v) δ = ap-el-Ty refl ([]TmCommStrip v δ)
+[]TyCommStrip (ex.uu) δ = refl
+[]TyCommStrip (ex.el v) δ = ap-el-Ty ([]TmCommStrip v δ)
 []TyCommStrip (ex.pi A A₁) δ rewrite ([]TyCommStrip A₁ (ex.weakenMor+ δ)) | weakenMor+CommStrip δ = ap-pi-Ty ([]TyCommStrip A δ) refl
 -- []TyCommStrip (ex.sig A A₁) δ rewrite ([]TyCommStrip A₁ (ex.weakenMor+ δ)) | weakenMor+CommStrip δ = ap-sig-Ty ([]TyCommStrip A δ) refl
 -- []TyCommStrip ex.empty δ = refl
@@ -150,7 +149,7 @@ idMorCommStrip (suc n) = weakenMor+CommStrip (ex.idMor n) ∙ ap (weakenMor+) (i
 -- []TyCommStrip (ex.id A u v) δ = ap-id-Ty ([]TyCommStrip A δ) ([]TmCommStrip u δ) ([]TmCommStrip v δ)
 
 []TmCommStrip (ex.var x) δ = []VarCommStrip x δ
--- []TmCommStrip (ex.uu i) δ = refl
+-- []TmCommStrip (ex.uu) δ = refl
 -- []TmCommStrip (ex.pi i u u₁) δ rewrite ([]TmCommStrip u₁ (ex.weakenMor+ δ)) | weakenMor+CommStrip δ = ap-pi-Tm refl ([]TmCommStrip u δ) refl
 []TmCommStrip (ex.lam A B u) δ rewrite ([]TyCommStrip B (ex.weakenMor+ δ)) | ([]TmCommStrip u (ex.weakenMor+ δ)) | weakenMor+CommStrip δ = ap-lam-Tm ([]TyCommStrip A δ) refl refl
 []TmCommStrip (ex.app A B u u₁) δ rewrite ([]TyCommStrip B (ex.weakenMor+ δ)) | weakenMor+CommStrip δ = ap-app-Tm ([]TyCommStrip A δ) refl ([]TmCommStrip u δ) ([]TmCommStrip u₁ δ)
