@@ -97,7 +97,7 @@ data Derivable : Judgment → Prop where
 
   LamCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr (suc n)}
     → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A') → Derivable ((Γ , A) ⊢ B) → Derivable ((Γ , A') ⊢ B') → Derivable ((Γ , A) ⊢ u :> B) → Derivable ((Γ , A') ⊢ u' :> B') → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == (coercTy B' A' A)) → Derivable ((Γ , A) ⊢ u == coerc (coercTy B' A' A) B (coercTm u' A' A) :> B)
-     → Derivable (Γ ⊢ lam A B u == coerc (pi A B) (pi A' B') (lam A' B' u') :> pi A B) 
+     → Derivable (Γ ⊢ lam A B u == coerc (pi A' B') (pi A B) (lam A' B' u') :> pi A B) 
 
     {- Version Two LamCong-}
 --   LamCong : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr (suc n)}
