@@ -351,7 +351,9 @@ idmor-unstrip {Γ = Γ ex., A} (dΓ ex., x)
 -- {!ex.WeakMor+Eq x (ex.idMorDerivable dΓ) (idmor-unstrip Γ dΓ)!}
 
 unstrip-[]Ty : (Γ : Ctx n) (Δ : Ctx m) (A : TyExpr m) → (δ : Mor n m) → Derivable (Δ ⊢ A) → Γ ⊢ δ ∷> Δ → ex.Derivable (liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) (A [ δ ]Ty))
-unstrip-[]Ty Γ Δ A δ dA dδ = {!SubstTy dA dδ!}
+unstrip-[]Ty Γ Δ uu δ dA dδ = ex.UU
+unstrip-[]Ty Γ Δ (el v) δ dA dδ = ex.El {!!}
+unstrip-[]Ty Γ Δ (pi A B) δ (Pi dA dB) dδ = ex.Pi {!!} {!!}
 
 []Ty-unstrip : (Γ : Ctx n) (Δ : Ctx m) (A : TyExpr m) → (δ : Mor n m) → Derivable (Δ ⊢ A) → Γ ⊢ δ ∷> Δ → ex.Derivable (liftCtx Γ ⊢ₑ (liftTy (liftCtx Δ) A) ex.[ liftMor (liftCtx Γ) (liftCtx Δ) δ ]Ty)
 []Ty-unstrip Γ Δ A δ dA dδ = {!SubstTy dA dδ!}
@@ -399,11 +401,7 @@ Lift-Der (dΓ , dA) (VarLast {Γ = Γ} {A = A} dj)
                     ( ex.WeakTy (Lift-Der dΓ dj)) ( ex.VarLast (Lift-Der dΓ dj))
                     (ex.TyRefl (ex.WeakTy (Lift-Der dΓ dj)))
 Lift-Der (dΓ , dA) (VarPrev {Γ = Γ} {B = B} {A = A} dA dk) 
-                     = ex.Conv
-                             {!ex.Derivable-getTy (Lift-Der dΓ dk)  !}
-                             {! weakenTy'-liftTy last (liftCtx Γ) (liftTy (liftCtx Γ) B) A!}
-                             {!ap-coercLift-Der dk dΓ!}
-                             {!!}
+                     = ex.congTm (! (weakenTy-liftTy (liftCtx Γ) (liftTy (liftCtx Γ) B) A)) (ex.ap-coerc-Tm refl (! (weakenTy-liftTy _ _ _)) refl) (ex.WeakTm (Lift-Der dΓ dk))
 Lift-Der (dΓ , dA) (VarLastCong {Γ = Γ} {A = A} dj) =
                       ex.ConvEq (ex.WeakTy (Lift-Der dΓ dj))
                                 (ex.TmRefl (ex.VarLast (Lift-Der dΓ dj)))
