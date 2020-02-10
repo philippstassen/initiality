@@ -347,3 +347,8 @@ idMor[]MorR {m = suc m} (δ , u) = Mor+=R (weakenMorInsertR (idMor m) δ u R∙ 
 []Tm-weakenTmR : {δ : Mor n m} (u : TmExpr m) → (weakenTm u [ weakenMor+ δ ]Tm) ≡R weakenTm (u [ δ ]Tm)
 []Tm-weakenTmR u = [weakenMor]TmR _ u
 
+substTy-weakenTyR' : {k : Fin (suc m)} {A : TyExpr m} {δ : Mor n m} {t : TmExpr n} → weakenTy' k A [ insertMor k t δ ]Ty ≡R A [ δ ]Ty
+substTy-weakenTyR' = weakenTyInsert'R _ _ _ _
+
+substTy-weakenTyR : {A : TyExpr n} {u : TmExpr n} → substTy (weakenTy A) u ≡R A
+substTy-weakenTyR {A = A} {u = u} =  (weakenTyInsertR A (idMor _) u ) R∙ [idMor]TyR _

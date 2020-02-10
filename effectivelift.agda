@@ -10,6 +10,102 @@ open import relevant-syntx
 open import relevant-rules
 open import translation
 
+liftTy1 : {n : ℕ} {Γ : Ctx n} → {A : TyExpr n} → (lΓ : ex.Ctx n) → (dA : Derivation (Γ ⊢ A)) → ex.TyExpr n
+liftTm1 : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} → {u : TmExpr n} → (dΓ : ex.Ctx n) → (du : Derivation (Γ ⊢ u :> A)) → ex.TmExpr n
+
+liftTyEq1 : {n : ℕ} {Γ : Ctx n} → {A B : TyExpr n} → (Δ : ex.Ctx n) → (dA= : Derivation (Γ ⊢ A == B)) → ex.TyExpr n
+liftTyEq2 : {n : ℕ} {Γ : Ctx n} → {A B : TyExpr n} → (Δ : ex.Ctx n) → (dA= : Derivation (Γ ⊢ A == B)) → ex.TyExpr n
+
+liftTmEq1 : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} {u v : TmExpr n} → (Δ : ex.Ctx n) → (dA= : Derivation (Γ ⊢ u == v :> A)) → ex.TmExpr n
+liftTmEq2 : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} {u v : TmExpr n} → (Δ : ex.Ctx n) → (dA= : Derivation (Γ ⊢ u == v :> A)) → ex.TmExpr n
+
+liftTmTy : {n : ℕ} {Γ : Ctx n} → {A : TyExpr n} {u : TmExpr n} → (dΓ : ex.Ctx n) → (du : Derivation (Γ ⊢ u :> A)) → ex.TyExpr n
+
+liftTy1 dΓ UU = ex.uu
+liftTy1 dΓ (El dv) = ex.el (liftTm1 dΓ dv)
+liftTy1 dΓ (Pi dA dA₁) = ex.pi (liftTy1 dΓ dA) (liftTy1 (dΓ ex., liftTy1 dΓ dA) dA₁)
+
+liftTm1 (dΓ ex., dA) (VarLast du) = ex.var last
+liftTm1 (dΓ ex., dB) (VarPrev {A = A} dA₁ dk) = ex.weakenTm (liftTm1 dΓ dk)
+-- Here we need to influence the derivation in the induction hypothesis. So Type Argument is needed
+liftTm1 dΓ (Conv {A = A} {B = B} dA dB₁ du dA=) = {!!}
+liftTm1 dΓ (Lam dA dB du) = ex.lam (liftTy1 dΓ dA) (liftTy1 (dΓ ex., liftTy1 dΓ dA) dB) (liftTm1 (dΓ ex., liftTy1 dΓ dA) du)
+-- for applying ind hypothesis you need derivation df' such that liftTmTy dΓ df ≡ liftTy1 dΓ df'.
+liftTm1 dΓ (App dA dB df da) = ex.app {!!} {!!} (ex.coerc (liftTmTy dΓ df) (ex.pi (liftTy1 dΓ dA) (liftTy1 (dΓ ex., liftTy1 dΓ dA) dB)) (liftTm1 dΓ df)) {!ex.coerc (lift!}
+
+
+liftTyEq1 Δ (TySymm dB dA dB=) = liftTyEq2 Δ dB=
+liftTyEq1 Δ (TyTran dA dB dC dA= dB=) = liftTyEq1 Δ dA=
+liftTyEq1 Δ UUCong = ex.uu
+liftTyEq1 Δ (ElCong dv dv' dv=) = ex.el (liftTmEq1 Δ dv=)
+liftTyEq1 Δ (PiCong dA dA' dB dB' dA= dB=) = {!!}
+
+liftTyEq2 Δ (TySymm dB dA dB=) = {!liftTy1 Δ dA!}
+liftTyEq2 Δ (TyTran dA= dA=₁ dA=₂ dA=₃ dA=₄) = {!!}
+liftTyEq2 Δ UUCong = {!!}
+liftTyEq2 Δ (ElCong dA= dA=₁ dA=₂) = {!!}
+liftTyEq2 Δ (PiCong dA= dA=₁ dA=₂ dA=₃ dA=₄ dA=₅) = {!!}
+
+liftTmEq1 Δ du= = {!!}
+
+liftTmEq2 Δ du= = {!!}
+
+
+
+liftTmTy (dΓ ex., dA) (VarLast du) = ex.weakenTy dA
+liftTmTy (dΓ ex., dB) (VarPrev dA dk) = ex.weakenTy (liftTmTy dΓ dk)
+liftTmTy dΓ (Conv du du₁ du₂ du₃) = {!!}
+liftTmTy dΓ (Lam dA dB du) = ex.pi (liftTy1 dΓ dA ) (liftTmTy (dΓ ex., liftTy1 dΓ dA) du)
+liftTmTy dΓ (App dA dB df da) = {!ex.substTy (liftTy1 dΓ dB) (liftTm1!}
+
+liftCtx1 : {n : ℕ} {Γ : Ctx n} → ⊢R Γ → ex.Ctx n
+liftCtx1 {Γ = .◇} tt = ex.◇
+liftCtx1 {Γ = .(Γ , A)} (_,_ {Γ = Γ} {A} dΓ dA) = liftCtx1 dΓ ex., liftTy1 (liftCtx1 dΓ) dA
+
+liftJdg1 : {jdg : Judgment} → ⊢R (snd (getCtx jdg)) → Derivation jdg → ex.Judgment
+liftJdg1 {Γ ⊢ x} dΓ dj = {!!}
+liftJdg1 {Γ ⊢ x :> x₁} dΓ dj = {!liftCtx1 dΓ ex.⊢ liftTm1 (liftCtx1 dΓ) (liftTyTm!}
+liftJdg1 {Γ ⊢ x == x₁} dΓ dj = liftCtx1 dΓ ex.⊢ liftTyEq1 (liftCtx1 dΓ) dj == liftTyEq2 (liftCtx1 dΓ) dj
+liftJdg1 {Γ ⊢ x == x₁ :> x₂} dΓ dj = {!!}
+
+CanonicityTyEq : {Γ : Ctx n} {A B : TyExpr n} (dΓ : ⊢R Γ) (dA : Derivation (Γ ⊢ A)) (dB : Derivation (Γ ⊢ B)) (dA= : Derivation (Γ ⊢ A == B)) → ex.Derivable (liftCtx1 dΓ ⊢ₑ liftTy1 (liftCtx1 dΓ) dA == liftTy1 (liftCtx1 dΓ) dB)
+CanonicityTmEq : {Γ : Ctx n} {u v : TmExpr n} {A A' A'' : TyExpr n} (dΓ : ⊢R Γ) (du : Derivation (Γ ⊢ u :> A)) (dv : Derivation (Γ ⊢ v :> A')) (du= : Derivation (Γ ⊢ u == v :> A'')) → (A ≡ A') → (A ≡ A'') → ex.Derivable (liftCtx1 dΓ ⊢ₑ liftTm1 (liftCtx1 dΓ) du == ex.coerc (liftTmTy (liftCtx1 dΓ) dv) (liftTmTy (liftCtx1 dΓ) du) (liftTm1 (liftCtx1 dΓ) dv) :> liftTmTy (liftCtx1 dΓ) du)
+
+CanonicityTyEq dΓ dA dB (TySymm dA= dA=₁ dA=₂) = {!!}
+CanonicityTyEq dΓ dA dB (TyTran dA= dA=₁ dA=₂ dA=₃ dA=₄) = {!!}
+CanonicityTyEq dΓ UU UU UUCong = {!!}
+CanonicityTyEq dΓ (El dv) (El dv') (ElCong dv₁ dv'₁ dv=) = {!!}
+CanonicityTyEq dΓ (Pi dA dB) (Pi dA' dB') (PiCong dA₁ dA'₁ dB₁ dB'₁ dA= dB=) = {!!}
+                  where
+                  Coercer : {Γ : Ctx n} {A A' : TyExpr n} {B : TyExpr (suc n)} → ⊢R Γ → Derivation (Γ ⊢ A) → Derivation (Γ ⊢ A') → Derivation ((Γ , A') ⊢ B) → Derivation (Γ ⊢ A == A') → Derivation ((Γ , A) ⊢ B)
+                  Coercer dΓ dA dA' dB dA= = {!SubstTyR dB ((idMorDerivableR dΓ) , Conv dA dA' (VarLast dA) dA=)!}
+
+CanonicityTmEq (dΓ , x) (VarLast du) (VarLast dv) du= A'≡ A''≡ = {!!}
+CanonicityTmEq (dΓ , x) (VarLast du) (VarPrev dv dv₁) du= A'≡ A''≡ = {!du=!}
+CanonicityTmEq (dΓ , x) (VarLast du) (Conv dv dv₁ dv₂ dv₃) A'≡ A''≡ du= = {!!}
+CanonicityTmEq (dΓ , x) (VarLast du) (Lam dv dv₁ dv₂) A'≡ A''≡ du= = {!!}
+CanonicityTmEq (dΓ , x) (VarLast du) (App dv dv₁ dv₂ dv₃) A'≡ A''≡ du= = {!!}
+CanonicityTmEq (dΓ , x) (VarPrev du du₁) (VarLast dv) A'≡ A''≡ du= = {!!}
+CanonicityTmEq (dΓ , x) (VarPrev du du₁) (VarPrev dv dv₁) A'≡ A''≡ du= = {!!}
+CanonicityTmEq (dΓ , x) (VarPrev du du₁) (Conv dv dv₁ dv₂ dv₃) A'≡ A''≡ du= = {!!}
+CanonicityTmEq (dΓ , x) (VarPrev du du₁) (Lam dv dv₁ dv₂) A'≡ A''≡ du= = {!!}
+CanonicityTmEq (dΓ , x) (VarPrev du du₁) (App dv dv₁ dv₂ dv₃) A'≡ A''≡ du= = {!!}
+CanonicityTmEq dΓ (Conv du du₁ du₂ du₃) (VarLast dv) A'≡ refl du= = {!A'≡!}
+CanonicityTmEq dΓ (Conv du du₁ du₂ du₃) (VarPrev dv dv₁) A'≡ A''≡ du= = {!!}
+CanonicityTmEq dΓ (Conv du du₁ du₂ du₃) (Conv dv dv₁ dv₂ dv₃) A'≡ refl refl = {!A'≡!}
+CanonicityTmEq dΓ (Conv du du₁ du₂ du₃) (Lam dv dv₁ dv₂) A'≡ refl du= = {!!}
+CanonicityTmEq dΓ (Conv du du₁ du₂ du₃) (App dv dv₁ dv₂ dv₃) A'≡ A''≡ du= = {!!}
+CanonicityTmEq dΓ (Lam du du₁ du₂) (VarLast dv) A'≡ A''≡ du= = {!!}
+CanonicityTmEq dΓ (Lam du du₁ du₂) (VarPrev dv dv₁) A'≡ A''≡ du= = {!!}
+CanonicityTmEq dΓ (Lam du du₁ du₂) (Conv dv dv₁ dv₂ dv₃) A'≡ A''≡ du= = {!!}
+CanonicityTmEq dΓ (Lam du du₁ du₂) (Lam dv dv₁ dv₂) A'≡ A''≡ du= = {!!}
+CanonicityTmEq dΓ (Lam du du₁ du₂) (App dv dv₁ dv₂ dv₃) A'≡ A''≡ du= = {!!}
+CanonicityTmEq dΓ (App du du₁ du₂ du₃) (VarLast dv) A'≡ A''≡ du= = {!!}
+CanonicityTmEq dΓ (App du du₁ du₂ du₃) (VarPrev dv dv₁) A'≡ A''≡ du= = {!!}
+CanonicityTmEq dΓ (App du du₁ du₂ du₃) (Conv dv dv₁ dv₂ dv₃) A'≡ A''≡ du= = {!!}
+CanonicityTmEq dΓ (App du du₁ du₂ du₃) (Lam dv dv₁ dv₂) A'≡ A''≡ du= = {!!}
+CanonicityTmEq dΓ (App du du₁ du₂ du₃) (App dv dv₁ dv₂ dv₃) A'≡ A''≡ du= = {!!}
+
 liftTy : {n : ℕ} {Γ : Ctx n} → {A : TyExpr n} → (dA : Derivation (Γ ⊢ A)) → ex.TyExpr n
 liftTm : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} → {u : TmExpr n} → (du : Derivation (Γ ⊢ u :> A)) → ex.TmExpr n
 
@@ -32,6 +128,7 @@ liftTm {A = .B} {u = .u} (Conv {u = u} {A = A} {B = B} dA dB du dA=) = ex.coerc 
 liftTm {A = .(pi A B)} {u = .(lam A B u)} (Lam {A = A} {B} {u} dA dB du) = ex.lam (liftTy dA) (liftTy dB) (liftTm du)
 liftTm {A = .(substTy B a)} {u = .(app A B f a)} (App {A = A} {B = B} {f = f} {a = a} dA dB df da) = ex.app (liftTy dA) (liftTy dB) (liftTm df) (liftTm da)
 
+--------- The context cannot be lifted independently from the judgment. Since the lifting is derivation sensitive, we need to choose particular derivation to get a well typed judgment
 liftCtx : {n : ℕ} {Γ : Ctx n} → ⊢R Γ → ex.Ctx n
 liftCtx {Γ = .◇} tt = ex.◇
 liftCtx {Γ = .(Γ , A)} (_,_ {Γ = Γ} {A} dΓ dA) = liftCtx dΓ ex., liftTy dA
@@ -40,21 +137,66 @@ liftMor : {n m : ℕ} {Γ : Ctx n} {Δ : Ctx m} {δ : Mor n m} → Γ ⊢R δ �
 liftMor {δ = .◇} tt = ex.◇
 liftMor {δ = .(δ , u)} (_,_ {δ = δ} {u} dδ du) = liftMor dδ ex., liftTm du
 
+---------------------------
+---Judgment Lifting
+---------------------------
 -- We are only lifting the small subset of well formed judgments
+-- If using metatheorems, beware: TmTy dApp will not reduce without further pattern matching
+-- CAREFUL: Derivations of the same judgment do not coincide (see VarLast for instance)
 liftJdg : {n : ℕ} {jdg : Judgment} → ⊢R snd (getCtx jdg) → Derivation (jdg) → ex.Judgment
 liftJdg {jdg = Γ ⊢ x} dΓ dj = liftCtx dΓ ex.⊢ liftTy dj
-liftJdg {jdg = .(Γ , A) ⊢ .(var last) :> .(weakenTy' last A)} dΓ (VarLast {Γ = Γ} {A} dA) = liftCtx dΓ ex.⊢ liftTm (VarLast dA) :> ex.weakenTy (liftTy dA)
-liftJdg {jdg = .(Γ , _) ⊢ .(var (prev k)) :> .(weakenTy' last A)} dΓ (VarPrev {Γ = Γ} {k = k} {A} dA dk) = {!!}
-liftJdg {jdg = Γ ⊢ x :> x₁} dΓ (Conv dj dj₁ dj₂ dj₃) = {!!}
-liftJdg {jdg = Γ ⊢ .(lam _ _ _) :> .(pi _ _)} dΓ (Lam dj dj₁ dj₂) = {!!}
-liftJdg {jdg = Γ ⊢ .(app _ _ _ _) :> .(_ [ idMor _ , _ ]Ty)} dΓ (App dj dj₁ dj₂ dj₃) = {!!}
-liftJdg {jdg = Γ ⊢ x == x₁} dΓ (TySymm dA dB dA=) = {!!}
-liftJdg {jdg = Γ ⊢ x == x₁} dΓ (TyTran dA dB dC dA= dB= ) = {!!}
-liftJdg {jdg = Γ ⊢ .uu == .uu} dΓ UUCong = {!!}
-liftJdg {jdg = Γ ⊢ .(el _) == .(el _)} dΓ (ElCong dj) = {!!}
-liftJdg {jdg = Γ ⊢ .(pi _ _) == .(pi _ _)} dΓ (PiCong dj dj₁ dj₂) = {!!}
-liftJdg {jdg = Γ ⊢ x == x₁ :> x₂} dΓ dj = {!!}
+liftJdg (dΓ , dA₁) (VarLast {Γ = Γ} {A} dA) = (liftCtx dΓ ex., liftTy dA) ex.⊢ liftTm (VarLast dA) :> ex.weakenTy (liftTy dA)
+----------------------
+---- We need to be careful with the choice of the Derivation to lift the typing
+----------------------
+liftJdg ((dΓ , dC) , dB) (VarPrev {Γ = Γ} {B} {k} {A} dA dk) =  liftCtx ((dΓ , dC) , dB) ex.⊢ liftTm (VarPrev {Γ = Γ} {B} dA dk) :> ex.weakenTy (liftTy (TmTyR (dΓ , dC) dk))
+-- liftJdg ((dΓ , dA₁) , dB) (VarPrev {Γ = .(Γ , A)} {B} {.last} {.(weakenTy' last _)} dwA (VarLast {Γ = Γ} {A = A} dA)) =  liftCtx ((dΓ , dA) , dB) ex.⊢ liftTm (VarPrev {Γ = (Γ , A)} {B} (WeakTyR dA) (VarLast dA)) :> ex.weakenTy (ex.weakenTy (liftTy dA))
+-- liftJdg ((dΓ , dA₁) , dB) (VarPrev {Γ = .(_ , _)} {B} {.(prev _)} {.(weakenTy' last _)} dwA (VarPrev {B = C} dA dk)) = {! liftCtx dΓ ex.⊢ liftTm (VarPrev {Γ = Γ} {B} dA dk) :> ex.weakenTy (liftTy dA)!}
+-- liftJdg dΓ (VarPrev {Γ = Γ} {B} {k} {A} dA (Conv dk dk₁ dk₂ dk₃)) = {!!}
+-- -- liftCtx dΓ ex.⊢ liftTm (VarPrev {Γ = Γ} {B} dA dk) :> ex.weakenTy (liftTy dA)
 
+liftJdg {jdg = Γ ⊢ x :> x₁} dΓ (Conv dA dB du dA=) = liftCtx dΓ ex.⊢ ex.coerc (liftTy dA) (liftTy dB) (liftTm du) :> liftTy dB
+liftJdg {jdg = Γ ⊢ .(lam _ _ _) :> .(pi _ _)} dΓ (Lam dA dB du) = liftCtx dΓ ex.⊢ liftTm (Lam dA dB du) :> liftTy (Pi dA dB)
+liftJdg {jdg = Γ ⊢ .(app _ _ _ _) :> .(_ [ idMor _ , _ ]Ty)} dΓ (App {A = A} dA dB df da) = liftCtx dΓ ex.⊢ liftTm (App dA dB df da) :> liftTy (SubstTyR dB (idMorDerivableR dΓ , congTmTyR (!R ([idMor]TyR A)) da))
+liftJdg {jdg = Γ ⊢ x == x₁} dΓ (TySymm dA dB dA=) = liftCtx dΓ ex.⊢ liftTy dB == liftTy dA
+liftJdg {jdg = Γ ⊢ x == x₁} dΓ (TyTran dA dB dC dA= dB= ) = liftCtx dΓ ex.⊢ liftTy dA == liftTy dC
+liftJdg {jdg = Γ ⊢ .uu == .uu} dΓ UUCong = liftCtx dΓ ex.⊢ ex.uu == ex.uu
+liftJdg {jdg = Γ ⊢ .(el _) == .(el _)} dΓ (ElCong dv dv' df=) = liftCtx dΓ ex.⊢ liftTy (El dv) == liftTy (El dv')
+liftJdg {jdg = Γ ⊢ .(pi _ _) == .(pi _ _)} dΓ (PiCong dA dA' dB dB' dA= dB=) = liftCtx dΓ ex.⊢ liftTy (Pi dA dB) == liftTy (Pi dA' dB')
+---------------
+---Tm Equality lift
+-------------
+liftJdg {jdg = .(_ , _) ⊢ .(var last) == .(var last) :> .(weakenTy' last _)} dΓ (VarLastCong {A = A} dA) = liftCtx dΓ ex.⊢ liftTm (VarLast dA) == liftTm (VarLast dA) :> liftTy (WeakTyR {k = last} {T = A} dA)
+liftJdg dΓ (VarPrevCong {B = B} dA dk dk' dk=) = liftCtx dΓ ex.⊢ liftTm (WeakTmR {k = last} {T = B} dk) == liftTm (WeakTmR {k = last} {T = B} dk') :> liftTy (WeakTyR {k = last} {T = B} dA)
+liftJdg {jdg = Γ ⊢ x == x₁ :> x₂} dΓ (TmSymm dA du dv du=) = liftCtx dΓ ex.⊢ liftTm dv == liftTm du :> liftTy dA
+liftJdg {jdg = Γ ⊢ x == x₁ :> x₂} dΓ (TmTran dA du dv dw du= dv=) = liftCtx dΓ ex.⊢ liftTm du == liftTm dw :> liftTy dA
+liftJdg {jdg = Γ ⊢ x == x₁ :> x₂} dΓ (ConvEq dA dB du du' du= dA=) = liftCtx dΓ ex.⊢ liftTm (Conv dA dB du dA=) == liftTm (Conv dA dB du' dA=) :> liftTy dB
+liftJdg dΓ (LamCong dA dA' dB dB' du du' dA= dB= du=) = liftCtx dΓ ex.⊢ liftTm (Lam dA dB du) == ex.coerc (liftTy (Pi dA' dB')) (liftTy (Pi dA dB)) (liftTm (Lam dA' dB' du')) :> liftTy (Pi dA dB)
+liftJdg {jdg = Γ ⊢ .(app _ _ _ _) == .(app _ _ _ _) :> .(_ [ idMor _ , _ ]Ty)} dΓ (AppCong {n} {Γ = Γ} {a = a} {a' = a'} dA dA' dB dB' df df' da da' dA= dB= df= da=) = liftCtx dΓ ex.⊢ liftTm (App dA dB df da) == ex.coerc (ex.substTy (liftTy dB') (liftTm da')) (ex.substTy (liftTy dB) (liftTm da)) (liftTm (App dA' dB' df' da')) :> ex.substTy (liftTy dB) (liftTm da)
+liftJdg {jdg = Γ ⊢ .(app A B (lam A B u) a) == .(u [ idMor _ , a ]Tm) :> .(B [ idMor _ , a ]Ty)} dΓ (BetaPi {A = A} {B} {u} {a} dA dB du da) = liftCtx dΓ ex.⊢ liftTm (App dA dB (Lam dA dB du) da) == ex.substTm (liftTm du) (liftTm da) :> ex.substTy (liftTy dB) (liftTm da)
+
+liftJdg {jdg = Γ ⊢ x == .(lam _ _ (app (weakenTy' last _) (weakenTy' (prev last) _) (weakenTm' last x) (var last))) :> .(pi _ _)} dΓ (EtaPi {n = n} {B = B} dA dB df) = liftCtx dΓ ex.⊢ liftTm df == ex.lam (liftTy dA) (liftTy dB) (ex.app (ex.weakenTy (liftTy dA)) (ex.weakenTy' (prev last) (liftTy dB)) (ex.weakenTm (liftTm df)) (ex.var last)) :> ex.pi (liftTy dA) (liftTy dB)
+
+-- Alternative definition for eta lift
+-- liftJdg {jdg = Γ ⊢ x == .(lam _ _ (app (weakenTy' last _) (weakenTy' (prev last) _) (weakenTm' last x) (var last))) :> .(pi _ _)} dΓ (EtaPi {n = n} {B = B} dA dB df)
+--                = liftCtx dΓ ex.⊢ liftTm df ==  liftTm (Lam dA dB {! !}) :> liftTy (Pi dA dB)
+--                where
+--                App+Rewrite : {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {f : TmExpr n} → Derivation (Γ ⊢ A) → Derivation ((Γ , A) ⊢ B) → Derivation (Γ ⊢ f :> pi A B) → Derivation ((Γ , A) ⊢ app (weakenTy A) (weakenTy' (prev last) B) (weakenTm f) (var last) :> B)
+--                App+Rewrite {A = A} {B = B} {f = f} dA dB df 
+--                  with weakenTy' (prev last) B [ (weakenMor (idMor n) , var last) , var last ]Ty | (substTy-weakenTyR' {k = prev (last {n = n})} {A = B} {δ = idMor (suc n)} {t = var last} R∙ ([idMor]TyR B))
+--                App+Rewrite {A = A} {.B} {f} dA dB df | B | reflR = {! !R (substTy-weakenTyR' {k = prev (last {n = n})} {A = B} {δ = idMor (suc n)} {t = var last} R∙ ([idMor]TyR B))!}
+
+-- (App (WeakTyR dA) (WeakTyR dB) (WeakTmR df) (VarLast dA))
+-- weakenTy' (prev last) B [ (weakenMor (idMor n) , var last) , var last ]Ty
+               -- with !R (substTy-weakenTyR' {k = prev (last {n = n})} {A = B} {δ = idMor (suc n)} {t = var last} R∙ ([idMor]TyR B))
+
+               -- with substTy B (var last) | weakenTyInsertR B _ (var last)
+-- ... | q | eq = {!eq!}
+-- liftCtx dΓ ex.⊢ liftTm df == liftTm (Lam dA dB (App (ex.weakenTy (liftTy dA)) (ex.weakenTy' (prev last) (liftTy dB)) (ex.weakenTm (liftTm df)) (liftTm (VarLast dA)))) :> liftTy (Pi dA dB)
+
+----------------------
+---- Judgment-lifting experiments
+----------------------
 {- weakenVar and ex.weakenVar are the same -}
 weakenVar-weakenVar : (k : Fin (suc n)) → (x : Fin n) → weakenVar' k x ≡ ex.weakenVar' k x
 weakenVar-weakenVar last x = refl
@@ -78,20 +220,7 @@ weakenTm'-liftTm {k = prev k} (VarPrev {A = A} du du₁)
                     with weakenTy' (prev k) (weakenTy A) | weakenTy-weakenTy' {k = k} {A}
 ... | .(weakenTy' last (weakenTy' k A)) | reflR = ap (λ x → ex.weakenTm x) (weakenTm'-liftTm du₁) ∙ ex.weakenTmCommutes _ _                  
 
-
--- weakenTm'-liftTm {k = prev k} (VarPrev {k = last} {A = .(weakenTy A)} dwA (VarLast {A = A} dA))
---                  with weakenTy' (prev k) (weakenTy (weakenTy A)) | weakenTy-weakenTy' {k = k} {weakenTy A}
--- weakenTm'-liftTm {_} {k = prev last} (VarPrev {B = _} {last} {.(weakenTy' last A)} dwA (VarLast {A = A} dA)) | _ | reflR = refl
--- weakenTm'-liftTm {_} {prev (prev k)} (VarPrev {B = _} {last} {.(weakenTy' last A)} dwA (VarLast {A = A} dA)) | _ | reflR = {!!}
--- 
--- weakenTm'-liftTm {k = prev k} (VarPrev du (VarPrev du₁ du₂)) = {!!}
--- weakenTm'-liftTm {k = prev k} (VarPrev {A = A} du (Conv du₁ du₂ du₃ du₄)) 
---                  with weakenTy' (prev k) (weakenTy A) | weakenTy-weakenTy' {k = k} {A}
--- ... | _ | reflR = ex.ap-coerc-Tm (ap (λ x → ex.weakenTy x) (weakenTy'-liftTy du₁) ∙ (! ex.weakenTy-weakenTy)) (ap (λ x → ex.weakenTy x) (weakenTy'-liftTy du₂) ∙ (! ex.weakenTy-weakenTy)) {!!}
--- weakenTm'-liftTm {k = prev k} (VarPrev {A = A} du du₁) with weakenTy' (prev k) (weakenTy A) | weakenTy-weakenTy' {k = k} {A}
--- weakenTm'-liftTm {k = prev k} (VarPrev {k = l} du du₁) | _ | reflR rewrite weakenVar-weakenVar k l = refl
-
-weakenTm'-liftTm (Conv dA dB du dA=) = ex.ap-coerc-Tm {!weakenTy'-liftTy dA!} {!!} {!!}
+weakenTm'-liftTm (Conv dA dB du dA=) = ex.ap-coerc-Tm (weakenTy'-liftTy dA) (weakenTy'-liftTy dB) (weakenTm'-liftTm du)
 weakenTm'-liftTm (Lam dA dB du) = ex.ap-lam-Tm {!!} (weakenTy'-liftTy dB) {!!}
 weakenTm'-liftTm {k = k} (App {B = B} {a = a} dA dB df da)
                       with weakenTy' k (substTy B a) | weakenTy-substTy' {k = k} {B} {a}
@@ -140,3 +269,33 @@ substTm-liftTm {δ = δ} {u = app A B f a} (App dA dB df da) dδ
             with (substTy B a) [ δ ]Ty | []Ty-substTyR {B = B} {a} {δ}
 ...  | .((B [ weakenMor' last δ , var last ]Ty) [ idMor _ , (a [ δ ]Tm) ]Ty) | reflR
               = ex.ap-app-Tm (substTy-liftTy dA dδ) (substTy-liftTy dB (WeakMorR+ dA dδ) ∙ ap (λ x → liftTy dB ex.[ x ]Ty) (weakenMor+-liftMor dA dδ)) (substTm-liftTm df dδ) (substTm-liftTm da dδ)
+
+Sound : {jdg : Judgment} → (dΓ : ⊢R snd (getCtx jdg)) → (dj : Derivation (jdg)) → ex.Derivable (liftJdg {n = fst (getCtx jdg)} {jdg = jdg} dΓ dj)
+Sound (dΓ , dA) (VarLast dj) = ex.VarLast (Sound dΓ dj)
+Sound ((dΓ , dA) , dB) (VarPrev dj (VarLast dj₁)) = {!!}
+Sound ((dΓ , dA) , dB) (VarPrev dj (VarPrev dj₁ dj₂)) = {!!}
+Sound ((dΓ , dA) , dB) (VarPrev dj (Conv dj₁ dj₂ dj₃ dj₄)) = {!!}
+Sound dΓ (VarLastCong dj) = {!!}
+Sound dΓ (VarPrevCong dj dj₁ dj₂ dj₃) = {!!}
+Sound dΓ (TySymm dj dj₁ dj₂) = {!!}
+Sound dΓ (TyTran dj dj₁ dj₂ dj₃ dj₄) = {!!}
+Sound dΓ (TmSymm dj dj₁ dj₂ dj₃) = {!!}
+Sound dΓ (TmTran dj dj₁ dj₂ dj₃ dj₄ dj₅) = {!!}
+Sound dΓ (Conv dj dj₁ dj₂ dj₃) = {!!}
+Sound dΓ (ConvEq dj dj₁ dj₂ dj₃ dj₄ dj₅) = {!!}
+Sound dΓ UU = {!!}
+Sound dΓ UUCong = {!!}
+Sound dΓ (El dj) = ex.El {!Sound dΓ dj!}
+Sound dΓ (ElCong dj dj₁ dj₂) = {!!}
+Sound dΓ (Pi dj dj₁) = {!!}
+Sound dΓ (PiCong dj dj₁ dj₂ dj₃ dj₄ dj₅) = {!!}
+Sound dΓ (Lam dA dB du) = {!!}
+Sound dΓ (LamCong dj dj₁ dj₂ dj₃ dj₄ dj₅ dj₆ dj₇ dj₈) = {!!}
+Sound dΓ (App dj dj₁ dj₂ dj₃) = {!!}
+Sound dΓ (AppCong dj dj₁ dj₂ dj₃ dj₄ dj₅ dj₆ dj₇ dj₈ dj₉ dj₁₀ dj₁₁) = {!!}
+Sound dΓ (BetaPi dj dj₁ dj₂ dj₃) = {!!}
+Sound dΓ (EtaPi dj dj₁ dj₂) = {!!}
+
+----------------------
+----- Different judgment lifting
+----------------------

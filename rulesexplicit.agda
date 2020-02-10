@@ -963,6 +963,12 @@ getCtx (_⊢_==_ {n = n} Γ x x₁) = n , Γ
 getCtx (_⊢_==_:>_ {n = n} Γ x x₁ x₂) = n , Γ
 -- getCtx (_⊢_≃_ {n = n} Γ x x₁) = n , Γ
 
+getTyExpr : Judgment → ΣSS ℕ TyExpr
+getTyExpr (_⊢_ {n = n} Γ x) = n , x
+getTyExpr (_⊢_:>_ {n = n} Γ x x₁) = n , x₁
+getTyExpr (Γ ⊢ x == x₁) = _ , x
+getTyExpr (Γ ⊢ x == x₁ :> x₂) = _ , x₂
+
 {- if welltyped getTy u is equal to the typing of u -}
 getTy=Ty : {Γ : Ctx n} {u : TmExpr n} {A : TyExpr n} → (dj : Derivable (Γ ⊢ u :> A)) → getTy Γ u ≡ TyofDerivation dj
 getTy=Ty (VarLast dj) = refl
@@ -991,7 +997,8 @@ getTyEq (ConvEq du= du=₁ du=₂) dΓ = TyTran du= (TySymm du=₂) du=₂
 getTyEq (CoercRefl du=) dΓ rewrite ! (getTy=Ty du=) = TyRefl (Derivable-getTy du= dΓ)
 getTyEq (CoercRefl! du=) dΓ rewrite ! (getTy=Ty du=) =  TyRefl (Derivable-getTy du= dΓ)
 getTyEq (CoercTrans du= du=₁ du=₂ du=₃ du=₄ du=₅ du=₆) dΓ = TyTran du=₁ (TySymm du=₅) du=₅
-getTyEq (LamCong dA dA' dB dB' du du' dA= dB= du=) dΓ = PiCong dA dA' dB dB' dA= dB=
+getTyEq (LamCong dA dA' dB dB' du du' dA= dB= du=) dΓ = TyRefl (Pi dA dB)
+-- PiCong dA dA' dB dB' dA= dB=
 getTyEq (AppCong {A = A} du= du=₁ du=₂ du=₃ du=₄ du=₅ du=₆ du=₇ du=₈ du=₉ du=₁₀ du=₁₁) dΓ = SubstTyEq (TyRefl du=₂) (idMorDerivable dΓ , congTmTy (! ([idMor]Ty A)) du=₆)
 getTyEq (BetaPi {A = A} {u = u} du= du=₁ du=₂ du=₃) dΓ
                    rewrite ! (getTy=Ty du=₂)
@@ -1021,3 +1028,9 @@ CoercTm : {Γ : Ctx n} {A A' : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n
 
 CoercTy {A = A} dΓ dA dA' dB dA= = SubstTy dB (WeakMor (idMorDerivable dΓ) , congTmTy (ap weakenTy (! ([idMor]Ty A)) ∙ (weaken[]Ty A (idMor _) last)) ((Conv (WeakTy dA') (WeakTy dA) (VarLast dA') (TySymm (WeakTyEq dA=)))))
 CoercTm {A = A} dΓ dA dA' du dA= = SubstTm du (WeakMor (idMorDerivable dΓ) ,  congTmTy (ap weakenTy (! ([idMor]Ty A)) ∙ (weaken[]Ty A (idMor _) last)) (Conv (WeakTy dA') (WeakTy dA) (VarLast dA') (TySymm (WeakTyEq dA=))))
+
+---------------------------
+---------------- Meta Theorems
+--------------------------
+TmTy : {Γ : Ctx n} {A : TyExpr n} {u : TmExpr n} → (⊢ Γ) → Derivable (Γ ⊢ u :> A) → Derivable (Γ ⊢ A)
+TmTy dΓ du = ?

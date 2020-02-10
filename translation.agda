@@ -285,3 +285,35 @@ DerToNormal (ex.BetaPi {B = B} {u = u} {a = a} dj dj₁ dj₂ dj₃) = congTmEqT
 DerToNormal (ex.EtaPi {A = A} {B = B} {f = f} dj dj₁ dj₂) = congTmEq! refl (ap (lam || A ||Ty || B ||Ty) (ap-app-Tm (WeakenTyCommStrip A) (WeakenTy'CommStrip (prev last) B) (WeakenTmCommStrip f) refl)) refl (EtaPi (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂))
 -- DerToNormal (ex.EtaSig dj dj₁ dj₂) = EtaSig (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
 
+
+
+--CanonicityTy : {Γ : ex.Ctx n} {A B : ex.TyExpr n} → ex.Derivable (Γ ⊢ₑ A) → ex.Derivable (Γ ⊢ₑ B) → Derivable (|| Γ ||Ctx ⊢ || A ||Ty == || B ||Ty) → ex.Derivable (Γ ⊢ₑ A == B)
+--CanonicityTm : {Γ : ex.Ctx n} {A B C : ex.TyExpr n} {u v : ex.TmExpr n} → ex.Derivable (Γ ⊢ₑ u :> A) → ex.Derivable (Γ ⊢ₑ v :> B) → Derivable (|| Γ ⊢ₑ u == v :> C ||) → ex.Derivable (Γ ⊢ₑ ex.coerc A C u == ex.coerc B C v :> C)
+-- CanonicityTy ex.UU ex.UU dA= = ex.UUCong
+-- CanonicityTy ex.UU (ex.El dB) (TySymm dA=) = ex.TySymm (CanonicityTy (ex.El dB) ex.UU dA=)
+-- CanonicityTy ex.UU (ex.El dB) (TyTran dA= dA=₁ dA=₂) = {!!}
+-- CanonicityTy ex.UU (ex.Pi dB dB₁) (TySymm dA=) = {!!}
+-- CanonicityTy ex.UU (ex.Pi dB dB₁) (TyTran dA= dA=₁ dA=₂) = {!!}
+-- CanonicityTy (ex.El dA) ex.UU dA= = {!!}
+-- CanonicityTy (ex.El dA) (ex.El dB) (TySymm dA=) = {!!}
+-- CanonicityTy (ex.El dA) (ex.El dB) (TyTran dA= dA=₁ dA=₂) = {!!}
+-- CanonicityTy (ex.El dA) (ex.El dB) (ElCong dA=) = ex.ElCong (ex.TmTran {!!} (ex.TmTran {!!} {!!} (CanonicityTm {C = ex.uu} dA dB dA=) ) {!!})
+-- CanonicityTy (ex.El dA) (ex.Pi dB dB₁) dA= = {!!}
+-- CanonicityTy (ex.Pi dA dA₁) dB dA= = {!!}
+
+--CanonicityTm {A = .(ex.weakenTy' last _)} (ex.VarLast du) (ex.VarLast dv) du= = {!!}
+--CanonicityTm {A = .(ex.weakenTy' last _)} (ex.VarLast du) (ex.VarPrev dv dv₁) (TmSymm du=) = {!!}
+--CanonicityTm {A = .(ex.weakenTy' last _)} (ex.VarLast du) (ex.VarPrev dv dv₁) (TmTran du= du=₁ du=₂) = {!!}
+--CanonicityTm (ex.VarLast dA) (ex.VarPrev dA₁ dv) (ConvEq dA₂ dk= dwA=) = {!ex.ConvEq (ex.WeakTy dA)!}
+--CanonicityTm {Γ = Γ} {A = .(ex.weakenTy' last A)} {C = C} {v = u} (ex.VarLast {A = A} du) (ex.Conv dv dv₁ dv₂ dv₃) du= with || u ||Tm | || Γ ||Ctx | || C ||Ty
+--CanonicityTm {_} {.(_ ex., A)} {.(ex.weakenTy' last A)} {C = C} {_} {.(ex.coerc _ _ _)} (ex.VarLast {A = A} du) (ex.Conv dv dv₁ dv₂ dv₃) (VarLastCong du=) | .(var last) | .(_ , _) | .(weakenTy' last _) = {!!}
+--CanonicityTm {_} {.(_ ex., A)} {.(ex.weakenTy' last A)} {C = C} {_} {.(ex.coerc _ _ _)} (ex.VarLast {A = A} du) (ex.Conv dv dv₁ dv₂ dv₃) (TmSymm du=) | t | g | c = {!!}
+--CanonicityTm {_} {.(_ ex., A)} {.(ex.weakenTy' last A)} {C = C} {_} {.(ex.coerc _ _ _)} (ex.VarLast {A = A} du) (ex.Conv dv dv₁ dv₂ dv₃) (TmTran du= du=₁ du=₂) | t | g | c = {!!}
+--CanonicityTm {_} {.(_ ex., A)} {.(ex.weakenTy' last A)} {C = C} {_} {.(ex.coerc _ _ _)} (ex.VarLast {A = A} du) (ex.Conv dv dv₁ dv₂ dv₃) (ConvEq du= du=₁ du=₂) | t | g | c = {!!}
+--CanonicityTm {_} {.(_ ex., A)} {.(ex.weakenTy' last A)} {C = C} {_} {.(ex.coerc _ _ _)} (ex.VarLast {A = A} du) (ex.Conv dv dv₁ dv₂ dv₃) (EtaPi du= du=₁ du=₂) | .(lam _ _ (app (weakenTy' last _) (weakenTy' (prev last) _) (var (prev last)) (var last))) | g | .(pi _ _) = {!!}
+--CanonicityTm {A = .(ex.weakenTy' last _)} (ex.VarLast du) (ex.Lam dv dv₁ dv₂) du= = {!!}
+--CanonicityTm {A = .(ex.weakenTy' last _)} (ex.VarLast du) (ex.App dv dv₁ dv₂ dv₃) du= = {!!}
+--CanonicityTm (ex.VarPrev du du₁) dv du= = {!!}
+--CanonicityTm (ex.Conv du du₁ du₂ du₃) dv du= = {!!}
+--CanonicityTm (ex.Lam du du₁ du₂) dv du= = {!!}
+--CanonicityTm (ex.App du du₁ du₂ du₃) dv du= = {!!}

@@ -1305,3 +1305,10 @@ ap-jdg-tmEq refl refl refl refl = refl
 -- getTy-Der {Γ = ◇} {lam A B u} du dΓ = {!!}
 -- getTy-Der {Γ = ◇} {app A B u u₁} du dΓ = {!!}
 -- getTy-Der {Γ = Γ , A} {u} du dΓ = {!!}
+
+-------------------------------------
+getTyExpr : Judgment → ΣSS ℕ TyExpr
+getTyExpr (_⊢_ {n = n} Γ x) = n , x
+getTyExpr (_⊢_:>_ {n = n} Γ x x₁) = n , x₁
+getTyExpr (Γ ⊢ x == x₁) = _ , x
+getTyExpr (Γ ⊢ x == x₁ :> x₂) = _ , x₂
