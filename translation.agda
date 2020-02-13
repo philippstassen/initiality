@@ -210,7 +210,7 @@ DerToNormal (ex.Conv dA dB du dA=) = Conv (DerToNormal dA) (DerToNormal dB) (Der
 DerToNormal (ex.ConvEq dj dj₁ dj₂) = ConvEq (DerToNormal dj) (DerToNormal dj₁) (DerToNormal dj₂)
 DerToNormal (ex.CoercRefl {u = u} dj) = TmRefl (DerToNormal dj)
 DerToNormal (ex.CoercRefl! dj) = TmRefl (DerToNormal dj)
-DerToNormal (ex.CoercTrans dA dB dC du dA= dB= dC=) = TmRefl (Conv (DerToNormal dA) (DerToNormal dC) (DerToNormal du) (DerToNormal dC=))
+DerToNormal (ex.CoercTrans dA dB dC du dA= dB=) = TmRefl (Conv (DerToNormal dA) (DerToNormal dC) (DerToNormal du) (TyTran (DerToNormal dB) (DerToNormal dA=) (DerToNormal dB=) ))
 DerToNormal ex.UU = UU
 DerToNormal ex.UUCong = UUCong
 -- DerToNormal ex.UUUU = UUUU
