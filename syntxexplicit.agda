@@ -863,3 +863,15 @@ coercTm-weakenTm'^2 A A' B B' u' = ap-coerc-Tm (! (coercTy-weakenTy' B' A' A)) r
 etaExpl : {n : ℕ} → (A : TyExpr n) → (B : TyExpr (suc n)) → _≡_ {A = TyExpr n} (pi A B) (pi A (substTy (weakenTy' (prev last) B) (var last)))
 etaExpl {n = n} A B = ap-pi-Ty refl (! (substTy-weakenTy' {k = prev (last {n = n})} {A = B} {δ = idMor (suc n)} {t = var last} ∙ ([idMor]Ty B)))
 
+--------------------
+---------- Ap Lemmas
+--------------------
+ap[]Ty : {A B : TyExpr m} {δ δ' : Mor n m} → A ≡ B → δ ≡ δ' → A [ δ ]Ty ≡ B [ δ' ]Ty
+ap[]Ty refl refl = refl
+
+ap[]Tm : {u v : TmExpr m} {δ δ' : Mor n m} → u ≡ v → δ ≡ δ' → u [ δ ]Tm ≡ v [ δ' ]Tm
+ap[]Tm refl refl = refl
+
+ap[]Mor : {θ θ' : Mor m k} {δ δ' : Mor n m} → θ ≡ θ' → δ ≡ δ' → θ [ δ ]Mor ≡ θ' [ δ' ]Mor
+ap[]Mor refl refl = refl
+
