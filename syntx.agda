@@ -759,10 +759,10 @@ ap-[]Ty refl refl = refl
 -- Explicit syntax
 -- Term of a type is uniquely determined by context
 getTy : {n : ℕ} → (Γ : Ctx (n)) → (u : TmExpr n) → TyExpr n
-getTy (Γ , A) (var last) = weakenTy A
-getTy (Γ , A) (var (prev x)) = weakenTy (getTy Γ (var x))
 getTy Γ (lam A B u) = pi A B
 getTy Γ (app A B u u₁) = substTy B u₁
+getTy (Γ , A) (var last) = weakenTy A
+getTy (Γ , A) (var (prev x)) = weakenTy (getTy Γ (var x))
 
 {- To define how to weaken a Context -}
 cutCtx : (k : Fin (suc n)) → (Γ : Ctx n) → Ctx (n -F' k)
