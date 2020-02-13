@@ -360,7 +360,7 @@ WeakTmEq (TmTran dv du= dv=) = TmTran (WeakTm dv) (WeakTmEq du=) (WeakTmEq dv=)
 WeakTmEq (ConvEq dA du= dA=) =  ConvEq (WeakTy dA) (WeakTmEq du=) (WeakTyEq dA=)
 WeakTmEq {k = k} (CoercRefl x) = CoercRefl (WeakTm x)
 WeakTmEq (CoercRefl! x) = CoercRefl! (WeakTm x)
-WeakTmEq (CoercTrans dA dB dC du x x₁ x₂) = CoercTrans (WeakTy dA) (WeakTy dB) (WeakTy dC) (WeakTm du) (WeakTyEq x) (WeakTyEq x₁) (WeakTyEq x₂)
+WeakTmEq (CoercTrans dA dB dC du x x₁) = CoercTrans (WeakTy dA) (WeakTy dB) (WeakTy dC) (WeakTm du) (WeakTyEq x) (WeakTyEq x₁) 
 WeakTmEq (LamCong {A = A} {A' = A'} {B = B} {B' = B'} {u' = u'} dA dA' dB dB' du du' dA= dB= du=) =  LamCong (WeakTy dA) (WeakTy dA') (WeakTy dB) (WeakTy dB') (WeakTm du) (WeakTm du') (WeakTyEq dA=) (congTyEq refl (! (coercTy-weakenTy' B' A' A)) (WeakTyEq dB=)) (congTmEq refl ((coercTm-weakenTm'^2 A A' B B' u')) refl (WeakTmEq du=))
 WeakTmEq (AppCong {A = A} {A' = A'} {B' = B'} dA dA' dB dB' df df' da da' dA= dB= df= da=) = congTmEq refl (ap-coerc-Tm (! (weakenTy-substTy)) (! (weakenTy-substTy)) refl) (! (weakenTy-substTy)) ( AppCong (WeakTy dA) (WeakTy dA') (WeakTy dB) (WeakTy dB') (WeakTm df) (WeakTm df') (WeakTm da) (WeakTm da') (WeakTyEq dA=) (congTyEq refl (! (coercTy-weakenTy' B' A' A)) (WeakTyEq dB=)) (WeakTmEq  df=) (WeakTmEq da=))
 -- congTmEqTy! weakenTy-substTy (AppCong (WeakTy dA) (WeakTy dA') (WeakTy dB) (WeakTy dB') (WeakTm df) (WeakTm df') (WeakTm da) (WeakTm da') (WeakTyEq dA=) (WeakTyEq dB=) (WeakTmEq  df=) (WeakTmEq da=))
@@ -416,24 +416,45 @@ SubstTmMorEq {δ = δ} {δ' = δ'} (Conv {u = t} {A = A} {B = B} dA dB du dA=) d
                            (SubstTyEq dA= dδ))
                            (TmTran (Conv (SubstTy dA dδ') (SubstTy dB dδ) (SubstTm du dδ') (TyTran (SubstTy dB dδ') (SubstTyEq dA= dδ') (SubstTyMorEq dB dδ' dδ dδ'= dδ=))) 
                                    (CoercTrans (SubstTy dA dδ') (SubstTy dA dδ) (SubstTy dB dδ) (SubstTm du dδ') (SubstTyMorEq dA dδ' dδ dδ'= dδ=) (SubstTyEq dA= dδ)
-                                    (TyTran
-                                            (SubstTy dA dδ)
-                                            (SubstTyMorEq dA dδ' dδ dδ'= dδ=)
-                                            (SubstTyEq dA= dδ)))
+                                    )
                                             (TmSymm (CoercTrans (SubstTy dA dδ') (SubstTy dB dδ') (SubstTy dB dδ) (SubstTm du dδ') (SubstTyEq dA= dδ') (SubstTyMorEq dB dδ' dδ dδ'= dδ=)
-                                                    (TyTran (SubstTy dB dδ') (SubstTyEq dA= dδ') (SubstTyMorEq dB dδ' dδ dδ'= dδ=)))))
+                                                    ) ))
 SubstTmMorEq (Lam dA dB du) dδ dδ= = {!!}
 -- LamCong (SubstTy dA dδ) (SubstTyMorEq dA dδ dδ=) (SubstTyMorEq dB (WeakMor+ dA dδ) ({!!})) (SubstTmMorEq du (WeakMor+ dA dδ) ({!!}))
 -- WeakMor+Eq dA dδ dδ=
-SubstTmMorEq (App dA dB df da) dδ dδ' dδ= dδ'= = congTmEqTy! []Ty-substTy {!!}
--- (AppCong (SubstTy dA dδ) (SubstTyMorEq dA dδ dδ=) (SubstTyMorEq dB (WeakMor+ dA dδ) ({!!})) (SubstTmMorEq df dδ dδ=) (SubstTmMorEq da dδ dδ=))
+SubstTmMorEq {δ = δ} {δ' = δ'} (App {A = A} {B = B} dA dB df da) dδ dδ' dδ= dδ'= = congTmEqTy! []Ty-substTy
+          (congTmEq refl (ap-coerc-Tm (! []Ty-substTy) (! []Ty-substTy ) refl) refl
+             (AppCong
+                 (SubstTy dA dδ)
+                 (SubstTy dA dδ')
+                 (SubstTy dB (WeakMor+ dA dδ))
+                 (SubstTy dB (WeakMor+ dA dδ'))
+                 (SubstTm df dδ) (SubstTm df dδ')
+                 (SubstTm da dδ) (SubstTm da dδ')
+                 (SubstTyMorEq dA dδ dδ' dδ= dδ'=)
+                 (congTyEq refl
+                           (ap (λ x → B [ x , coerc (weakenTy (A [ δ ]Ty)) (weakenTy (A [ δ' ]Ty)) (var last) ]Ty) ( (ap (λ x → weakenMor x) (! ([idMor]Mor δ')) ∙ weaken[]Mor _ _ _) ∙ (! (weakenMorInsert _ _ _))) ∙ (! ([]Ty-assoc _ _ _)))
+                           ((SubstTyMorEq dB
+                                          (WeakMor+ dA dδ)
+                                          (WeakMor+coerc dA (SubstTy dA dδ) dδ' (SubstTyMorEq dA dδ dδ' dδ= dδ'=))
+                                          (WeakMorEq dδ= , congTmEq refl
+                                                (ap-coerc-Tm (weaken[]Ty _ _ _) (weaken[]Ty _ _ _) refl) (weaken[]Ty _ _ _)
+                                                (TmTran (Conv (WeakTy (SubstTy dA dδ)) (WeakTy (SubstTy dA dδ)) (VarLast (SubstTy dA dδ)) (TyRefl (WeakTy (SubstTy dA dδ)))) (CoercRefl! (VarLast (SubstTy dA dδ))) (TmSymm (CoercTrans (WeakTy (SubstTy dA dδ)) (WeakTy (SubstTy dA dδ')) (WeakTy (SubstTy dA dδ)) (VarLast (SubstTy dA dδ)) (WeakTyEq (SubstTyMorEq dA dδ dδ' dδ= dδ'=)) (WeakTyEq (SubstTyMorEq dA dδ' dδ dδ'= dδ=))))))
+                                           (WeakMorEq dδ'= , congTmEq refl
+                                                (ap-coerc-Tm (weaken[]Ty _ _ _) (weaken[]Ty _ _ _) refl) (weaken[]Ty _ _ _) (ConvEq (WeakTy (SubstTy dA dδ)) (TmRefl (VarLast (SubstTy dA dδ))) (WeakTyEq (SubstTyMorEq dA dδ dδ' dδ= dδ'=))))
+                    )))
+                 (SubstTmMorEq df dδ dδ' dδ= dδ'=)
+                 (SubstTmMorEq da dδ dδ' dδ= dδ'=)))
 
+----------------------------------------
+------------- WeakMor+ equality results
+----------------------------------------
 WeakMor+Eq {A = A} {δ = δ} {δ' = δ'} dA dδ dδ' dδ= dδ'=
               = WeakMorEq dδ'= , congTmEq
                                 refl
                                 ( ap-coerc-Tm ( weaken[]Ty A δ last) (weaken[]Ty A δ' last) refl) (weaken[]Ty A δ' last)
                                 (TmSymm (TmTran (Conv (WeakTy (SubstTy dA dδ')) (WeakTy (SubstTy dA dδ')) (VarLast (SubstTy dA dδ')) (TyRefl (WeakTy (SubstTy dA dδ'))))
-                                        (CoercTrans (WeakTy (SubstTy dA dδ')) (WeakTy (SubstTy dA dδ)) (WeakTy (SubstTy dA dδ')) (VarLast (SubstTy dA dδ')) (WeakTyEq (SubstTyMorEq dA dδ' dδ dδ'= dδ=)) (WeakTyEq (SubstTyMorEq dA dδ dδ' dδ= dδ'=)) (TyRefl (WeakTy (SubstTy dA dδ'))))
+                                        (CoercTrans (WeakTy (SubstTy dA dδ')) (WeakTy (SubstTy dA dδ)) (WeakTy (SubstTy dA dδ')) (VarLast (SubstTy dA dδ')) (WeakTyEq (SubstTyMorEq dA dδ' dδ dδ'= dδ=)) (WeakTyEq (SubstTyMorEq dA dδ dδ' dδ= dδ'=)) )
                                         (CoercRefl (VarLast (SubstTy dA dδ')))))
 -- CoercRefl (VarLast (SubstTy dA dδ'))
 WeakMor+Eq! {A = A} {δ = δ} {δ' = δ'} dA dδ dδ' dδ= dδ'=
@@ -886,15 +907,6 @@ idMorDerivable {Γ = Γ , A} (dΓ , dA) = (WeakMor (idMorDerivable dΓ) , congTm
 -- -- (MorEqMor2 dΓ dΔ dδ= , Conv (SubstTy dB (MorEqMor1 dΓ dΔ dδ=)) (TmEqTm2 dΓ du=) (SubstTyMorEq dB (MorEqMor1 dΓ dΔ dδ=) dδ=))
 
 
-MorSymm : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → ⊢ Γ → ⊢ Δ → Γ ⊢ δ == δ' ∷> Δ → Γ ⊢ δ' == δ ∷> Δ
-MorSymm {Δ = ◇} {◇} {◇} _ _ tt = tt
-MorSymm {Δ = Δ , B} {δ , u} {δ' , u'} dΓ (dΔ , dB) (dδ , du) = {!!}
--- -- (MorSymm dΓ dΔ dδ , ConvEq (SubstTy dB (MorEqMor1 dΓ dΔ dδ)) (TmSymm du) (SubstTyMorEq dB (MorEqMor1 dΓ dΔ dδ) dδ))
-
-MorTran : {Γ : Ctx n} {Δ : Ctx m} {δ δ' δ'' : Mor n m} → ⊢ Γ → ⊢ Δ → Γ ⊢ δ == δ' ∷> Δ → Γ ⊢ δ' == δ'' ∷> Δ → Γ ⊢ δ == δ'' ∷> Δ
-MorTran {Δ = ◇} {◇} {◇} {◇} _ _ tt tt = tt
-MorTran {Δ = Δ , B} {δ , u} {δ' , u'} {δ'' , u''} dΓ (dΔ , dB) (dδ , du) (dδ' , du') = {!!}
--- --  (MorTran dΓ dΔ dδ dδ' , TmTran (TmEqTm2 dΓ du) du (ConvEq (SubstTy dB (MorEqMor2 dΓ dΔ dδ)) du' (SubstTyMorEq dB (MorEqMor2 dΓ dΔ dδ) (MorSymm dΓ dΔ dδ))))
 
 
 -- ConvTm2 : {Γ Δ : Ctx n} {u : TmExpr n} {A A' : TyExpr n} → Derivable (Γ ⊢ u :> A) → (⊢ Γ == Δ) → Derivable (Γ ⊢ A == A') → Derivable (Δ ⊢ u :> A')
@@ -996,7 +1008,7 @@ getTyEq (TmTran du= du=₁ du=₂) dΓ = TyTran (Derivable-getTy du= dΓ) (getTy
 getTyEq (ConvEq du= du=₁ du=₂) dΓ = TyTran du= (TySymm du=₂) du=₂
 getTyEq (CoercRefl du=) dΓ rewrite ! (getTy=Ty du=) = TyRefl (Derivable-getTy du= dΓ)
 getTyEq (CoercRefl! du=) dΓ rewrite ! (getTy=Ty du=) =  TyRefl (Derivable-getTy du= dΓ)
-getTyEq (CoercTrans du= du=₁ du=₂ du=₃ du=₄ du=₅ du=₆) dΓ = TyTran du=₁ (TySymm du=₅) du=₅
+getTyEq (CoercTrans du= du=₁ du=₂ du=₃ du=₄ du=₅ ) dΓ = TyTran du=₁ (TySymm du=₅) du=₅
 getTyEq (LamCong dA dA' dB dB' du du' dA= dB= du=) dΓ = TyRefl (Pi dA dB)
 -- PiCong dA dA' dB dB' dA= dB=
 getTyEq (AppCong {A = A} du= du=₁ du=₂ du=₃ du=₄ du=₅ du=₆ du=₇ du=₈ du=₉ du=₁₀ du=₁₁) dΓ = SubstTyEq (TyRefl du=₂) (idMorDerivable dΓ , congTmTy (! ([idMor]Ty A)) du=₆)
@@ -1024,6 +1036,13 @@ piEq-pr2 refl = refl
 varEq-charac : {x y : Fin n} → _≡_ {A = TmExpr n} (var x) (var y) → x ≡ y
 varEq-charac refl = refl
 
+lamEq-pr1 : {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr (suc n)} → _≡_ {A = TmExpr n} (lam A B u) (lam A' B' u') → A ≡ A'
+lamEq-pr1 refl = refl
+lamEq-pr2 : {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr (suc n)} → _≡_ {A = TmExpr n} (lam A B u) (lam A' B' u') → B ≡ B'
+lamEq-pr2 refl = refl
+lamEq-pr3 : {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u u' : TmExpr (suc n)} → _≡_ {A = TmExpr n} (lam A B u) (lam A' B' u') → u ≡ u'
+lamEq-pr3 refl = refl
+
 appEq-pr1 : {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u v u' v' : TmExpr n} → app A B u v ≡ app A' B' u' v' → A ≡ A'
 appEq-pr1 refl = refl
 appEq-pr2 : {A A' : TyExpr n} {B B' : TyExpr (suc n)} {u v u' v' : TmExpr n} → app A B u v ≡ app A' B' u' v' → B ≡ B'
@@ -1049,7 +1068,7 @@ weakTyInj {A = el v} {el v₁} A= = ap-el-Ty (weakTmInj (elEq-charac A=))
 weakTyInj {A = pi A A₁} {pi B B₁} {k} A= = ap-pi-Ty (weakTyInj (piEq-pr1 A=)) (weakTyInj (piEq-pr2 A=))
 
 weakTmInj {u = var x} {var y} {k} eq = ap-var-Tm (weakVarInj (varEq-charac eq))
-weakTmInj {u = lam A B u} {lam A₁ B₁ v} wu= = {!!}
+weakTmInj {u = lam A B u} {lam A₁ B₁ v} wu= = ap-lam-Tm (weakTyInj (lamEq-pr1 wu=)) (weakTyInj (lamEq-pr2 wu=)) {!weakTmInj (lamEq-pr3 wu=)!}
 weakTmInj {u = app A B u u₁} {app A₁ B₁ v v₁} wu= = ap-app-Tm (weakTyInj (appEq-pr1 wu=)) ( weakTyInj (appEq-pr2 wu=)) ( weakTmInj (appEq-pr3 wu=)) ( weakTmInj (appEq-pr4 wu=))
 weakTmInj {u = coerc S T u} {coerc S₁ T₁ v} wu= = {!!} 
 
@@ -1084,6 +1103,9 @@ coercInvEq (Conv du du₁ du₂ du₃) = du₃
 
 CoercTy : {Γ : Ctx n} {A A' : TyExpr n} {B : TyExpr (suc n)} → ⊢ Γ → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A') → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A') ⊢ coercTy B A A')
 CoercTm : {Γ : Ctx n} {A A' : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr (suc n)} → ⊢ Γ → Derivable (Γ ⊢ A) → Derivable (Γ ⊢ A') → Derivable ((Γ , A) ⊢ u :> B) → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A') ⊢ coercTm u A A' :> coercTy B A A')
+
+CoercTyEq : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)} → ⊢ Γ → Derivable (Γ ⊢ A == A') → Derivable ((Γ , A) ⊢ B == B') → Derivable ((Γ , A') ⊢ coercTy B A A' == coercTy B' A A')
+CoercTyEq dΓ dA= dB= = {!!}
 
 CoercTy {A = A} dΓ dA dA' dB dA= = SubstTy dB (WeakMor (idMorDerivable dΓ) , congTmTy (ap weakenTy (! ([idMor]Ty A)) ∙ (weaken[]Ty A (idMor _) last)) ((Conv (WeakTy dA') (WeakTy dA) (VarLast dA') (TySymm (WeakTyEq dA=)))))
 CoercTm {A = A} dΓ dA dA' du dA= = SubstTm du (WeakMor (idMorDerivable dΓ) ,  congTmTy (ap weakenTy (! ([idMor]Ty A)) ∙ (weaken[]Ty A (idMor _) last)) (Conv (WeakTy dA') (WeakTy dA) (VarLast dA') (TySymm (WeakTyEq dA=))))
@@ -1126,27 +1148,47 @@ TmEqTm1 dΓ (TmTran du= du=₁ du=₂) = {!!}
 TmEqTm1 dΓ (ConvEq du= du=₁ du=₂) = Conv du= (TyEqTy2 dΓ du=₂) (TmEqTm1 dΓ du=₁) du=₂
 TmEqTm1 dΓ (CoercRefl du=) = Conv (TmTy dΓ du=) (TmTy dΓ du=) du= (TyRefl (TmTy dΓ du=))
 TmEqTm1 dΓ (CoercRefl! du=) = du=
-TmEqTm1 dΓ (CoercTrans du= du=₁ du=₂ du=₃ du=₄ du=₅ du=₆) = Conv du=₁ du=₂ (Conv du= du=₁ du=₃ du=₄) du=₅
+TmEqTm1 dΓ (CoercTrans du= du=₁ du=₂ du=₃ du=₄ du=₅) = Conv (TyEqTy1 dΓ du=₅) (TyEqTy2 dΓ du=₅) (Conv (TyEqTy1 dΓ du=₄) (TyEqTy2 dΓ du=₄) du=₃ du=₄) du=₅
 TmEqTm1 dΓ (LamCong du= du=₁ du=₂ du=₃ du=₄ du=₅ du=₆ du=₇ du=₈) = Lam du= {!!} {!!}
 TmEqTm1 dΓ (AppCong du= du=₁ du=₂ du=₃ du=₄ du=₅ du=₆ du=₇ du=₈ du=₉ du=₁₀ du=₁₁) = {!!}
 TmEqTm1 dΓ (BetaPi du= du=₁ du=₂ du=₃) = App du= du=₁ (Lam du= du=₁ du=₂) du=₃
 TmEqTm1 dΓ (EtaPi du= du=₁ du=₂) = du=₂
 TmEqTm2 dΓ du= = {!du=!}
 
--- SubstTmInv : {Γ : Ctx n} {Δ : Ctx m} {δ : Mor n m} {A : TyExpr m} {v : TmExpr m} → Γ ⊢ δ ∷> Δ → Derivable (Γ ⊢ v [ δ ]Tm :> A [ δ ]Ty) → Derivable (Δ ⊢ v :> A)
--- SubstTmInv {A = uu} {var x} dδ dvd = {!!}
--- SubstTmInv {A = el v} {var x} dδ dvd = {!!}
--- SubstTmInv {A = pi A A₁} {var x} dδ dvd = {!!}
--- SubstTmInv {A = pi A A₁} {lam A₂ B v} dδ dvd = {!!}
--- SubstTmInv {A = uu} {app A B v v₁} dδ dvd = {!!}
--- SubstTmInv {A = el v} {app A B v₁ v₂} dδ dvd = {!!}
--- SubstTmInv {A = pi A A₁} {app A₂ B v v₁} dδ dvd = {!!}
--- SubstTmInv {A = uu} {coerc S T v} dδ dvd = {!!}
--- SubstTmInv {A = el v} {coerc S T v₁} dδ dvd = {!!}
--- SubstTmInv {A = pi A A₁} {coerc S T v} dδ dvd = {!!}
--- 
--- Mor-Ctx : {Γ : Ctx n} {Δ : Ctx m} {δ : Mor n m} → ⊢ Γ → Γ ⊢ δ ∷> Δ → ⊢ Δ
--- Mor-Ctx {Γ = Γ} {.◇} {.◇} dΓ tt = tt
--- Mor-Ctx {Γ = Γ} {Δ , uu} {δ , u} dΓ (dδ , x) = Mor-Ctx dΓ dδ , {!!}
--- Mor-Ctx {Γ = Γ} {Δ , el v} {δ , u} dΓ (dδ , x) = Mor-Ctx dΓ dδ , {!!}
--- Mor-Ctx {Γ = Γ} {Δ , pi A A₁} {δ , u} dΓ (dδ , x) = Mor-Ctx dΓ dδ , {!!}
+---------------
+---------- Meta Properties for Morphisms
+---------------
+MorEqMor1 : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → ⊢ Γ → ⊢ Δ → Γ ⊢ δ == δ' ∷> Δ → Γ ⊢ δ ∷> Δ
+MorEqMor2 : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → ⊢ Γ → ⊢ Δ → Γ ⊢ δ == δ' ∷> Δ → Γ ⊢ δ' ∷> Δ
+
+MorEqMor1 dΓ dΔ tt = tt
+MorEqMor1 dΓ (dΔ , dA) (dδ= , x) = MorEqMor1 dΓ dΔ dδ= , TmEqTm1 dΓ x
+MorEqMor2 dΓ dΔ tt = tt
+MorEqMor2 dΓ (dΔ , dA) (dδ= , du) = MorEqMor2 dΓ dΔ dδ= , coercInvTm (TmEqTm2 dΓ du)
+
+MorSymm : {Γ : Ctx n} {Δ : Ctx m} {δ δ' : Mor n m} → ⊢ Γ → ⊢ Δ → Γ ⊢ δ == δ' ∷> Δ → Γ ⊢ δ' == δ ∷> Δ
+MorSymm {Δ = ◇} {◇} {◇} _ _ tt = tt
+MorSymm {Δ = Δ , B} {δ , u} {δ' , u'} dΓ (dΔ , dB) (dδ , du) =
+                 MorSymm dΓ dΔ dδ , TmTran (Conv (coercInvTy2 rightEq) (coercInvTy1 rightEq) rightEq (TySymm (coercInvEq rightEq)))
+                                           (TmSymm (TmTran (Conv (coercInvTy1 (TmEqTm2 dΓ du)) (coercInvTy1 (TmEqTm2 dΓ du)) (coercInvTm (TmEqTm2 dΓ du)) (TyRefl (coercInvTy1 (TmEqTm2 dΓ du)))) (CoercTrans (coercInvTy1 (TmEqTm2 dΓ du)) (coercInvTy2 (TmEqTm2 dΓ du)) (coercInvTy1 (TmEqTm2 dΓ du)) (coercInvTm (TmEqTm2 dΓ du)) (coercInvEq (TmEqTm2 dΓ du)) (TySymm (coercInvEq (TmEqTm2 dΓ du)))) (CoercRefl (coercInvTm (TmEqTm2 dΓ du)))))
+                                           (ConvEq (coercInvTy2 (TmEqTm2 dΓ du)) (TmSymm du) (TySymm (coercInvEq (TmEqTm2 dΓ du))))
+                                           where
+                                           rightEq = TmEqTm2 dΓ du
+-- -- (MorSymm dΓ dΔ dδ , ConvEq (SubstTy dB (MorEqMor1 dΓ dΔ dδ)) (TmSymm du) (SubstTyMorEq dB (MorEqMor1 dΓ dΔ dδ) dδ))
+
+MorTran : {Γ : Ctx n} {Δ : Ctx m} {δ δ' δ'' : Mor n m} → ⊢ Γ → ⊢ Δ → Γ ⊢ δ == δ' ∷> Δ → Γ ⊢ δ' == δ'' ∷> Δ → Γ ⊢ δ == δ'' ∷> Δ
+MorTran {Δ = ◇} {◇} {◇} {◇} _ _ tt tt = tt
+MorTran {Δ = Δ , B} {δ , u} {δ' , u'} {δ'' , u''} dΓ (dΔ , dB) (dδ , du) (dδ' , du') = {!!}
+-- --  (MorTran dΓ dΔ dδ dδ' , TmTran (TmEqTm2 dΓ du) du (ConvEq (SubstTy dB (MorEqMor2 dΓ dΔ dδ)) du' (SubstTyMorEq dB (MorEqMor2 dΓ dΔ dδ) (MorSymm dΓ dΔ dδ))))
+
+---------------
+---- SubstTyMorEq1 resp for terms
+-----------------
+SubstTyMorEq1 : {Γ : Ctx n} {Δ : Ctx m} {A : TyExpr m} {δ δ' : Mor n m} 
+       → ⊢ Γ → ⊢ Δ → Derivable (Δ ⊢ A) → (Γ ⊢ δ == δ' ∷> Δ)
+       → Derivable (Γ ⊢ A [ δ ]Ty == A [ δ' ]Ty)
+SubstTmMorEq1 : {Γ : Ctx n} {Δ : Ctx m} {u : TmExpr m} {A : TyExpr m} {δ δ' : Mor n m} → ⊢ Γ → ⊢ Δ → Derivable (Δ ⊢ u :> A) → (Γ ⊢ δ == δ' ∷> Δ)
+       → Derivable (Γ ⊢ u [ δ ]Tm == coerc (A [ δ' ]Ty) (A [ δ ]Ty) (u [ δ' ]Tm) :> A [ δ ]Ty)
+
+SubstTyMorEq1 dΓ dΔ dA dδ= = SubstTyMorEq dA (MorEqMor1 dΓ dΔ dδ=) (MorEqMor2 dΓ dΔ dδ=) dδ= (MorSymm dΓ dΔ dδ=)
+SubstTmMorEq1 dΓ dΔ du dδ= = SubstTmMorEq du (MorEqMor1 dΓ dΔ dδ=) (MorEqMor2 dΓ dΔ dδ=) dδ= (MorSymm dΓ dΔ dδ=)
