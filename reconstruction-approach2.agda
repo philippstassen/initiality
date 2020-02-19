@@ -64,27 +64,6 @@ liftJdg (Γ ⊢ x == x₁) = liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) x == liftTy (
 liftJdg (Γ ⊢ x == x₁ :> x₂) = liftCtx Γ ⊢ₑ (liftTm (liftCtx Γ) (liftTy (liftCtx Γ) x₂) x) ==
                     (liftTm (liftCtx Γ) (liftTy (liftCtx Γ) x₂) x₁) :> liftTy (liftCtx Γ) x₂
 
-{- Morphism for rewriting, only thing that happens: all variables are not coerced-}
-liftMorRew : {n m : ℕ} → ex.Ctx n → ex.Ctx m → Mor n m → ex.Mor n m
-liftMorRew Γ ex.◇ ◇ = ex.◇
-liftMorRew Γ (Δ ex., A) (δ , u) = liftMorRew Γ Δ δ ex., liftTm1 Γ u
--- liftMorRew Γ (Δ ex., A) (δ , var x) = liftMorRew Γ Δ δ ex., ex.var x
--- liftMorRew Γ (Δ ex., A) (δ , lam A₁ B u) = liftMorRew Γ Δ δ ex., ex.lam (liftTy Γ A₁) (liftTy (Γ ex., liftTy Γ A₁) B) (liftTm (Γ ex., liftTy Γ A₁) (liftTy (Γ ex., liftTy Γ A₁) B) u)
--- liftMorRew Γ (Δ ex., A) (δ , app A₁ B u u₁) = liftMorRew Γ Δ δ ex., ex.app (liftTy Γ A₁) (liftTy (Γ ex., liftTy Γ A₁) B) (liftTm Γ (liftTy Γ (pi A₁ B)) u) (liftTm Γ (liftTy Γ A₁) u₁)
-
-getLHSRew : {Γ : ex.Ctx n} {Δ : ex.Ctx m} {A : ex.TyExpr m} {δ : Mor n m} {u : TmExpr n} → ex.getLHS (liftMorRew Γ (Δ ex., A) (δ , u)) ≡ liftMorRew Γ Δ δ
-getLHSRew {u = var x} = refl
-getLHSRew {u = lam A B u} = refl
-getLHSRew {u = app A B u u₁} = refl
-
--- liftMorRew-to-liftTy : (Γ : ex.Ctx n) (Δ : ex.Ctx m) (C : ex.TyExpr n) (x : Fin m) (δ : Mor n m) → ex.coerc (ex.getTy Γ ((ex.var x) ex.[ liftMorRew Γ Δ δ ]Tm)) C ((ex.var x) ex.[ liftMorRew Γ Δ δ ]Tm) ≡ liftTm Γ C ((var x) [ δ ]Tm)
--- liftMorRew-to-liftTy Γ (Δ ex., A) B last (δ , var x) = refl
--- liftMorRew-to-liftTy Γ (Δ ex., A) B last (δ , lam A₁ B₁ u) = refl
--- liftMorRew-to-liftTy Γ (Δ ex., A) B last (δ , app A₁ B₁ u u₁) = refl
--- liftMorRew-to-liftTy Γ (Δ ex., A) B (prev x) (δ , var x₁) = liftMorRew-to-liftTy Γ Δ B x δ
--- liftMorRew-to-liftTy Γ (Δ ex., A) B (prev x) (δ , lam A₁ B₁ u) = liftMorRew-to-liftTy Γ Δ B x δ
--- liftMorRew-to-liftTy Γ (Δ ex., A) B (prev x) (δ , app A₁ B₁ u u₁) = liftMorRew-to-liftTy Γ Δ B x δ
-
 {- not sure what type expression to pass to liftTm. Should not really matter I guess, maybe getTy? -}
 strip-liftTy : (Γ : ex.Ctx n) → (A : TyExpr n) → || liftTy Γ A ||Ty ≡ A
 strip-liftTm : (Γ : ex.Ctx n) → (A : ex.TyExpr n) → (v : TmExpr n) → || liftTm Γ A v ||Tm ≡ v
@@ -150,31 +129,40 @@ weakenTm'-liftTm1 : (k : Fin (suc n)) (Γ : ex.Ctx n) (A : ex.TyExpr (n -F' k)) 
 weakenTy'-liftTy1 : (k : Fin (suc n)) (Γ : ex.Ctx n) (B : ex.TyExpr (n -F' k)) (A : TyExpr n) → liftTy1 (ex.weakenCtx k Γ B) (weakenTy' k A) ≡ ex.weakenTy' k (liftTy1 Γ A)
 
 weakenTy'-liftTy1 k Γ B (uu) = refl
-weakenTy'-liftTy1 k Γ B (el v) = ex.ap-el-Ty {!!}
--- ex.ap-el-Ty refl
--- (weakenTm'-liftTm1 k Γ B v)
-weakenTy'-liftTy1 k Γ B (pi A A₁) rewrite weakenTy'-liftTy1 k Γ B A = {!!}
--- ex.ap-pi-Ty refl ( weakenTy'-liftTy1 (prev k) (Γ ex., (liftTy1 Γ A)) B A₁)
-weakenTm'-liftTm1 k Γ B u = {!!}
+weakenTy'-liftTy1 k Γ B (el v) = ex.ap-el-Ty (ex.ap-coerc-Tm ( (ex.ap-getTy refl (weakenTm'-liftTm1 k Γ B v) ∙ ! (ex.weakenTy'-getTy k Γ (liftTm1 Γ v) B))) refl (weakenTm'-liftTm1 k Γ B v))
+weakenTy'-liftTy1 k Γ B (pi A A₁) rewrite weakenTy'-liftTy1 k Γ B A = ex.ap-pi-Ty refl (weakenTy'-liftTy (prev k) (Γ ex., liftTy Γ A) B A₁)
 
--- weakenMor-liftMorRew : (Γ : ex.Ctx n) (Δ : ex.Ctx m) (A : ex.TyExpr n) (δ : Mor n m) → liftMorRew (Γ ex., A) Δ (weakenMor δ) ≡ ex.weakenMor (liftMorRew Γ Δ δ)
--- weakenMor-liftMorRew Γ ex.◇ A ◇ = refl
--- weakenMor-liftMorRew Γ (Δ ex., A) B (δ , var x) = ex.Mor+= (weakenMor-liftMorRew Γ Δ B δ) refl
--- weakenMor-liftMorRew Γ (Δ ex., A) B (δ , lam A₁ B₁ u) rewrite weakenTy'-liftTy last Γ B A₁ = ex.Mor+= (weakenMor-liftMorRew Γ Δ B δ) (ex.ap-lam-Tm refl (weakenTy'-liftTy (prev last) (Γ ex., liftTy Γ A₁) B B₁) (ap (λ x → liftTm ((Γ ex., B) ex., ex.weakenTy (liftTy Γ A₁)) x (weakenTm' (prev last) u)) (weakenTy'-liftTy (prev last) (Γ ex., liftTy Γ A₁) B B₁)
---                        ∙ (weakenTm'-liftTm (prev last) (Γ ex., liftTy Γ A₁) B (liftTy (Γ ex., liftTy Γ A₁) B₁) u)))
--- weakenMor-liftMorRew Γ (Δ ex., A) B (δ , app A₁ B₁ u u₁) = {!!}
--- -- ex.Mor+= (weakenMor-liftMorRew Γ A δ) (weakenTm'-liftTm1 last Γ A u)
--- 
--- weakenMor+liftMorRew : (Γ : ex.Ctx n) (Δ : ex.Ctx m) (A : ex.TyExpr m) (δ : Mor n m) → liftMorRew (Γ ex., A ex.[ liftMorRew Γ Δ δ ]Ty) (Δ ex., A) (weakenMor+ δ) ≡ ex.weakenMor+ (liftMorRew Γ Δ δ)
--- weakenMor+liftMorRew Γ ex.◇ A ◇ = refl
--- weakenMor+liftMorRew Γ (Δ ex., A₁) A (δ , u) = ex.Mor+= (weakenMor-liftMorRew Γ (Δ ex., A₁) (A ex.[ liftMorRew Γ (Δ ex., A₁) (δ , u) ]Ty) (δ , u)) refl
+weakenTm'-liftTm1 k Γ B (var x) = ap (ex.var) (weakenVar-weakenVar k x)
+weakenTm'-liftTm1 k Γ B (lam A B₁ u) = ex.ap-lam-Tm (weakenTy'-liftTy k Γ B A)
+                                                    (ap (λ x → liftTy1 x (weakenTy' (prev k) B₁))
+                                                        (ex.Ctx+= refl
+                                                                  (weakenTy'-liftTy k Γ B A))
+                                                        ∙ weakenTy'-liftTy (prev k) (Γ ex., liftTy Γ A) B B₁)
+                                                    (ex.ap-coerc-Tm (ex.ap-getTy (ex.Ctx+= refl
+                                                                                           (weakenTy'-liftTy k Γ B A))
+                                                                                  ((ap ((λ x → liftTm1 x (weakenTm' (prev k) u)))
+                                                                                        (ex.Ctx+= refl
+                                                                                                  (weakenTy'-liftTy k Γ B A))
+                                                                                        ∙ (weakenTm'-liftTm1 (prev k) (Γ ex., liftTy Γ A) B u)))
+                                                                         ∙ ! (ex.weakenTy'-getTy (prev k) (Γ ex., liftTy1 Γ A) (liftTm1 (Γ ex., liftTy1 Γ A) u) B) )
+                                                                    (ap (λ x → liftTy x (weakenTy' (prev k) B₁))
+                                                                        (ex.Ctx+= refl (weakenTy'-liftTy k Γ B A))
+                                                                      ∙ weakenTy'-liftTy (prev k) (Γ ex., liftTy Γ A) B B₁)
+                                                                    (ap (λ x → liftTm1 x (weakenTm' (prev k) u))
+                                                                        (ex.Ctx+= refl (weakenTy'-liftTy k Γ B A))
+                                                                      ∙ (weakenTm'-liftTm1 (prev k) (Γ ex., liftTy Γ A) B u)))
+weakenTm'-liftTm1 k Γ B (app A B₁ u u₁) = ex.ap-app-Tm (weakenTy'-liftTy k Γ B A)
+                                                       (ap (λ x → liftTy1 x (weakenTy' (prev k) B₁))
+                                                        (ex.Ctx+= refl
+                                                                  (weakenTy'-liftTy k Γ B A))
+                                                        ∙ weakenTy'-liftTy (prev k) (Γ ex., liftTy Γ A) B B₁)
+                                                       (ex.ap-coerc-Tm ((ex.ap-getTy refl (weakenTm'-liftTm1 k Γ B u) ∙ ! (ex.weakenTy'-getTy k Γ (liftTm1 Γ u) B)))
+                                                                       (weakenTy'-liftTy k Γ B (pi A B₁))
+                                                                       (weakenTm'-liftTm1 k Γ B u))
+                                                       (ex.ap-coerc-Tm (ex.ap-getTy refl (weakenTm'-liftTm1 k Γ B u₁) ∙ ! (ex.weakenTy'-getTy k Γ (liftTm1 Γ u₁) B))
+                                                                       (weakenTy'-liftTy1 k Γ B A)
+                                                                       (weakenTm'-liftTm1 k Γ B u₁))
 
-coercTy-liftTy : {Γ : ex.Ctx n} {Δ : ex.Ctx m} {A : TyExpr m} {B : TyExpr (suc m)} {δ : Mor n m} → ex.Derivable (Δ ⊢ₑ liftTy Δ A) → ex.Derivable ((Δ ex., liftTy Δ A) ⊢ₑ liftTy (Δ ex., liftTy Δ A) B) → Γ ex.⊢ liftMor Γ Δ δ ∷> Δ → (Γ ex., liftTy Γ (A [ δ ]Ty)) ex.⊢ liftMor (Γ ex., liftTy Γ (A [ δ ]Ty)) (Δ ex., liftTy Δ A) (weakenMor+ δ) ∷> (Δ ex., liftTy Δ A) → 
-                 ex.Derivable ((Γ ex., (liftTy Δ A ex.[ liftMor Γ Δ δ ]Ty)) ⊢ₑ liftTy (Δ ex., liftTy Δ A) B ex.[ ex.weakenMor+ (liftMor Γ Δ δ) ]Ty == ex.coercTy (liftTy (Γ ex., liftTy Γ (A [ δ ]Ty)) (B [ weakenMor+ δ ]Ty)) (liftTy Γ (A [ δ ]Ty)) (liftTy Δ A ex.[ liftMor Γ Δ δ ]Ty))
-
-coercTy-liftTy dA dB dδ dδ+ = {!ex.SubstTyMorEq dB (ex.WeakMor+ dA dδ)!}
--- ex.Mor+= (ex.Mor+= (weakenMor-liftMorRew Γ A δ) (weakenTm'-liftTm1 last Γ A u)) refl
-------
 {- get rhs of a context with a dummy for emtpy context -}
 pred : ℕ → ℕ
 pred zero = zero
@@ -299,19 +287,6 @@ weakenMor+-lift⁼ : {Γ : ex.Ctx n} {Δ : ex.Ctx m} {A : TyExpr m} {δ : Mor n 
                                           (var last) ∷> (Δ ex., liftTy1 Δ A)
 
 weakenMor+-lift⁼ {Γ = Γ} {Δ} {A} {δ} dΓ dΔ dδ dA rewrite weakenMor-liftMor Γ Δ (liftTy1 Γ (A [ δ ]Ty)) δ | ! (ex.weaken[]Ty (liftTy1 Δ A) (liftMor Γ Δ δ) last) = ex.MorRefl (ex.WeakMor dδ ex., ex.congTmTy (ex.weaken[]Ty _ _ _) (ex.Conv (ex.WeakTy ([]-liftTy1 dΓ dΔ dA dδ)) (ex.WeakTy (ex.SubstTy dA dδ)) (ex.VarLast ([]-liftTy1 dΓ dΔ dA dδ)) (ex.WeakTyEq (ex.TySymm ([]-liftTy1⁼ dΓ dΔ dA dδ)))))
---                     ex.WeakMorEq {!!} ex., ex.congTmEqTy ( (ex.weaken[]Ty (liftTy1 Δ A) (liftMor Γ Δ δ) last))
---                            (ex.congTmEq refl (ex.ap-coerc-Tm (ex.weaken[]Ty _ _ _) (ex.weaken[]Ty _ _ _) refl) refl
---                                     (ex.TmSymm (ex.CoercTrans (ex.WeakTy ([]-liftTy1 dΓ dΔ dA dδ)) (ex.WeakTy (ex.SubstTy dA dδ)) (ex.WeakTy (ex.SubstTy dA dδ)) ([]-liftTm1 {!!} {!!} {!!} {!!}) {!!} {!!})
---                                    ))
---                                                                       (ex.congTyEq ! ((ex.[]Ty-assoc _ _ _)
---                                                                                                    ∙ ex.ap[]Ty refl
---                                                                                                                (ex.Mor+= (ex.ap[]Mor (weakenMor-liftMor _ _ _ _)
---                                                                                                                                      refl
---                                                                                                                              ∙ ex.weakenMorInsert _ _ _
---                                                                                                                              ∙ ! (ex.weaken[]Mor _ _ _)
---                                                                                                                              ∙ ap (ex.weakenMor) (ex.[idMor]Mor _))
---                                                                                                                           {!!})))
---                                                                                    refl
 
 getTy-coercTy-lemma : {Γ : ex.Ctx n} {Δ : ex.Ctx m} {A : TyExpr m} {u : TmExpr (suc m)} {δ : Mor n m}
                  → ex.⊢ Γ → ex.⊢ Δ 
@@ -870,104 +845,9 @@ Mor+-[]-liftTm⁼ {n = n} {Γ = Γ} {Δ} {A} {u} {δ} dΓ dΔ dA du dδ =
                                                                             (ex.TySymm ([]-liftTy1⁼ dΓ dΔ dA dδ)))))
 
 ------------------------------------------------------------------------
--- []-liftTy1⁼ Γ Δ (uu) δ dA' dδ' = {!!}
--- []-liftTy1⁼ Γ Δ (el v) δ dA' dδ' = {!!}
--- []-liftTy1⁼ Γ Δ (pi A B) δ (ex.Pi dA dB) dδ' = ex.ap-pi-Ty ([]-liftTy1⁼ Γ Δ A δ dA dδ') ( ap (λ x → liftTy ((Δ ex., liftTy Δ A)) B ex.[ x ]Ty) (! (weakenMor+liftMorRew Γ Δ (liftTy Δ A) δ))
---                ∙  ap (λ x → liftTy (Δ ex., liftTy Δ A) B ex.[ liftMorRew (Γ ex., x) Δ (weakenMor δ) ex., ex.var last ]Ty) ([]-liftTy1⁼ Γ Δ A δ dA dδ')
---                ∙ []-liftTy1⁼ (Γ ex., liftTy Γ (A [ δ ]Ty)) (Δ ex., liftTy Δ A) B (weakenMor+ δ) dB (ex.congMor (ex.Ctx+= refl ([]-liftTy1⁼ Γ Δ A δ dA dδ')) refl ( (! (weakenMor+liftMorRew Γ Δ (liftTy Δ (A)) δ))
---                               ∙ ap (λ x → liftMorRew (Γ ex., x) Δ (weakenMor δ) ex., ex.var last) ([]-liftTy1⁼ Γ Δ A δ dA dδ')) ( ex.WeakMor+ dA dδ')))
--- 
--- []-liftTm1⁼ Γ (ex._,_ {_} Δ A) B (var last) (δ , var x) (ex.Conv {Γ = .(Δ ex., A)} du' du'' du''' du'''') (dδ' ex., x₁) =  ex.ap-coerc-Tm (ex.weakenTyInsert A (liftMorRew Γ Δ δ) (ex.var x) ∙ ! (ex.getTy=Ty x₁)) refl refl
--- []-liftTm1⁼ Γ (Δ ex., C) B (var last) (δ , lam A B₁ u) (ex.Conv {Γ = .(Δ ex., C)} dwC dB du dB=) (dδ' ex., x) =  ex.ap-coerc-Tm ((ex.getTy-[]Ty (ex.var last) (dδ' ex., x)) ∙ refl) refl (ex.ap-lam-Tm refl refl refl)
--- []-liftTm1⁼ Γ (Δ ex., C) B (var last) (δ , app A B₁ u v) (ex.Conv {Γ = .(Δ ex., C)} dC dB du dB=) (dδ' ex., x) = ex.ap-coerc-Tm ( ex.getTy-[]Ty (ex.var last) (dδ' ex., x)) refl refl
--- 
--- []-liftTm1⁼ Γ (Δ ex., A) B (var (prev x)) (δ , var y) (ex.Conv {Γ = .(Δ ex., A)} dA dB du dB=) (dδ' ex., dx) =   ex.ap-coerc-Tm (ex.weakenTyInsert (ex.getTy Δ (ex.var x)) (liftMorRew Γ Δ δ) (ex.var y) ∙ ex.getTy-[]Ty (ex.var x) dδ') refl refl
---                        ∙ liftMorRew-to-liftTy Γ Δ (B ex.[ liftMorRew Γ Δ δ ex., ex.var y ]Ty) x δ
--- []-liftTm1⁼ Γ (Δ ex., A) B (var (prev x)) (δ , lam A₁ B₁ u) (ex.Conv {Γ = .(Δ ex., A)} du' du'' du''' du'''') (dδ' ex., dx) =  ex.ap-coerc-Tm (ex.weakenTyInsert (ex.getTy Δ (ex.var x)) (liftMorRew Γ Δ δ) _ ∙ ex.getTy-[]Ty (ex.var x) dδ') refl refl ∙ liftMorRew-to-liftTy Γ Δ (B ex.[ liftMorRew Γ Δ δ ex., _ ]Ty) x δ
--- []-liftTm1⁼ Γ (ex._,_ {_} Δ A) B (var (prev x)) (δ , app A₁ B₁ u u₁) (ex.Conv {Γ = .(Δ ex., A)} du' du'' du''' du'''') (dδ' ex., dx) =  ex.ap-coerc-Tm (ex.weakenTyInsert (ex.getTy Δ (ex.var x)) (liftMorRew Γ Δ δ) _ ∙ ex.getTy-[]Ty (ex.var x) dδ') refl refl ∙ liftMorRew-to-liftTy Γ Δ (B ex.[ liftMorRew Γ Δ δ ex., _ ]Ty) x δ
--- 
--- []-liftTm1⁼ Γ Δ C (lam A B u) δ (ex.Conv dPi dC (ex.Lam dA dB du) dC=) dδ' = ex.ap-coerc-Tm ([]-liftTy1⁼ Γ Δ (pi A B) δ dPi dδ') refl
---              (ex.ap-lam-Tm
---                ([]-liftTy1⁼ Γ Δ A δ dA dδ')
---                ( ap (λ x → liftTy ((Δ ex., liftTy Δ A)) B ex.[ x ]Ty) (! (weakenMor+liftMorRew Γ Δ (liftTy Δ A) δ))
---                ∙  ap (λ x → liftTy (Δ ex., liftTy Δ A) B ex.[ liftMorRew (Γ ex., x) Δ (weakenMor δ) ex., ex.var last ]Ty) ([]-liftTy1⁼ Γ Δ A δ dA dδ')
---                ∙ []-liftTy1⁼ (Γ ex., liftTy Γ (A [ δ ]Ty)) (Δ ex., liftTy Δ A) B (weakenMor+ δ) dB (ex.congMor (ex.Ctx+= refl ([]-liftTy1⁼ Γ Δ A δ dA dδ')) refl ( (! (weakenMor+liftMorRew Γ Δ (liftTy Δ (A)) δ))
---                               ∙ ap (λ x → liftMorRew (Γ ex., x) Δ (weakenMor δ) ex., ex.var last) ([]-liftTy1⁼ Γ Δ A δ dA dδ')) ( ex.WeakMor+ dA dδ')))
---                {!!})
--- []-liftTm1⁼ Γ Δ B (app A B₁ u u₁) δ du' dδ' = {!!}
-
-{- actual substitution commutes judgmentally-}
--- liftTm Γ (B ex. [liftMorRew Γ Δ δ ]Ty) (u [ δ ]Tm) ≡ liftTm1 Γ 
-
--- liftMor-liftMorRew : (Γ : ex.Ctx n) (Δ : ex.Ctx m) (B : ex.TyExpr m) (u : TmExpr m) (δ : Mor n m) → ex.Derivable (Γ ⊢ₑ liftTm Γ (B ex.[ liftMor Γ Δ δ ]Ty) (u [ δ ]Tm) == ex.coerc (B ex.[ liftMorRew Γ Δ δ ]Ty) (B ex.[ liftMor Γ Δ δ ]Ty) (liftTm Γ (B ex.[ liftMorRew Γ Δ δ ]Ty) (u [ δ ]Tm)) :> (B ex.[ liftMor Γ Δ δ ]Ty))
--- 
--- liftMor-liftMorRew Γ Δ B u δ = {!!}
-
-[]-liftTy : (Γ : ex.Ctx n) (Δ : ex.Ctx m) (A : TyExpr m) → (δ : Mor n m) → ex.Derivable ( Δ ⊢ₑ liftTy Δ A) → Γ ex.⊢ liftMor Γ Δ δ ∷> Δ → ex.Derivable (Γ ⊢ₑ (liftTy Δ A) ex.[ liftMor Γ Δ δ ]Ty == liftTy Γ (A [ δ ]Ty))
-
-[]-liftTm : (Γ : ex.Ctx n) (Δ : ex.Ctx m) (B : ex.TyExpr m) (u : TmExpr m) (δ : Mor n m) → ex.Derivable (Δ ⊢ₑ liftTm Δ B u :> B) → Γ ex.⊢ liftMor Γ Δ δ ∷> Δ → ex.Derivable (Γ ⊢ₑ (liftTm Δ B u) ex.[ liftMor Γ Δ δ ]Tm == liftTm Γ (B ex.[ liftMor Γ Δ δ ]Ty) (u [ δ ]Tm) :> B ex.[ liftMor Γ Δ δ ]Ty)
-
-[]-liftTy Γ Δ (uu) δ dA dδ = ex.UUCong
-[]-liftTy Γ Δ (el v) δ dA dδ = ex.ElCong {!!}
-[]-liftTy Γ Δ (pi A B) δ (ex.Pi dA dB) dδ = ex.PiCong (ex.SubstTy dA dδ) {! ex.SubstTy dA dδ!} (ex.SubstTy dB (ex.WeakMor+ dA dδ)) {!ex.SubstTy dB (ex.WeakMor+ dA dδ)!} ([]-liftTy Γ Δ A δ dA dδ) {!!}
-
-[]-liftTm Γ Δ B (var x) δ (ex.Conv du du₁ du₂ du₃) dδ = {!!}
-[]-liftTm Γ Δ B (lam A B₁ u) δ du dδ = {!!}
-[]-liftTm Γ Δ B (app A B₁ u u₁) δ du dδ = {!!}
-
--- []-liftTy1⁼ : (Γ : ex.Ctx n) (Δ : ex.Ctx m) (A : TyExpr m) → (δ : Mor n m) → ex.Derivable ( Δ ⊢ₑ liftTy Δ A) → Γ ex.⊢ liftMorRew Γ δ ∷> Δ → (liftTy Δ A) ex.[ liftMorRew Γ δ ]Ty ≡ liftTy Γ (A [ δ ]Ty)
--- 
--- []-liftTm1⁼ : (Γ : ex.Ctx n) (Δ : ex.Ctx m) (B : ex.TyExpr m) (u : TmExpr m) (δ : Mor n m) → ex.Derivable (Δ ⊢ₑ liftTm Δ B u :> B) → Γ ex.⊢ liftMorRew Γ δ ∷> Δ → (liftTm Δ B u) ex.[ liftMorRew Γ δ ]Tm ≡ liftTm Γ (B ex.[ liftMorRew Γ δ ]Ty) (u [ δ ]Tm)
--- 
--- []-liftTy1⁼ Γ Δ (uu) δ dA' dδ' = {!!}
--- []-liftTy1⁼ Γ Δ (el v) δ dA' dδ' = {!!}
--- []-liftTy1⁼ Γ Δ (pi A B) δ (ex.Pi dA' dA'') dδ' = ex.ap-pi-Ty ([]-liftTy1⁼ Γ Δ A δ dA' dδ') (ap (λ x → liftTy ((Δ ex., liftTy Δ A)) B ex.[ x ]Ty) (! (weakenMor+liftMorRew Γ (liftTy Γ (A [ δ ]Ty)) δ))
---                        ∙ []-liftTy1⁼ (Γ ex., liftTy Γ (A [ δ ]Ty)) (Δ ex., liftTy Δ A) B (weakenMor+ δ) dA'' (ex.congMor (ex.Ctx+= refl ([]-liftTy1⁼ Γ Δ A δ dA' dδ')) refl (! (weakenMor+liftMorRew Γ (liftTy Γ (A [ δ ]Ty)) δ)) ( ex.WeakMor+ dA' dδ')))
--- 
--- []-liftTm1⁼ Γ .(Δ ex., A) B (var last) (δ , var x) (ex.Conv {Γ = (Δ ex., A)} dwA dB du dB=) (dδ' ex., x₁) = ex.ap-coerc-Tm (ex.weakenTyInsert A (liftMorRew Γ δ) (ex.var x) ∙ ! (ex.getTy=Ty Γ (ex.var x) x₁)) refl refl
--- []-liftTm1⁼ Γ .(Δ ex., C) B (var last) (δ , lam A B₁ u) (ex.Conv {Γ = Δ ex., C} dwC dB du dB=) (dδ' ex., x) = ex.ap-coerc-Tm ((ex.getTy-[]Ty Γ (Δ ex., C) (liftMorRew Γ (δ , lam A B₁ u)) (ex.var last) (dδ' ex., x)) ∙ {!!}) refl (ex.ap-lam-Tm {!refl!} {!!} {!!})
--- []-liftTm1⁼ Γ Δ B (var last) (δ , app A B₁ u u₁) du' dδ' = {!!}
--- []-liftTm1⁼ Γ Δ B (var (prev x)) (δ , u) du' dδ' = {!!}
--- []-liftTm1⁼ Γ Δ B (lam A B₁ u) δ du' dδ' = {!!}
--- []-liftTm1⁼ Γ Δ B (app A B₁ u u₁) δ du' dδ' = {!!}
-
--- []-liftTm : (Γ : ex.Ctx n) (Δ : ex.Ctx m) (B : ex.TyExpr m) (u : TmExpr m) (δ : Mor n m) → ex.Derivable (Δ ⊢ₑ liftTm Δ B u :> B) → Γ ex.⊢ liftMor Γ Δ δ ∷> Δ → ex.Derivable (Γ ex.⊢ (liftTm Δ B u) ex.[ liftMor Γ Δ δ ]Tm == liftTm Γ (B ex.[ liftMor Γ Δ δ ]Ty) (u [ δ ]Tm) :> B ex.[ liftMor Γ Δ δ ]Ty )
-
--- []-liftTm : (Γ : ex.Ctx n) (Δ : ex.Ctx m) (B : ex.TyExpr m) (u : TmExpr m) (u' : ex.TmExpr m) → (δ : Mor n m) (δ' : ex.Mor n m) → ex.Derivable (Δ ⊢ₑ u' :> B) → Γ ex.⊢ δ' ∷> Δ → || Γ ||Ctx ⊢ δ ∷> || Δ ||Ctx → (|| u' ||Tm ≡ u) → || δ' ||Mor ≡ δ → (liftTm Δ B u) ex.[ δ' ]Tm ≡ liftTm Γ (B ex.[ δ' ]Ty) (u [ δ ]Tm)
-
--- []-liftTy : (Γ : ex.Ctx n) (Δ : ex.Ctx m) {A : TyExpr m} (δ : Mor n m) → ex.Derivable (Γ ⊢ₑ (liftTy Δ A) ex.[ (liftMor Γ Δ δ) ]Ty == liftTy Γ (A [ δ ]Ty))
-
--- []-liftTm : (Γ : ex.Ctx n) (Δ : ex.Ctx m) (B : ex.TyExpr m) (u : TmExpr m) (δ : Mor n m) → (liftTm Δ B u) ex.[ (liftMor Γ Δ δ) ]Tm ≡ liftTm Γ (B ex.[ liftMor Γ Δ δ ]Ty) (u [ δ ]Tm)
-
--- []-liftTy Γ Δ {uu} δ = refl
--- []-liftTy Γ Δ {el v} δ = ex.ap-el-Ty {!!} {!!}
--- -- ex.ap-el-Ty refl ([]-liftTm Γ Δ (uu) v δ)
--- []-liftTy Γ Δ {pi A A₁} δ rewrite ! (weakenMor-liftMor Γ Δ (liftTy Γ (A [ δ ]Ty)) δ) = {!!}
--- ex.ap-pi-Ty ([]-liftTy Γ Δ δ) ([]-liftTy (Γ ex., liftTy Γ (A [ δ ]Ty)) (Δ ex., liftTy Δ A) (weakenMor δ , var last))
-
--- []-liftTm (Γ ex., A₁) (Δ ex., A) B (var last) (δ , var last) = ex.ap-coerc-Tm {!!} {!!} {!!}
--- []-liftTm Γ (Δ ex., A) B (var last) (δ , var (prev x)) = {!!}
--- []-liftTm Γ (Δ ex., A) B (var last) (δ , lam A₁ B₁ u) = ex.ap-coerc-Tm {!!} {!!} {!!}
--- []-liftTm Γ (Δ ex., A) B (var last) (δ , app A₁ B₁ u u₁) = {!!}
-
--- []-substTy : {Γ : ex.Ctx n} (A : ex.TyExpr n) (B : TyExpr (suc n)) (u : TmExpr n) → ex.substTy (liftTy (Γ ex., A) B) (ex.coerc (ex.getTy Γ (liftTm Γ u)) A (liftTm Γ u)) ≡ liftTy Γ (substTy B u)
--- []-substTm : {Γ : ex.Ctx n} (A : ex.TyExpr n) (u : TmExpr (suc n)) (u₁ : TmExpr n) → ex.substTm (liftTm (Γ ex., A) u) (ex.coerc (ex.getTy Γ (liftTm Γ u)) A (liftTm Γ u)) ≡ liftTy Γ (substTy B u)
--- []-substTy {Γ = Γ ex., A₁} A (uu) (var last) = refl
--- []-substTy {Γ = Γ ex., A₁} A (el v) (var last) = ex.ap-el-Ty refl (ex.ap-coerc-Tm {!!} refl {!!})
--- []-substTy {Γ = Γ ex., A₁} A (pi B B₁) (var last) = {!!}
--- []-substTy {Γ = Γ ex., A₁} A B (var (prev x)) = {!!}
--- []-substTy {Γ = Γ} A B (lam A₁ B₁ u) = {!!}
--- []-substTy {Γ = Γ} A B (app A₁ B₁ u u₁) = {!!}
-
-{- getTy commutes with lifting 
-The seemingly superfluous pattern matching is necessary to reduce getTy to its clauses -}
-getTy-liftTy : {n : ℕ} (Γ : Ctx n) (u : TmExpr n) → ex.getTy (liftCtx Γ) (liftTm1 (liftCtx Γ) u) ≡ liftTy (liftCtx Γ) (getTy Γ u)
-getTy-liftTy (Γ , A) (var last) = {!!}
-getTy-liftTy (Γ , A) (var (prev x)) = {!!}
-getTy-liftTy Γ (lam A B u) = refl
-getTy-liftTy Γ (app A B u u₁) = {!u₁!}
-
-idmor-unstrip : {Γ : ex.Ctx n} → ex.⊢ Γ → Γ ex.⊢ liftMor Γ Γ (idMor n) == ex.idMor n ∷> Γ
+----------------- Some Lemmas about identity morphisms are needed
+-------------------------------------------------------------------
+idmor-lift⁼ : {Γ : ex.Ctx n} → ex.⊢ Γ → Γ ex.⊢ liftMor Γ Γ (idMor n) == ex.idMor n ∷> Γ
 idMorDerivableLift : {Γ : ex.Ctx n} →  ex.⊢ Γ → (Γ ex.⊢ liftMor Γ Γ (idMor n) ∷> Γ)
 
 idMorDerivableLift {Γ = .ex.◇} ex.tt = ex.tt
@@ -977,85 +857,174 @@ idMorDerivableLift {Γ = .(_ ex., _)} ( ex._,_ {Γ = Γ} {A = A} dΓ x)
                               (ex.ap-coerc-Tm refl
                                               ((ex.weaken[]Ty A _ last ∙ ! (ap (λ x → A ex.[ x ]Ty) (weakenMor-liftMor Γ Γ A (idMor _)))))
                                               refl)
-                              (ex.Conv (ex.WeakTy x) (ex.WeakTy (ex.SubstTy x (idMorDerivableLift dΓ))) (ex.VarLast x) (ex.WeakTyEq (ex.congTyEq (ex.[idMor]Ty A) refl (ex.SubstTyMorEq x (ex.idMorDerivable dΓ) (idMorDerivableLift dΓ) (ex.MorSymm dΓ dΓ (idmor-unstrip dΓ)) (idmor-unstrip dΓ))))) 
+                              (ex.Conv (ex.WeakTy x) (ex.WeakTy (ex.SubstTy x (idMorDerivableLift dΓ))) (ex.VarLast x) (ex.WeakTyEq (ex.congTyEq (ex.[idMor]Ty A) refl (ex.SubstTyMorEq x (ex.idMorDerivable dΓ) (idMorDerivableLift dΓ) (ex.MorSymm dΓ dΓ (idmor-lift⁼ dΓ)) (idmor-lift⁼ dΓ))))) 
 
 -- All these Lemmas need the derivability of liftings to be concluded.
-idmor-unstrip {Γ = ex.◇} dΓ = ex.tt
-idmor-unstrip {Γ = Γ ex., A} (dΓ ex., x)
+idmor-lift⁼ {Γ = ex.◇} dΓ = ex.tt
+idmor-lift⁼ {Γ = Γ ex., A} (dΓ ex., x)
                  rewrite ! (! (ex.weaken[]Ty A (ex.idMor _) last) ∙ ap (λ x → ex.weakenTy x) (ex.[idMor]Ty A))
-                      = ex.congMorEq refl refl (! (weakenMor-liftMor Γ Γ A (idMor _))) refl (ex.WeakMorEq (idmor-unstrip dΓ)) ex., ex.TmRefl (ex.Conv
+                      = ex.congMorEq refl refl (! (weakenMor-liftMor Γ Γ A (idMor _))) refl (ex.WeakMorEq (idmor-lift⁼ dΓ)) ex., ex.TmRefl (ex.Conv
                                    (ex.congTy ( ! (ap (λ x → ex.weakenTy x) (ex.[idMor]Ty A)) ∙ (ex.weaken[]Ty A (ex.idMor _) last)) (ex.WeakTy x))
                                    (ex.congTy (((ex.weaken[]Ty A _ last)) ∙ ! (ap (λ x → A ex.[ x ]Ty) (weakenMor-liftMor Γ Γ A (idMor _)))) (ex.WeakTy (ex.SubstTy x (idMorDerivableLift dΓ))))
                                    (ex.congTm (! (ap (λ x → ex.weakenTy x) (ex.[idMor]Ty A)) ∙ (ex.weaken[]Ty A (ex.idMor _) last)) refl (ex.VarLast x))
                                    (ex.congTyEq ( ! (! (ex.weaken[]Ty A (ex.idMor _) last) ∙ ap (λ x → ex.weakenTy x) (ex.[idMor]Ty A)))
                                            (ex.weaken[]Ty A (liftMor Γ Γ (idMor _)) last ∙ ! (ap (λ x → A ex.[ x ]Ty) (weakenMor-liftMor Γ Γ A (idMor _))))
-                                           (ex.WeakTyEq (ex.congTyEq (ex.[idMor]Ty A) refl (ex.SubstTyMorEq x (ex.idMorDerivable dΓ) (idMorDerivableLift dΓ) (ex.MorSymm dΓ dΓ (idmor-unstrip dΓ)) (idmor-unstrip dΓ)) ))))
--- ex.congTmEq
---                                   (ex.ap-coerc-Tm (! (ex.weaken[]Ty A (ex.idMor _) last) ∙ ap (λ x → ex.weakenTy x) (ex.[idMor]Ty A)) refl refl)
---                                   refl
---                                   refl
+                                           (ex.WeakTyEq (ex.congTyEq (ex.[idMor]Ty A) refl (ex.SubstTyMorEq x (ex.idMorDerivable dΓ) (idMorDerivableLift dΓ) (ex.MorSymm dΓ dΓ (idmor-lift⁼ dΓ)) (idmor-lift⁼ dΓ)) ))))
 
--- {!ex.WeakMor+Eq x (ex.idMorDerivable dΓ) (idmor-unstrip Γ dΓ)!}
+substTy-liftTy⁼ : {n : ℕ} {Γ : ex.Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {u : TmExpr n}
+             → ex.⊢ Γ 
+             → ex.Derivable (Γ ⊢ₑ liftTy1 Γ A)
+             → ex.Derivable ((Γ ex., liftTy1 Γ A) ⊢ₑ liftTy1 (Γ ex., liftTy1 Γ A) B)
+             → ex.Derivable (Γ ⊢ₑ liftTm Γ (liftTy1 Γ A) u :> (liftTy1 Γ A))  
+             → ex.Derivable (Γ ⊢ₑ ex.substTy (liftTy (Γ ex., liftTy Γ A) B) (liftTm Γ (liftTy Γ A) u) == liftTy Γ (substTy B u))
 
-unstrip-[]Ty : (Γ : Ctx n) (Δ : Ctx m) (A : TyExpr m) → (δ : Mor n m) → Derivable (Δ ⊢ A) → Γ ⊢ δ ∷> Δ → ex.Derivable (liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) (A [ δ ]Ty))
-unstrip-[]Ty Γ Δ uu δ dA dδ = ex.UU
-unstrip-[]Ty Γ Δ (el v) δ dA dδ = ex.El {!!}
-unstrip-[]Ty Γ Δ (pi A B) δ (Pi dA dB) dδ = ex.Pi {!!} {!!}
+substTm-liftTm⁼ : {n : ℕ} {Γ : ex.Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {v : TmExpr (suc n)} {u : TmExpr n}
+             → ex.⊢ Γ
+             → ex.Derivable (Γ ⊢ₑ liftTy Γ A)
+             → ex.Derivable ((Γ ex., liftTy Γ A) ⊢ₑ liftTm (Γ ex., liftTy Γ A) (liftTy (Γ ex., liftTy Γ A) B) v :> liftTy1 (Γ ex., liftTy Γ A) B)
+             → ex.Derivable (Γ ⊢ₑ liftTm Γ (liftTy Γ A) u :> liftTy Γ A) 
+             → ex.Derivable (Γ ⊢ₑ ex.substTm ((liftTm (Γ ex., liftTy Γ A) (liftTy (Γ ex., liftTy Γ A) B) v)) (liftTm Γ (liftTy Γ A) u)
+                               == liftTm Γ (ex.substTy (liftTy (Γ ex., liftTy Γ A) B) (liftTm Γ (liftTy Γ A) u)) (substTm v u)
+                               :> (ex.substTy (liftTy (Γ ex., liftTy Γ A) B) (liftTm Γ (liftTy Γ A) u)))
 
-[]Ty-unstrip : (Γ : Ctx n) (Δ : Ctx m) (A : TyExpr m) → (δ : Mor n m) → Derivable (Δ ⊢ A) → Γ ⊢ δ ∷> Δ → ex.Derivable (liftCtx Γ ⊢ₑ (liftTy (liftCtx Δ) A) ex.[ liftMor (liftCtx Γ) (liftCtx Δ) δ ]Ty)
-[]Ty-unstrip Γ Δ A δ dA dδ = {!SubstTy dA dδ!}
+substTy-liftTy⁼ {Γ = Γ} {A} {B} {u} dΓ dA dB du = ex.TyTran ([]-liftTy1 dΓ (dΓ ex., dA) dB (idMorDerivableLift dΓ ex., ex.Conv (ex.coercInvTy1 du)
+                                                                                                              (ex.SubstTy dA (idMorDerivableLift dΓ))
+                                                                                                              (ex.coercInvTm du)
+                                                                                                              (ex.congTyEq (ex.[idMor]Ty _)
+                                                                                                                         refl
+                                                                                                                         (ex.TyTran (ex.SubstTy dA (ex.idMorDerivable dΓ))
+                                                                                                                              (ex.SubstTyEq (ex.coercInvEq du) (ex.idMorDerivable dΓ))
+                                                                                                                              (ex.SubstTyMorEq1 dΓ
+                                                                                                                                   dΓ
+                                                                                                                                   dA
+                                                                                                                                   (ex.MorSymm dΓ dΓ (idmor-lift⁼ dΓ)))))))
+                                                (ex.TyTran (ex.SubstTy dB (idMorDerivableLift dΓ ex., ex.Conv (ex.coercInvTy1 du)
+                                                                                                              (ex.SubstTy dA (idMorDerivableLift dΓ))
+                                                                                                              (ex.coercInvTm du)
+                                                                                                              (ex.congTyEq (ex.[idMor]Ty _)
+                                                                                                                         refl
+                                                                                                                         (ex.TyTran (ex.SubstTy dA (ex.idMorDerivable dΓ))
+                                                                                                                              (ex.SubstTyEq (ex.coercInvEq du) (ex.idMorDerivable dΓ))
+                                                                                                                              (ex.SubstTyMorEq1 dΓ
+                                                                                                                                   dΓ
+                                                                                                                                   dA
+                                                                                                                                   (ex.MorSymm dΓ dΓ (idmor-lift⁼ dΓ)))))))
+                                                           (ex.SubstTyMorEq1 dΓ
+                                                                    (dΓ ex., dA)
+                                                                    dB
+                                                                    (ex.MorSymm dΓ dΓ
+                                                                         (idmor-lift⁼ dΓ) ex., ex.congTmEq refl
+                                                                                                  (ex.ap-coerc-Tm refl ( ! (ex.[idMor]Ty (liftTy1 Γ A))) refl)
+                                                                                                  (! (ex.[idMor]Ty (liftTy1 Γ A)))
+                                                                                                  (ex.TmSymm (ex.CoercTrans (ex.coercInvTy1 du)
+                                                                                                                  (ex.SubstTy dA (idMorDerivableLift dΓ))
+                                                                                                                  dA
+                                                                                                                  (ex.coercInvTm du)
+                                                                                                                  getTyEq
+                                                                                                                  (ex.congTyEq refl
+                                                                                                                               (ex.[idMor]Ty _)
+                                                                                                                               (ex.SubstTyMorEq1 dΓ dΓ dA (idmor-lift⁼ dΓ) ))))))
+                                                           ([]-liftTy1⁼ dΓ (dΓ ex., dA)
+                                                                        dB
+                                                                        (idMorDerivableLift dΓ ex., ex.Conv (ex.coercInvTy1 du)
+                                                                                                            (ex.SubstTy dA (idMorDerivableLift dΓ))
+                                                                                                            (ex.coercInvTm du)
+                                                                                                            getTyEq)))
+                                                           (ex.TyRefl ([]-liftTy1 dΓ
+                                                                                  (dΓ ex., dA)
+                                                                                  dB
+                                                                                  (idMorDerivableLift dΓ ex., ex.Conv (ex.coercInvTy1 du)
+                                                                                                                      (ex.SubstTy dA (idMorDerivableLift dΓ))
+                                                                                                                      (ex.coercInvTm du) getTyEq)))
+                                                           where
+                                                           getTyEq = ex.congTyEq (ex.[idMor]Ty _)
+                                                                                  refl
+                                                                                  (ex.TyTran (ex.SubstTy dA (ex.idMorDerivable dΓ))
+                                                                                       (ex.SubstTyEq (ex.coercInvEq du) (ex.idMorDerivable dΓ))
+                                                                                       (ex.SubstTyMorEq1 dΓ
+                                                                                            dΓ
+                                                                                            dA
+                                                                                            (ex.MorSymm dΓ dΓ (idmor-lift⁼ dΓ))))
 
-unstrip-[]Tm : (Γ : Ctx n) (Δ : Ctx m) (A : TyExpr m) (u : TmExpr m) → (δ : Mor n m) → Derivable (Δ ⊢ u :> A) → Γ ⊢ δ ∷> Δ → ex.Derivable (liftCtx Γ ⊢ₑ liftTm (liftCtx Γ) (liftTy (liftCtx Γ) (A [ δ ]Ty)) (u [ δ ]Tm) :> liftTy (liftCtx Γ) (A [ δ ]Ty))
-unstrip-[]Tm Γ Δ A u δ du dδ = {!!}
+substTm-liftTm⁼ dΓ dA dv du = {!!}
 
-[]Ty-lift : (Γ : Ctx n) (Δ : Ctx m) (A : TyExpr m) → (δ : Mor n m) → Derivable (Δ ⊢ A) → Γ ⊢ δ ∷> Δ → ex.Derivable (liftCtx Γ ⊢ₑ (liftTy (liftCtx Δ) A) ex.[ liftMor (liftCtx Γ) (liftCtx Δ) δ ]Ty == liftTy (liftCtx Γ) (A [ δ ]Ty))
 
-[]Tm-lift : (Γ : Ctx n) (Δ : Ctx m) (B : TyExpr m) (u : TmExpr m) (δ : Mor n m) → Derivable (Δ ⊢ u :> B) → Γ ⊢ δ ∷> Δ
-  → ex.Derivable (liftCtx Γ ⊢ₑ (liftTm (liftCtx Δ) (liftTy (liftCtx Δ) B) u) ex.[ liftMor (liftCtx Γ) (liftCtx Δ) δ ]Tm
-                     == ex.coerc ((liftTy (liftCtx Δ) B) ex.[ liftMor (liftCtx Γ) (liftCtx Δ) δ ]Ty)
-                              (liftTy (liftCtx Γ) (B [ δ ]Ty))
-                              (liftTm (liftCtx Γ) ((liftTy (liftCtx Δ) B) ex.[ liftMor (liftCtx Γ) (liftCtx Δ) δ ]Ty) (u [ δ ]Tm)) :> (liftTy (liftCtx Γ) (B [ δ ]Ty)))
+coercTy-liftTy : {Γ : ex.Ctx n} {Δ : ex.Ctx m} {A : TyExpr m} {B : TyExpr (suc m)} {δ : Mor n m}
+               → ex.Derivable (Δ ⊢ₑ liftTy Δ A)
+               → ex.Derivable ((Δ ex., liftTy Δ A) ⊢ₑ liftTy (Δ ex., liftTy Δ A) B) → Γ ex.⊢ liftMor Γ Δ δ ∷> Δ
+               → (Γ ex., liftTy Γ (A [ δ ]Ty)) ex.⊢ liftMor (Γ ex., liftTy Γ (A [ δ ]Ty)) (Δ ex., liftTy Δ A) (weakenMor+ δ) ∷> (Δ ex., liftTy Δ A)
+               → 
+                 ex.Derivable ((Γ ex., (liftTy Δ A ex.[ liftMor Γ Δ δ ]Ty)) ⊢ₑ liftTy (Δ ex., liftTy Δ A) B ex.[ ex.weakenMor+ (liftMor Γ Δ δ) ]Ty == ex.coercTy (liftTy (Γ ex., liftTy Γ (A [ δ ]Ty)) (B [ weakenMor+ δ ]Ty)) (liftTy Γ (A [ δ ]Ty)) (liftTy Δ A ex.[ liftMor Γ Δ δ ]Ty))
 
-[]Ty-lift Γ Δ (uu) δ dA dδ = ex.TyRefl ex.UU
-[]Ty-lift Γ Δ (el (var x)) δ dA dδ = ex.ElCong {!!}
-[]Ty-lift Γ Δ (el (lam A B v)) δ dA dδ = ex.ElCong {!!}
-[]Ty-lift Γ Δ (el (app A B v v₁)) δ dA dδ = ex.ElCong {!!}
-[]Ty-lift Γ Δ (pi B B₁) δ dA dδ = {!!}
-[]Tm-lift = {!!}
+coercTy-liftTy dA dB dδ dδ+ = {!ex.SubstTyMorEq dB (ex.WeakMor+ dA dδ)!}
 
-substTy-lift : {n : ℕ} (Γ : Ctx n) (A : TyExpr n) (B : TyExpr (suc n)) → (u : TmExpr n) → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ B) → Derivable (Γ ⊢ u :> A) → ⊢ Γ 
-  → ex.Derivable (liftCtx Γ ⊢ₑ ex.substTy (liftTy (liftCtx Γ ex., liftTy (liftCtx Γ) A) B) (liftTm (liftCtx Γ) (liftTy (liftCtx Γ) A) u) == liftTy (liftCtx Γ) (substTy B u))
 
-substTm-lift : {n : ℕ} {Γ : Ctx n} {A : TyExpr n} {B : TyExpr (suc n)} {B' : ex.TyExpr (suc n)} {v : TmExpr (suc n)} → {u : TmExpr n} → {u' : ex.TmExpr n} → Derivable (Γ ⊢ A) → Derivable ((Γ , A) ⊢ v :> B) → Derivable (Γ ⊢ u :> A) → ⊢ Γ 
-  → ex.Derivable (liftCtx Γ ⊢ₑ ex.substTm (liftTm (liftCtx Γ ex., liftTy (liftCtx Γ) A) B' v) (liftTm (liftCtx Γ) (liftTy (liftCtx Γ) A) u) == liftTm (liftCtx Γ) (ex.substTy B' u') (substTm v u) :> ex.substTy B' u')
+{- getTy commutes with lifting 
+The seemingly superfluous pattern matching is necessary to reduce getTy to its clauses -}
+getTy-liftTy : {n : ℕ} (Γ : Ctx n) (u : TmExpr n) → ex.getTy (liftCtx Γ) (liftTm1 (liftCtx Γ) u) ≡ liftTy (liftCtx Γ) (getTy Γ u)
+getTy-liftTy (Γ , A) (var last) = {!!}
+getTy-liftTy (Γ , A) (var (prev x)) = {!!}
+getTy-liftTy Γ (lam A B u) = refl
+getTy-liftTy Γ (app A B u u₁) = {!u₁!}
 
-substTy-lift {n} Γ A .(uu) u dA UU du dΓ = {!!}
-substTy-lift {n} Γ A .(el _) u dA (El dB) du dΓ = ex.ElCong {!!}
-substTy-lift {n} Γ A .(pi _ _) u dA (Pi dB dB₁) du dΓ = {!!}
+CtxMor : (Γ Γ' : ex.Ctx n) → ex.Mor n n
+CtxMor ex.◇ ex.◇ = ex.◇
+CtxMor (Γ ex., A) (Γ' ex., A₁) = ex.weakenMor (CtxMor Γ Γ') ex., ex.coerc (ex.weakenTy A) (ex.weakenTy (A₁ ex.[ CtxMor Γ Γ' ]Ty) ) (ex.var last)
 
-substTm-lift = {!!}
+CtxMor-id : {Γ : ex.Ctx n} → ex.⊢ Γ → Γ ex.⊢ CtxMor Γ Γ == ex.idMor n ∷> Γ
+CtxMor-id ex.tt = ex.tt
+CtxMor-id (dΓ ex., x) = ex.WeakMorEq (CtxMor-id dΓ) ex., ex.congTmEq (ex.ap-coerc-Tm {!!} {!!} {!!}) {!!} {!!} {!!}
 
--- ex.TyTran
---                                            ([]Ty-unstrip (Γ) (Γ , A) B (idMor n , u) dB (idMorDerivable dΓ , congTmTy! ([idMor]Ty A) (du)))
---                                            {!idmor-unstrip!}
---                                            ([]Ty-lift Γ (Γ , A) B (idMor n , u) dB (idMorDerivable dΓ , congTmTy! ([idMor]Ty A) (du)))
+coercCtxTy : (Γ Γ' : ex.Ctx n) (A : ex.TyExpr n) → ex.TyExpr n
+coercCtxTy Γ Γ' A = A ex.[ CtxMor Γ' Γ ]Ty
 
-Lift-Der : {jdg : Judgment} → ⊢ snd (getCtx jdg) → Derivable (jdg) → ex.Derivable (liftJdg jdg)
-Lift-Der (dΓ , dA) (VarLast {Γ = Γ} {A = A} dj) 
+coercCtxTm : (Γ Γ' : ex.Ctx n) (u : ex.TmExpr n) → ex.TmExpr n
+coercCtxTm Γ Γ' u = u ex.[ CtxMor Γ' Γ ]Tm
+
+
+Lift-Der : {jdg : Judgment} → ex.⊢ liftCtx (snd (getCtx jdg)) → Derivable (jdg) → ex.Derivable (liftJdg jdg)
+
+Lift-TyEq : {Γ Γ' : Ctx n} {A A' : TyExpr n}
+          → ex.⊢ liftCtx Γ
+          → ex.⊢ liftCtx Γ'
+          → ex.⊢ liftCtx Γ == liftCtx Γ'
+          → ex.Derivable (liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) A)
+          → ex.Derivable (liftCtx Γ' ⊢ₑ liftTy (liftCtx Γ') A')
+          → Derivable (Γ ⊢ A == A')
+          → ex.Derivable (liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) A == coercCtxTy (liftCtx Γ') (liftCtx Γ) (liftTy (liftCtx Γ') A'))
+
+Lift-TyEq-Triv : {Γ : Ctx n} {A A' : TyExpr n}
+          → ex.⊢ liftCtx Γ
+          → ex.Derivable (liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) A)
+          → ex.Derivable (liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) A')
+          → Derivable (Γ ⊢ A == A')
+          → ex.Derivable (liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) A == liftTy (liftCtx Γ) A')
+
+Lift-TyEq-Ext : {Γ : Ctx n} {A A' : TyExpr n} {B B' : TyExpr (suc n)}
+         → ex.⊢ liftCtx Γ
+         → ex.Derivable (liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) A)
+         → ex.Derivable (liftCtx Γ ⊢ₑ liftTy (liftCtx Γ) A')
+         → ex.Derivable ((liftCtx (Γ , A)) ⊢ₑ liftTy (liftCtx (Γ , A)) B)
+         → ex.Derivable ((liftCtx (Γ , A')) ⊢ₑ liftTy (liftCtx (Γ , A')) B')
+         → Derivable (Γ ⊢ A == A')
+         → Derivable ((Γ , A) ⊢ B == B')
+         → ex.Derivable ((liftCtx Γ ex., (liftTy (liftCtx Γ) A)) ⊢ₑ liftTy (liftCtx Γ ex., liftTy (liftCtx Γ) A) B == ex.coercTy (liftTy (liftCtx Γ ex., liftTy (liftCtx Γ) A') B') (liftTy (liftCtx Γ) A') (liftTy (liftCtx Γ) A))
+
+Lift-Der (dΓ ex., dA) (VarLast {Γ = Γ} {A = A} dj) 
                   rewrite weakenTy'-liftTy last (liftCtx Γ) (liftTy (liftCtx Γ) A) A
                   = ex.Conv
                     (ex.WeakTy (Lift-Der dΓ dj))
                     ( ex.WeakTy (Lift-Der dΓ dj)) ( ex.VarLast (Lift-Der dΓ dj))
                     (ex.TyRefl (ex.WeakTy (Lift-Der dΓ dj)))
-Lift-Der (dΓ , dA) (VarPrev {Γ = Γ} {B = B} {A = A} dA dk) 
+Lift-Der (dΓ ex., dA) (VarPrev {Γ = Γ} {B = B} {A = A} dA dk) 
                      = ex.congTm (! (weakenTy-liftTy (liftCtx Γ) (liftTy (liftCtx Γ) B) A)) (ex.ap-coerc-Tm refl (! (weakenTy-liftTy _ _ _)) refl) (ex.WeakTm (Lift-Der dΓ dk))
-Lift-Der (dΓ , dA) (VarLastCong {Γ = Γ} {A = A} dj) =
+Lift-Der (dΓ ex., dA) (VarLastCong {Γ = Γ} {A = A} dj) =
                       ex.ConvEq (ex.WeakTy (Lift-Der dΓ dj))
                                 (ex.TmRefl (ex.VarLast (Lift-Der dΓ dj)))
                                 (ex.congTyEq refl (! (weakenTy-liftTy (liftCtx Γ) (liftTy (liftCtx Γ) A) A))
                                 (ex.TyRefl (ex.WeakTy (Lift-Der dΓ dj))))
 -- ex.getTy (ex.var k) == ex.getTy (ex.var k')
-Lift-Der (dΓ , dB) (VarPrevCong {Γ = Γ} {B = B} {A = A} dj dj₁)
+Lift-Der (dΓ ex., dB) (VarPrevCong {Γ = Γ} {B = B} {A = A} dj dj₁)
          = ex.congTmEq (ex.ap-coerc-Tm refl (! (weakenTy-liftTy _ _ A)) refl)
                        (ex.ap-coerc-Tm refl (! (weakenTy-liftTy _ _ A)) refl)
                        (! (weakenTy-liftTy _ _ A))
@@ -1073,15 +1042,76 @@ Lift-Der dΓ UU = ex.UU
 Lift-Der dΓ UUCong = ex.UUCong
 Lift-Der dΓ (El dv) = ex.El (Lift-Der dΓ dv)
 Lift-Der dΓ (ElCong dv=) = ex.ElCong (Lift-Der dΓ dv=)
-Lift-Der dΓ (Pi dA dB) = ex.Pi (Lift-Der dΓ dA) (Lift-Der (dΓ , dA) dB)
+Lift-Der dΓ (Pi dA dB) = ex.Pi (Lift-Der dΓ dA) (Lift-Der (dΓ ex., (Lift-Der dΓ dA)) dB)
 Lift-Der dΓ (PiCong dA dA= dB=) = ex.PiCong (Lift-Der dΓ dA) {!!} {!!} {!!} {!!} {!!}
 Lift-Der dΓ (Lam dj dj₁ dj₂) = ex.Conv {!!} {!!} {!!} {!!}
-Lift-Der dΓ (LamCong dj dj₁ dj₂ dj₃) = {!ex.LamCong!}
+Lift-Der dΓ (LamCong dA dA= dB= du=) = ex.TmTran {!!}
+                                                 (ex.CoercRefl {!!})
+                                                 (ex.LamCong {!!}
+                                                             {!!}
+                                                             {!!}
+                                                             {!!}
+                                                             {!!}
+                                                             {!!}
+                                                             {!!}
+                                                             {!!}
+                                                             {!!})
 Lift-Der dΓ (App {Γ = Γ} {A = A} {B = B} {f = f} {a = a} dA dB df da)
-                 = ex.Conv (ex.SubstTy (Lift-Der (dΓ , dA) dB) {!idMorDerivable dΓ!})
-                           {!!}
-                           (ex.App (Lift-Der dΓ dA) (Lift-Der (dΓ , dA) dB) (Lift-Der dΓ df) (Lift-Der dΓ da))
-                           (substTy-lift Γ A B a dA dB da dΓ)
-Lift-Der dΓ (AppCong dj dj₁ dj₂ dj₃ dj₄) = {!ex.!}
-Lift-Der dΓ (BetaPi dj dj₁ dj₂ dj₃) = {!ex.BetaPi!}
+                  = ex.Conv (ex.SubstTy (Lift-Der (dΓ ex., (Lift-Der dΓ dA)) dB)
+                                        (ex.idMorDerivable dΓ ex., ex.congTmTy (! (ex.[idMor]Ty _)) (Lift-Der dΓ da)))
+                            ([]-liftTy1 dΓ
+                                        (dΓ ex., Lift-Der dΓ dA)
+                                        (Lift-Der (dΓ ex., Lift-Der dΓ dA) dB)
+                                        (idMorDerivableLift dΓ ex., ex.Conv (ex.coercInvTy1 (Lift-Der dΓ da))
+                                                                            (ex.SubstTy (Lift-Der dΓ dA) (idMorDerivableLift dΓ))
+                                                                            (ex.coercInvTm (Lift-Der dΓ da))
+                                                                            (ex.TyTran (Lift-Der dΓ dA)
+                                                                                       (ex.coercInvEq (Lift-Der dΓ da))
+                                                                                       (ex.congTyEq (ex.[idMor]Ty _) refl
+                                                                                                    (ex.SubstTyMorEq1 dΓ
+                                                                                                                      dΓ
+                                                                                                                      (Lift-Der dΓ dA)
+                                                                                                                      (ex.MorSymm dΓ dΓ (idmor-lift⁼ dΓ)))))))
+                            (ex.App (Lift-Der dΓ dA) (Lift-Der (dΓ ex., (Lift-Der dΓ dA)) dB) (Lift-Der dΓ df) (Lift-Der dΓ da))
+                            (substTy-liftTy⁼ dΓ (Lift-Der dΓ dA) (Lift-Der (dΓ ex., Lift-Der dΓ dA) dB) (Lift-Der dΓ da))
+Lift-Der dΓ (AppCong dj dj₁ dj₂ dj₃ dj₄) = {!!}
+Lift-Der dΓ (BetaPi dj dj₁ dj₂ dj₃) = {!!}
 Lift-Der dΓ (EtaPi dj dj₁ dj₂) = {!!}
+
+Lift-TyEq dΓ dΓ' dΓ= dA dA' (TySymm dA=) = {!Lift-TyEq dΓ dΓ= dA'!}
+Lift-TyEq dΓ dΓ' dΓ= dA dA' (TyTran dA= dA=₁ dA=₂) = {!!}
+Lift-TyEq dΓ dΓ' dΓ= dA dA' UUCong = {!!}
+Lift-TyEq dΓ dΓ' dΓ= dA dA' (ElCong dA=) = {!!}
+Lift-TyEq dΓ dΓ' dΓ= dA dA' (PiCong dA= dA=₁ dA=₂) = {!!}
+
+Lift-TyEq-Ext dΓ dA dA' dB dB' dA= dB= = ex.TyTran {!!}
+                                                   (Lift-TyEq (dΓ ex., dA)
+                                                              (dΓ ex., dA')
+                                                              (ex.CtxRefl dΓ ex.,  Lift-TyEq-Triv dΓ dA dA' dA= )
+                                                              dB
+                                                              dB'
+                                                              dB=)
+                                                   (ex.SubstTyMorEq1 {!!}
+                                                                     {!!}
+                                                                     dB'
+                                                                     ({!!} ex., {!!})) 
+
+Lift-TyEq-Triv dΓ dA dA' dA= = {!!}
+
+Lift-Ctx : {Γ : Ctx n} → ⊢ Γ → ex.⊢ liftCtx Γ
+Lift-Ctx tt = ex.tt
+Lift-Ctx (dΓ , x) = Lift-Ctx dΓ ex., Lift-Der (Lift-Ctx dΓ) x
+
+lift-left-Inv : {Γ : ex.Ctx n} → ex.⊢ Γ == liftCtx (|| Γ ||Ctx)
+lift-left-Inv = {!!}
+
+Lift-TyDer : {Γ : ex.Ctx n} {A : TyExpr n} → ex.⊢ Γ → Derivable (|| Γ ||Ctx ⊢ A ) → ex.Derivable (Γ ⊢ₑ liftTy Γ A == coercCtxTy (liftCtx (|| Γ ||Ctx )) Γ (liftTy (liftCtx (|| Γ ||Ctx)) A))
+Lift-TyDer dA = {!!}
+
+Lift-TmDer : {Γ : ex.Ctx n} {u : TmExpr n} {A : TyExpr n}
+           → ex.⊢ Γ
+           → Derivable (|| Γ ||Ctx ⊢ u :> A)
+           → ex.Derivable (Γ ⊢ₑ liftTm1 Γ u == ex.coerc (ex.getTy Γ (coercCtxTm (liftCtx (|| Γ ||Ctx )) Γ (liftTm1 (liftCtx (|| Γ ||Ctx)) u)))
+                                                        (ex.getTy Γ (liftTm1 Γ u))
+                                                        (coercCtxTm (liftCtx (|| Γ ||Ctx )) Γ (liftTm1 (liftCtx (|| Γ ||Ctx)) u)) :> ex.getTy Γ (liftTm1 Γ u))
+Lift-TmDer dΓ du = {!!}
