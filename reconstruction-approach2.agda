@@ -150,11 +150,11 @@ weakenTy-lift⁼ {k = k} Γ B A dA = ex.congTyEq (ap (λ x → liftTy x _) (! (w
                                   (ex.TyRefl (weakenTy-liftᵈ Γ B A dA))
 
 
-weakenTm'-liftᵈ : (k : Fin (suc n)) {Γ : Ctx n} (B : TyExpr (n -F' k)) {A : TyExpr n} {u : TmExpr n}
-               → ex.Derivable (liftCtx Γ ⊢ₑ liftTm (liftCtx Γ) (liftTy (liftCtx Γ) A) u :> liftTy (liftCtx Γ) A)
-               → ex.Derivable (liftCtx (weakenCtx k Γ B) ⊢ₑ liftTm (liftCtx (weakenCtx k Γ B)) (liftTy (liftCtx (weakenCtx k Γ B)) (weakenTy' k A)) (weakenTm' k u)
-                                         :> liftTy (liftCtx (weakenCtx k Γ B)) (weakenTy' k A))
-weakenTm'-liftᵈ k B dA = {!!}
+-- weakenTm'-liftᵈ : (k : Fin (suc n)) {Γ : Ctx n} (B : TyExpr (n -F' k)) {A : TyExpr n} {u : TmExpr n}
+--                → ex.Derivable (liftCtx Γ ⊢ₑ liftTm (liftCtx Γ) (liftTy (liftCtx Γ) A) u :> liftTy (liftCtx Γ) A)
+--                → ex.Derivable (liftCtx (weakenCtx k Γ B) ⊢ₑ liftTm (liftCtx (weakenCtx k Γ B)) (liftTy (liftCtx (weakenCtx k Γ B)) (weakenTy' k A)) (weakenTm' k u)
+--                                          :> liftTy (liftCtx (weakenCtx k Γ B)) (weakenTy' k A))
+-- weakenTm'-liftᵈ k B dA = ex.congCtxTm {!!} {!!} {!!}
 
 weakenTm-liftᵈ : {Γ : ex.Ctx n} (B : ex.TyExpr n) {A : TyExpr n} {u : TmExpr n}
                → ex.Derivable (Γ ⊢ₑ liftTm Γ (liftTy Γ A) u :> liftTy Γ A)
