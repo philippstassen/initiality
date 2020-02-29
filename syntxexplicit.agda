@@ -805,6 +805,20 @@ weakenTy-getTy (Γ , A₁) (app A B v v₁) C = weakenTy-substTy
 weakenTy-getTy ◇ (coerc A B u) C = refl
 weakenTy-getTy (Γ , A₁) (coerc A B u) C = refl
 
+{-Substitution that converts all variables, needed to handle judgmentally equal contexts -}
+
+ConvMor : (Γ Γ' : Ctx n) → Mor n n
+ConvMor ◇ ◇ = ◇
+ConvMor (Γ , A) (Γ' , A₁) = weakenMor (ConvMor Γ Γ') , coerc (weakenTy A) (A₁ [ weakenMor (ConvMor Γ Γ') ]Ty) (var last)
+
+{- change context from Γ to Γ': If Γ ⊢ A, then Γ' ⊢ coercCtxTy Γ Γ' A -}
+coercCtxTy : (Γ Γ' : Ctx n) (A : TyExpr n) → TyExpr n
+coercCtxTy Γ Γ' A = A [ ConvMor Γ' Γ ]Ty
+
+coercCtxTm : (Γ Γ' : Ctx n) (u : TmExpr n) → TmExpr n
+coercCtxTm Γ Γ' u = u [ ConvMor Γ' Γ ]Tm
+
+
 {- Substitution that converts last variable -}
 coercTy : {n : ℕ} → TyExpr (suc n) → TyExpr n → TyExpr n → TyExpr (suc n)
 coercTy {n = n} B A A' = B [ weakenMor (idMor n) , coerc (weakenTy A') (weakenTy A) (var last) ]Ty
@@ -875,3 +889,11 @@ ap[]Tm refl refl = refl
 ap[]Mor : {θ θ' : Mor m k} {δ δ' : Mor n m} → θ ≡ θ' → δ ≡ δ' → θ [ δ ]Mor ≡ θ' [ δ' ]Mor
 ap[]Mor refl refl = refl
 
+ap-getTy : {n : ℕ} → {Γ Γ' : Ctx n} → {u u' : TmExpr n} → Γ ≡ Γ' → u ≡ u' → getTy Γ u ≡ getTy Γ' u'
+ap-getTy refl refl = refl
+
+-----------------------
+-------- Context scissoring : To lift a type that will be used for weakening, also for Context weakening
+cutCtx : (k : Fin (suc n)) → (Γ : Ctx n) → Ctx (n -F' k)
+cutCtx last Γ = Γ
+cutCtx (prev k) (Γ , A) = cutCtx k Γ
