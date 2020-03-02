@@ -42,7 +42,7 @@ TmEqTy dΓ (BetaPi du= du=₁ du=₂ du=₃) = SubstTy du=₁ (idMorDerivable d�
 TmEqTy dΓ (EtaPi du= du=₁ du=₂) = TmTy dΓ du=₂
 
 getCtx : Judgment → ΣSS ℕ Ctx 
-getCtx ( _⊢_ {n = n} Γ x) = (n , Γ)
-getCtx (_⊢_:>_ {n = n} Γ x x₁) = n , Γ
-getCtx (_⊢_==_ {n = n} Γ x x₁) = n , Γ
-getCtx (_⊢_==_:>_ {n = n} Γ x x₁ x₂) = n , Γ
+getCtx ( _⊢_ {n = n} Γ x) = (n ΣSS, Γ)
+getCtx (_⊢_:>_ {n = n} Γ x x₁) = n ΣSS, Γ
+getCtx (_⊢_==_ {n = n} Γ x x₁) = n ΣSS, Γ
+getCtx (_⊢_==_:>_ {n = n} Γ x x₁ x₂) = n ΣSS, Γ
