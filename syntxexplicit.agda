@@ -142,31 +142,31 @@ var-ref-eqR : {k k' : Fin n} → _≡R_ {A = TmExpr n} (var k) (var k') → k �
 var-ref-eqR reflR = reflR
 
 weakenTy'sig : (k : ΣS ℕ (λ k → k < suc n)) (A : ΣSS ℕ TyExpr) (p : fst A ≡R n) → ΣSS ℕ TyExpr
-weakenTy'sig {n = n} (k , le) (l , A) p  = (suc l , weakenTy' (Bounded-Fin (k , <-= le (apR suc (!R p)))) A)
+weakenTy'sig {n = n} (k ΣS, le) (l ΣSS, A) p  = (suc l ΣSS, weakenTy' (Bounded-Fin (k ΣS, <-= le (apR suc (!R p)))) A)
 
 weakenTm'sig : (k : ΣS ℕ (λ k → k < suc n)) (u : ΣSS ℕ TmExpr) (p : fst u ≡R n) → ΣSS ℕ TmExpr
-weakenTm'sig {n = n} (k , le) (l , u) p = (suc l , weakenTm' (Bounded-Fin (k , <-= le (apR suc (!R p)))) u)
+weakenTm'sig {n = n} (k ΣS, le) (l ΣSS, u) p = (suc l ΣSS, weakenTm' (Bounded-Fin (k ΣS, <-= le (apR suc (!R p)))) u)
 
 weakenVar'sig : (k : ΣS ℕ (λ k → k < suc n)) (x : ΣS ℕ (λ k → k < n)) → ΣS ℕ (λ k → k < suc n)
-weakenVar'sig (zero , kle) (x , xle) = (suc x , suc-pres-< xle)
-weakenVar'sig (suc k , kle) (zero , xle) = (zero , <-suc xle)
-weakenVar'sig {n = zero} (suc k , kle) (suc x , ())
-weakenVar'sig {n = suc n} (suc k , kle) (suc x , xle)  = prevsig (weakenVar'sig (k , suc-ref-< kle) (x , suc-ref-< xle))
+weakenVar'sig (zero ΣS, kle) (x ΣS, xle) = (suc x ΣS, suc-pres-< xle)
+weakenVar'sig (suc k ΣS, kle) (zero ΣS, xle) = (zero ΣS, <-suc xle)
+weakenVar'sig {n = zero} (suc k ΣS, kle) (suc x ΣS, ())
+weakenVar'sig {n = suc n} (suc k ΣS, kle) (suc x ΣS, xle)  = prevsig (weakenVar'sig (k ΣS, suc-ref-< kle) (x ΣS, suc-ref-< xle))
 
                   
 weakenCommutesVar' : {n : ℕ} (m : ℕ) (u : ℕ) (k : ΣS ℕ (λ k → k < suc n)) (x : Fin u) (p : u ≡R (n + m))
-                   → weakenTm'sig (prev^sig m lastsig) (weakenTm'sig (prev^sig m k) ((u , var x)) p) (apR suc p) ≡R weakenTm'sig (prev^sig m (prevsig k)) (weakenTm'sig (prev^sig m lastsig) ((u , var x)) p) (apR suc p)
+                   → weakenTm'sig (prev^sig m lastsig) (weakenTm'sig (prev^sig m k) ((u ΣSS, var x)) p) (apR suc p) ≡R weakenTm'sig (prev^sig m (prevsig k)) (weakenTm'sig (prev^sig m lastsig) ((u ΣSS, var x)) p) (apR suc p)
 
-weakenCommutesVar' zero u (k , le) x p = reflR
-weakenCommutesVar' (suc m) (suc u) (k , le) last p = reflR
-weakenCommutesVar' (suc m) (suc u) (k , le) (prev x) p = ΣSS= (apR-var-Tm (apR prev (var-ref-eqR (sndΣSSℕR (weakenCommutesVar' m u (k , le) x (suc-inj (p R∙ !R (n+suc _ m))))))))
+weakenCommutesVar' zero u (k ΣS, le) x p = reflR
+weakenCommutesVar' (suc m) (suc u) (k ΣS, le) last p = reflR
+weakenCommutesVar' (suc m) (suc u) (k ΣS, le) (prev x) p = ΣSS= (apR-var-Tm (apR prev (var-ref-eqR (sndΣSSℕR (weakenCommutesVar' m u (k ΣS, le) x (suc-inj (p R∙ !R (n+suc _ m))))))))
 
 
 weakenCommutesTy' : {n : ℕ} (m : ℕ) (k : ΣS ℕ (λ k → k < suc n)) (l : ℕ) (A : TyExpr l) (p : l ≡R (n + m))
-                  → weakenTy'sig (prev^sig m lastsig) (weakenTy'sig (prev^sig m k) (l , A) p) (apR suc p) ≡R weakenTy'sig (prev^sig m (prevsig k)) (weakenTy'sig (prev^sig m lastsig) (l , A) p) (apR suc p)
+                  → weakenTy'sig (prev^sig m lastsig) (weakenTy'sig (prev^sig m k) (l ΣSS, A) p) (apR suc p) ≡R weakenTy'sig (prev^sig m (prevsig k)) (weakenTy'sig (prev^sig m lastsig) (l ΣSS, A) p) (apR suc p)
 
 weakenCommutesTm' : {n : ℕ} (m : ℕ) (k : ΣS ℕ (λ k → k < suc n)) (l : ℕ) (u : TmExpr l) (p : l ≡R (n + m))
-                  → weakenTm'sig (prev^sig m lastsig)  (weakenTm'sig (prev^sig m k) (l , u) p) (apR suc p) ≡R weakenTm'sig (prev^sig m (prevsig k)) (weakenTm'sig (prev^sig m lastsig) (l , u) p) (apR suc p)
+                  → weakenTm'sig (prev^sig m lastsig)  (weakenTm'sig (prev^sig m k) (l ΣSS, u) p) (apR suc p) ≡R weakenTm'sig (prev^sig m (prevsig k)) (weakenTm'sig (prev^sig m lastsig) (l ΣSS, u) p) (apR suc p)
 
 
 weakenCommutesTy' m k l (uu) p = reflR
@@ -216,14 +216,14 @@ prevsig^ (suc m) k = prevsig (prevsig^ m k)
 
 -- last
 weakenTyCommutessig : {n : ℕ} (k : ΣS ℕ (λ k → k < suc n)) (l : ℕ) (A : TyExpr (0 + l)) (p : l ≡R n)
-  → weakenTy'sig (prevsig^ 0 lastsig) (weakenTy'sig (prevsig^ 0 k) (suc^ 0 l , A) (apR (suc^ 0) p)) (apR (suc^ (suc 0)) p) ≡R weakenTy'sig (prevsig^ (suc 0) k) (weakenTy'sig (prevsig^ 0 lastsig) (suc^ 0 l , A) (apR (suc^ 0) p)) (apR (suc^ (suc 0)) p)
+  → weakenTy'sig (prevsig^ 0 lastsig) (weakenTy'sig (prevsig^ 0 k) (suc^ 0 l ΣSS, A) (apR (suc^ 0) p)) (apR (suc^ (suc 0)) p) ≡R weakenTy'sig (prevsig^ (suc 0) k) (weakenTy'sig (prevsig^ 0 lastsig) (suc^ 0 l ΣSS, A) (apR (suc^ 0) p)) (apR (suc^ (suc 0)) p)
 weakenTyCommutessig {n = n} k l A p = weakenCommutesTy' 0 k (suc^ 0 l) A (apR (suc^ 0) p R∙ +-commR 0 n)
 
-Sig-Fin-leftTy : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (0 + n)) → weakenTy' (prev^ 0 last) (weakenTy' (prev^ 0 k) A) ≡R snd (weakenTy'sig (prevsig^ 0 lastsig) (weakenTy'sig (Fin-Bounded (prev^ 0 k)) (suc^ 0 n , A) reflR) reflR)
+Sig-Fin-leftTy : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (0 + n)) → weakenTy' (prev^ 0 last) (weakenTy' (prev^ 0 k) A) ≡R snd (weakenTy'sig (prevsig^ 0 lastsig) (weakenTy'sig (Fin-Bounded (prev^ 0 k)) (suc^ 0 n ΣSS, A) reflR) reflR)
 Sig-Fin-leftTy last A = reflR
 Sig-Fin-leftTy (prev k) A = apR (λ z → weakenTy' (prev^ 0 last) (weakenTy' (prev^ (suc 0) z) A)) (BFFB k)
 
-Sig-Fin-rightTy : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (0 + n)) → snd (weakenTy'sig (Fin-Bounded (prev^ (suc 0) k)) (weakenTy'sig (prevsig^ 0 lastsig) (suc^ 0 n , A) reflR) reflR) ≡R weakenTy' (prev^ (suc 0) k) (weakenTy' (prev^ 0 last) A)
+Sig-Fin-rightTy : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (0 + n)) → snd (weakenTy'sig (Fin-Bounded (prev^ (suc 0) k)) (weakenTy'sig (prevsig^ 0 lastsig) (suc^ 0 n ΣSS, A) reflR) reflR) ≡R weakenTy' (prev^ (suc 0) k) (weakenTy' (prev^ 0 last) A)
 Sig-Fin-rightTy last A = reflR
 Sig-Fin-rightTy (prev k) A = apR (λ z → weakenTy' (prev^ (suc (suc 0)) z) (weakenTy' (prev^ 0 last) A)) (!R (BFFB k))
 
@@ -232,14 +232,14 @@ weakenTyCommutes k A = squash≡ (Sig-Fin-leftTy k A R∙ sndΣSSℕR (weakenTyC
 
 
 weakenTmCommutessig : {n : ℕ} (k : ΣS ℕ (λ k → k < suc n)) (l : ℕ) (A : TmExpr (0 + l)) (p : l ≡R n)
-  → weakenTm'sig (prevsig^ 0 lastsig) (weakenTm'sig (prevsig^ 0 k) (suc^ 0 l , A) (apR (suc^ 0) p)) (apR (suc^ (suc 0)) p) ≡R weakenTm'sig (prevsig^ (suc 0) k) (weakenTm'sig (prevsig^ 0 lastsig) (suc^ 0 l , A) (apR (suc^ 0) p)) (apR (suc^ (suc 0)) p)
+  → weakenTm'sig (prevsig^ 0 lastsig) (weakenTm'sig (prevsig^ 0 k) (suc^ 0 l ΣSS, A) (apR (suc^ 0) p)) (apR (suc^ (suc 0)) p) ≡R weakenTm'sig (prevsig^ (suc 0) k) (weakenTm'sig (prevsig^ 0 lastsig) (suc^ 0 l ΣSS, A) (apR (suc^ 0) p)) (apR (suc^ (suc 0)) p)
 weakenTmCommutessig {n = n} k l A p = weakenCommutesTm' 0 k (suc^ 0 l) A (apR (suc^ 0) p R∙ +-commR 0 n)
 
-Sig-Fin-leftTm : {n : ℕ} (k : Fin (suc n)) (A : TmExpr (0 + n)) → weakenTm' (prev^ 0 last) (weakenTm' (prev^ 0 k) A) ≡R snd (weakenTm'sig (prevsig^ 0 lastsig) (weakenTm'sig (Fin-Bounded (prev^ 0 k)) (suc^ 0 n , A) reflR) reflR)
+Sig-Fin-leftTm : {n : ℕ} (k : Fin (suc n)) (A : TmExpr (0 + n)) → weakenTm' (prev^ 0 last) (weakenTm' (prev^ 0 k) A) ≡R snd (weakenTm'sig (prevsig^ 0 lastsig) (weakenTm'sig (Fin-Bounded (prev^ 0 k)) (suc^ 0 n ΣSS, A) reflR) reflR)
 Sig-Fin-leftTm last A = reflR
 Sig-Fin-leftTm (prev k) A = apR (λ z → weakenTm' (prev^ 0 last) (weakenTm' (prev^ (suc 0) z) A)) (BFFB k)
 
-Sig-Fin-rightTm : {n : ℕ} (k : Fin (suc n)) (A : TmExpr (0 + n)) → snd (weakenTm'sig (Fin-Bounded (prev^ (suc 0) k)) (weakenTm'sig (prevsig^ 0 lastsig) (suc^ 0 n , A) reflR) reflR) ≡R weakenTm' (prev^ (suc 0) k) (weakenTm' (prev^ 0 last) A)
+Sig-Fin-rightTm : {n : ℕ} (k : Fin (suc n)) (A : TmExpr (0 + n)) → snd (weakenTm'sig (Fin-Bounded (prev^ (suc 0) k)) (weakenTm'sig (prevsig^ 0 lastsig) (suc^ 0 n ΣSS, A) reflR) reflR) ≡R weakenTm' (prev^ (suc 0) k) (weakenTm' (prev^ 0 last) A)
 Sig-Fin-rightTm last A = reflR
 Sig-Fin-rightTm (prev k) A = apR (λ z → weakenTm' (prev^ (suc (suc 0)) z) (weakenTm' (prev^ 0 last) A)) (!R (BFFB k))
 
@@ -253,14 +253,14 @@ weakenMorCommutes {m = suc m} k (δ , u) rewrite weakenMorCommutes k δ | weaken
 -- prev
 
 weakenTyCommutessigprev1 : {n : ℕ} (k : ΣS ℕ (λ k → k < suc n)) (l : ℕ) (A : TyExpr (1 + l)) (p : l ≡R n)
-  → weakenTy'sig (prevsig^ 1 lastsig) (weakenTy'sig (prevsig^ 1 k) (suc^ 1 l , A) (apR (suc^ 1) p)) (apR (suc^ (suc 1)) p) ≡R weakenTy'sig (prevsig^ (suc 1) k) (weakenTy'sig (prevsig^ 1 lastsig) (suc^ 1 l , A) (apR (suc^ 1) p)) (apR (suc^ (suc 1)) p)
+  → weakenTy'sig (prevsig^ 1 lastsig) (weakenTy'sig (prevsig^ 1 k) (suc^ 1 l ΣSS, A) (apR (suc^ 1) p)) (apR (suc^ (suc 1)) p) ≡R weakenTy'sig (prevsig^ (suc 1) k) (weakenTy'sig (prevsig^ 1 lastsig) (suc^ 1 l ΣSS, A) (apR (suc^ 1) p)) (apR (suc^ (suc 1)) p)
 weakenTyCommutessigprev1 {n = n} k l A p = weakenCommutesTy' 1 k (suc^ 1 l) A (apR (suc^ 1) p R∙ +-commR 1 n)
 
-Sig-Fin-leftTyprev1 : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (1 + n)) → weakenTy' (prev^ 1 last) (weakenTy' (prev^ 1 k) A) ≡R snd (weakenTy'sig (prevsig^ 1 lastsig) (weakenTy'sig (Fin-Bounded (prev^ 1 k)) (suc^ 1 n , A) reflR) reflR)
+Sig-Fin-leftTyprev1 : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (1 + n)) → weakenTy' (prev^ 1 last) (weakenTy' (prev^ 1 k) A) ≡R snd (weakenTy'sig (prevsig^ 1 lastsig) (weakenTy'sig (Fin-Bounded (prev^ 1 k)) (suc^ 1 n ΣSS, A) reflR) reflR)
 Sig-Fin-leftTyprev1 last A = reflR
 Sig-Fin-leftTyprev1 (prev k) A = apR (λ z → weakenTy' (prev^ 1 last) (weakenTy' (prev^ (suc 1) z) A)) (BFFB k)
 
-Sig-Fin-rightTyprev1 : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (1 + n)) → snd (weakenTy'sig (Fin-Bounded (prev^ (suc 1) k)) (weakenTy'sig (prevsig^ 1 lastsig) (suc^ 1 n , A) reflR) reflR) ≡R weakenTy' (prev^ (suc 1) k) (weakenTy' (prev^ 1 last) A)
+Sig-Fin-rightTyprev1 : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (1 + n)) → snd (weakenTy'sig (Fin-Bounded (prev^ (suc 1) k)) (weakenTy'sig (prevsig^ 1 lastsig) (suc^ 1 n ΣSS, A) reflR) reflR) ≡R weakenTy' (prev^ (suc 1) k) (weakenTy' (prev^ 1 last) A)
 Sig-Fin-rightTyprev1 last A = reflR
 Sig-Fin-rightTyprev1 (prev k) A = apR (λ z → weakenTy' (prev^ (suc (suc 1)) z) (weakenTy' (prev^ 1 last) A)) (!R (BFFB k))
 
@@ -270,14 +270,14 @@ weakenTyCommutesprev1 k A = squash≡ (Sig-Fin-leftTyprev1 k A R∙ sndΣSSℕR 
 --prev^ 2
 
 weakenTyCommutessigprev2 : {n : ℕ} (k : ΣS ℕ (λ k → k < suc n)) (l : ℕ) (A : TyExpr (2 + l)) (p : l ≡R n)
-  → weakenTy'sig (prevsig^ 2 lastsig) (weakenTy'sig (prevsig^ 2 k) (suc^ 2 l , A) (apR (suc^ 2) p)) (apR (suc^ (suc 2)) p) ≡R weakenTy'sig (prevsig^ (suc 2) k) (weakenTy'sig (prevsig^ 2 lastsig) (suc^ 2 l , A) (apR (suc^ 2) p)) (apR (suc^ (suc 2)) p)
+  → weakenTy'sig (prevsig^ 2 lastsig) (weakenTy'sig (prevsig^ 2 k) (suc^ 2 l ΣSS, A) (apR (suc^ 2) p)) (apR (suc^ (suc 2)) p) ≡R weakenTy'sig (prevsig^ (suc 2) k) (weakenTy'sig (prevsig^ 2 lastsig) (suc^ 2 l ΣSS, A) (apR (suc^ 2) p)) (apR (suc^ (suc 2)) p)
 weakenTyCommutessigprev2 {n = n} k l A p = weakenCommutesTy' 2 k (suc^ 2 l) A (apR (suc^ 2) p R∙ +-commR 2 n)
 
-Sig-Fin-leftTyprev2 : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (2 + n)) → weakenTy' (prev^ 2 last) (weakenTy' (prev^ 2 k) A) ≡R snd (weakenTy'sig (prevsig^ 2 lastsig) (weakenTy'sig (Fin-Bounded (prev^ 2 k)) (suc^ 2 n , A) reflR) reflR)
+Sig-Fin-leftTyprev2 : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (2 + n)) → weakenTy' (prev^ 2 last) (weakenTy' (prev^ 2 k) A) ≡R snd (weakenTy'sig (prevsig^ 2 lastsig) (weakenTy'sig (Fin-Bounded (prev^ 2 k)) (suc^ 2 n ΣSS, A) reflR) reflR)
 Sig-Fin-leftTyprev2 last A = reflR
 Sig-Fin-leftTyprev2 (prev k) A = apR (λ z → weakenTy' (prev^ 2 last) (weakenTy' (prev^ (suc 2) z) A)) (BFFB k)
 
-Sig-Fin-rightTyprev2 : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (2 + n)) → snd (weakenTy'sig (Fin-Bounded (prev^ (suc 2) k)) (weakenTy'sig (prevsig^ 2 lastsig) (suc^ 2 n , A) reflR) reflR) ≡R weakenTy' (prev^ (suc 2) k) (weakenTy' (prev^ 2 last) A)
+Sig-Fin-rightTyprev2 : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (2 + n)) → snd (weakenTy'sig (Fin-Bounded (prev^ (suc 2) k)) (weakenTy'sig (prevsig^ 2 lastsig) (suc^ 2 n ΣSS, A) reflR) reflR) ≡R weakenTy' (prev^ (suc 2) k) (weakenTy' (prev^ 2 last) A)
 Sig-Fin-rightTyprev2 last A = reflR
 Sig-Fin-rightTyprev2 (prev k) A = apR (λ z → weakenTy' (prev^ (suc (suc 2)) z) (weakenTy' (prev^ 2 last) A)) (!R (BFFB k))
 
@@ -287,14 +287,14 @@ weakenTyCommutesprev2 k A = squash≡ (Sig-Fin-leftTyprev2 k A R∙ sndΣSSℕR 
 --prev^ 3
 
 weakenTyCommutessigprev3 : {n : ℕ} (k : ΣS ℕ (λ k → k < suc n)) (l : ℕ) (A : TyExpr (3 + l)) (p : l ≡R n)
-  → weakenTy'sig (prevsig^ 3 lastsig) (weakenTy'sig (prevsig^ 3 k) (suc^ 3 l , A) (apR (suc^ 3) p)) (apR (suc^ (suc 3)) p) ≡R weakenTy'sig (prevsig^ (suc 3) k) (weakenTy'sig (prevsig^ 3 lastsig) (suc^ 3 l , A) (apR (suc^ 3) p)) (apR (suc^ (suc 3)) p)
+  → weakenTy'sig (prevsig^ 3 lastsig) (weakenTy'sig (prevsig^ 3 k) (suc^ 3 l ΣSS, A) (apR (suc^ 3) p)) (apR (suc^ (suc 3)) p) ≡R weakenTy'sig (prevsig^ (suc 3) k) (weakenTy'sig (prevsig^ 3 lastsig) (suc^ 3 l ΣSS, A) (apR (suc^ 3) p)) (apR (suc^ (suc 3)) p)
 weakenTyCommutessigprev3 {n = n} k l A p = weakenCommutesTy' 3 k (suc^ 3 l) A (apR (suc^ 3) p R∙ +-commR 3 n)
 
-Sig-Fin-leftTyprev3 : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (3 + n)) → weakenTy' (prev^ 3 last) (weakenTy' (prev^ 3 k) A) ≡R snd (weakenTy'sig (prevsig^ 3 lastsig) (weakenTy'sig (Fin-Bounded (prev^ 3 k)) (suc^ 3 n , A) reflR) reflR)
+Sig-Fin-leftTyprev3 : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (3 + n)) → weakenTy' (prev^ 3 last) (weakenTy' (prev^ 3 k) A) ≡R snd (weakenTy'sig (prevsig^ 3 lastsig) (weakenTy'sig (Fin-Bounded (prev^ 3 k)) (suc^ 3 n ΣSS, A) reflR) reflR)
 Sig-Fin-leftTyprev3 last A = reflR
 Sig-Fin-leftTyprev3 (prev k) A = apR (λ z → weakenTy' (prev^ 3 last) (weakenTy' (prev^ (suc 3) z) A)) (BFFB k)
 
-Sig-Fin-rightTyprev3 : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (3 + n)) → snd (weakenTy'sig (Fin-Bounded (prev^ (suc 3) k)) (weakenTy'sig (prevsig^ 3 lastsig) (suc^ 3 n , A) reflR) reflR) ≡R weakenTy' (prev^ (suc 3) k) (weakenTy' (prev^ 3 last) A)
+Sig-Fin-rightTyprev3 : {n : ℕ} (k : Fin (suc n)) (A : TyExpr (3 + n)) → snd (weakenTy'sig (Fin-Bounded (prev^ (suc 3) k)) (weakenTy'sig (prevsig^ 3 lastsig) (suc^ 3 n ΣSS, A) reflR) reflR) ≡R weakenTy' (prev^ (suc 3) k) (weakenTy' (prev^ 3 last) A)
 Sig-Fin-rightTyprev3 last A = reflR
 Sig-Fin-rightTyprev3 (prev k) A = apR (λ z → weakenTy' (prev^ (suc (suc 3)) z) (weakenTy' (prev^ 3 last) A)) (!R (BFFB k))
 
@@ -805,23 +805,52 @@ weakenTy-getTy (Γ , A₁) (app A B v v₁) C = weakenTy-substTy
 weakenTy-getTy ◇ (coerc A B u) C = refl
 weakenTy-getTy (Γ , A₁) (coerc A B u) C = refl
 
-{-Substitution that converts all variables, needed to handle judgmentally equal contexts -}
+--------------------
+---------- Ap Lemmas
+--------------------
+ap[]Ty : {A B : TyExpr m} {δ δ' : Mor n m} → A ≡ B → δ ≡ δ' → A [ δ ]Ty ≡ B [ δ' ]Ty
+ap[]Ty refl refl = refl
 
-ConvMor : (Γ Γ' : Ctx n) → Mor n n
-ConvMor ◇ ◇ = ◇
-ConvMor (Γ , A) (Γ' , A₁) = weakenMor (ConvMor Γ Γ') , coerc (weakenTy A) (A₁ [ weakenMor (ConvMor Γ Γ') ]Ty) (var last)
+ap[]Tm : {u v : TmExpr m} {δ δ' : Mor n m} → u ≡ v → δ ≡ δ' → u [ δ ]Tm ≡ v [ δ' ]Tm
+ap[]Tm refl refl = refl
+
+ap[]Mor : {θ θ' : Mor m k} {δ δ' : Mor n m} → θ ≡ θ' → δ ≡ δ' → θ [ δ ]Mor ≡ θ' [ δ' ]Mor
+ap[]Mor refl refl = refl
+
+ap-getTy : {n : ℕ} → {Γ Γ' : Ctx n} → {u u' : TmExpr n} → Γ ≡ Γ' → u ≡ u' → getTy Γ u ≡ getTy Γ' u'
+ap-getTy refl refl = refl
+
+
+{-Substitution that converts all variables, needed to handle judgmentally equal contexts -}
+-- Different characterizations that are syntactically equal, but reduce in a different kind of way
+
+coercMor : {n : ℕ} → TyExpr n → TyExpr n → Mor (suc n) (suc n)
+coercMor {n = n} A B = weakenMor (idMor n) , coerc (weakenTy A) (weakenTy B) (var last)
+
+convMor' : (Γ Γ' : Ctx n) → Mor n n
+convMor' ◇ ◇ = ◇
+convMor' (Γ , A) (Γ' , A₁) = (weakenMor+ (convMor' Γ Γ')) [ coercMor A (A₁ [ convMor' Γ Γ' ]Ty) ]Mor
+
+convMor : (Γ Γ' : Ctx n) → Mor n n
+convMor ◇ ◇ = ◇
+convMor (Γ , A) (Γ' , A₁) = weakenMor (convMor Γ Γ') , coerc (weakenTy A) (A₁ [ weakenMor (convMor Γ Γ') ]Ty) (var last)
+
+convMor-charac-Eq : (Γ Γ' : Ctx n) → convMor' Γ Γ' ≡ convMor Γ Γ'
+convMor-charac-Eq ◇ ◇ = refl
+convMor-charac-Eq (Γ , A) (Γ' , A₁) = Mor+= (weakenMorInsert (convMor' Γ Γ') (weakenMor (idMor _)) (coerc _ _ _) ∙ ! (weaken[]Mor _ _ _) ∙ ap weakenMor ([idMor]Mor _ ∙ convMor-charac-Eq Γ Γ'))
+                                            (ap-coerc-Tm refl (weaken[]Ty _ _ _ ∙ ap[]Ty refl (ap weakenMor (convMor-charac-Eq Γ Γ'))) refl)
 
 {- change context from Γ to Γ': If Γ ⊢ A, then Γ' ⊢ coercCtxTy Γ Γ' A -}
-coercCtxTy : (Γ Γ' : Ctx n) (A : TyExpr n) → TyExpr n
-coercCtxTy Γ Γ' A = A [ ConvMor Γ' Γ ]Ty
+coercCtxTy : (A : TyExpr n) (Γ Γ' : Ctx n) → TyExpr n
+coercCtxTy A Γ Γ' = A [ convMor Γ' Γ ]Ty
 
-coercCtxTm : (Γ Γ' : Ctx n) (u : TmExpr n) → TmExpr n
-coercCtxTm Γ Γ' u = u [ ConvMor Γ' Γ ]Tm
+coercCtxTm : (u : TmExpr n) (Γ Γ' : Ctx n) → TmExpr n
+coercCtxTm u Γ Γ' = u [ convMor Γ' Γ ]Tm
 
 
 {- Substitution that converts last variable -}
 coercTy : {n : ℕ} → TyExpr (suc n) → TyExpr n → TyExpr n → TyExpr (suc n)
-coercTy {n = n} B A A' = B [ weakenMor (idMor n) , coerc (weakenTy A') (weakenTy A) (var last) ]Ty
+coercTy {n = n} B A A' = B [ coercMor A' A ]Ty
 
 coercTm : {n : ℕ} → TmExpr (suc n) → TyExpr n → TyExpr n → TmExpr (suc n)
 coercTm {n = n} u A A' = u [ weakenMor (idMor n) , coerc (weakenTy A') (weakenTy A) (var last) ]Tm
@@ -877,20 +906,6 @@ coercTm-weakenTm'^2 A A' B B' u' = ap-coerc-Tm (! (coercTy-weakenTy' B' A' A)) r
 etaExpl : {n : ℕ} → (A : TyExpr n) → (B : TyExpr (suc n)) → _≡_ {A = TyExpr n} (pi A B) (pi A (substTy (weakenTy' (prev last) B) (var last)))
 etaExpl {n = n} A B = ap-pi-Ty refl (! (substTy-weakenTy' {k = prev (last {n = n})} {A = B} {δ = idMor (suc n)} {t = var last} ∙ ([idMor]Ty B)))
 
---------------------
----------- Ap Lemmas
---------------------
-ap[]Ty : {A B : TyExpr m} {δ δ' : Mor n m} → A ≡ B → δ ≡ δ' → A [ δ ]Ty ≡ B [ δ' ]Ty
-ap[]Ty refl refl = refl
-
-ap[]Tm : {u v : TmExpr m} {δ δ' : Mor n m} → u ≡ v → δ ≡ δ' → u [ δ ]Tm ≡ v [ δ' ]Tm
-ap[]Tm refl refl = refl
-
-ap[]Mor : {θ θ' : Mor m k} {δ δ' : Mor n m} → θ ≡ θ' → δ ≡ δ' → θ [ δ ]Mor ≡ θ' [ δ' ]Mor
-ap[]Mor refl refl = refl
-
-ap-getTy : {n : ℕ} → {Γ Γ' : Ctx n} → {u u' : TmExpr n} → Γ ≡ Γ' → u ≡ u' → getTy Γ u ≡ getTy Γ' u'
-ap-getTy refl refl = refl
 
 -----------------------
 -------- Context scissoring : To lift a type that will be used for weakening, also for Context weakening

@@ -96,7 +96,7 @@ if false then t else f = f
 
 lookup : List (Name ×R Name) → Name → Name
 lookup [] _ = quote lookup
-lookup ((a , b) ∷ l) a' = if primQNameEquality a a' then b else lookup l a'
+lookup ((a ΣSS, b) ∷ l) a' = if primQNameEquality a a' then b else lookup l a'
 
 getNumberOfPi : Type → ℕ
 getNumberOfPi (pi _ (abs _ B)) = suc (getNumberOfPi B)
@@ -114,21 +114,21 @@ getConsTyTm = do
     where _ → typeError (strErr "TyExpr is not a datatype." ∷ [])
   data-type _ consTm ← getDefinition (quote TmExpr)
     where _ → typeError (strErr "TmExpr is not a datatype." ∷ [])
-  return (consTy , consTm)
+  return (consTy ΣSS, consTm)
 
 applyToFresh : (Name → Name → TC ⊤) → String → Name → TC (Name ×R Name)
 applyToFresh f hint s = do
   sNew ← freshName (hint ++ₛ primShowQName s)
   f s sNew
-  return (s , sNew)
+  return (s ΣSS, sNew)
 
 listify : List (Name ×R Name) → Term
 listify [] = con (quote []) []
-listify ((s , t) ∷ l) = con (quote _∷_) (earg (con (quote ΣSS._,_) (earg (lit (name s)) ∷ earg (lit (name t)) ∷ [])) ∷ earg (listify l) ∷ [])
+listify ((s ΣSS, t) ∷ l) = con (quote _∷_) (earg (con (quote _ΣSS,_) (earg (lit (name s)) ∷ earg (lit (name t)) ∷ [])) ∷ earg (listify l) ∷ [])
 
 iterateExpr : Name → (Name → Name → TC ⊤) → TC ⊤
 iterateExpr s f = do
-  (consTy , consTm) ← getConsTyTm
+  (consTy ΣSS, consTm) ← getConsTyTm
   list ← mapTC (applyToFresh f "ap-") (consTy ++ consTm)
   defineFun s (clause [] (listify list) ∷ [])
 
@@ -139,7 +139,7 @@ Ty?Tm _ _ _ = quote ERROR
 
 generateClausewise : Name → Name → List (Arg Pattern) → List (Arg Pattern) → (ℕ → Term) → (ℕ → Name → Term → Term) → TC ⊤
 generateClausewise funTy funTm preArgs postArgs varCase TmTyCase = (do
-  (consTy , consTm) ← getConsTyTm
+  (consTy ΣSS, consTm) ← getConsTyTm
   clausesTy ← mapTC constructClause consTy
   defineFun funTy clausesTy
   clausesTm ← mapTC constructClause consTm
