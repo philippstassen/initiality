@@ -51,14 +51,14 @@ record Σ (A : Prop) (B : A → Prop) : Prop where
 open Σ public
 
 record ΣS {l} {l'} (A : Set l) (B : A → Prop l') : Set (l ⊔ l') where
-  constructor _,_
+  constructor _ΣS,_
   field
     fst : A
     snd : B fst
 open ΣS public
 
 record ΣSS {l} {l'} (A : Set l) (B : A → Set l') : Set (l ⊔ l') where
-  constructor _,_
+  constructor _ΣSS,_
   field
     fst : A
     snd : B fst
@@ -85,11 +85,11 @@ UnitR-contr starU = reflR
 data EmptyR : Set where
   
 
-characΣSS= : {B : ℕ → Set} {n n' : ℕ} {b : B n} {b' : B n'} → ΣSS._,_ {B = B} n b ≡R (n' , b') → ΣSS (n ≡R n') (λ p → transportR {B = B} b p ≡R b')
-characΣSS= reflR = (reflR , reflR)
+characΣSS= : {B : ℕ → Set} {n n' : ℕ} {b : B n} {b' : B n'} → _ΣSS,_ {B = B} n b ≡R (n' ΣSS, b') → ΣSS (n ≡R n') (λ p → transportR {B = B} b p ≡R b')
+characΣSS= reflR = (reflR ΣSS, reflR)
 
 
-ΣSS= : {B : ℕ → Set} {n : ℕ} {b : B n} {b' : B n} → b ≡R b' →  ΣSS._,_ {B = B} n b ≡R (n , b')
+ΣSS= : {B : ℕ → Set} {n : ℕ} {b : B n} {b' : B n} → b ≡R b' →  _ΣSS,_ {B = B} n b ≡R (n ΣSS, b')
 ΣSS= reflR = reflR
 
 
@@ -103,7 +103,7 @@ data _≡_ {l} {A : Set l} (x : A) : A → Prop l where
 infix 4 _≡_
 
 
-Σ= : ∀ {l} {l'} {A : Set l} {B : A → Prop l'} {a a' : A} {b : B a} {b' : B a'} → a ≡R a' → (a ΣS., b) ≡R (a' , b')
+Σ= : ∀ {l} {l'} {A : Set l} {B : A → Prop l'} {a a' : A} {b : B a} {b' : B a'} → a ≡R a' → (a ΣS, b) ≡R (a' ΣS, b')
 Σ= reflR = reflR
 
 ap : {A B : Set} (f : A → B) {a b : A} → a ≡ b → f a ≡ f b
@@ -266,20 +266,20 @@ suc-pos zero = <-refl
 suc-pos (suc n) = <-suc (suc-pos n)
 
 Bounded-Fin : (k : ΣS ℕ (λ k → k < n)) → Fin n
-Bounded-Fin {n = zero} (k , ())
-Bounded-Fin {suc n} (zero , le) = last
-Bounded-Fin {suc n} (suc k , le) = prev (Bounded-Fin (k , suc-ref-< le)) 
+Bounded-Fin {n = zero} (k ΣS, ())
+Bounded-Fin {suc n} (zero ΣS, le) = last
+Bounded-Fin {suc n} (suc k ΣS, le) = prev (Bounded-Fin (k ΣS, suc-ref-< le)) 
 
 Fin-Bounded : Fin n → ΣS ℕ (λ k → k < n)
-Fin-Bounded last = 0 , suc-pos _
-Fin-Bounded (prev k) = (suc (fst (Fin-Bounded k)) , suc-pres-< (snd (Fin-Bounded k)))
+Fin-Bounded last = 0 ΣS, suc-pos _
+Fin-Bounded (prev k) = (suc (fst (Fin-Bounded k)) ΣS, suc-pres-< (snd (Fin-Bounded k)))
 
 
 lastsig : ΣS ℕ (λ k → k < suc n)
-lastsig = (zero , suc-pos _)
+lastsig = (zero ΣS, suc-pos _)
 
 prevsig : (k : ΣS ℕ (λ k → k < n)) → ΣS ℕ (λ k → k < suc n)
-prevsig (n , le) = (suc n , suc-pres-< le)
+prevsig (n ΣS, le) = (suc n ΣS, suc-pres-< le)
 
 
 WO-Nat : (n : ℕ) → Acc n
@@ -351,7 +351,7 @@ suc^-pres-< {k} {n} {zero} le = le
 suc^-pres-< {k} {n} {suc m} le = suc-pres-< (suc^-pres-< le)
 
 prev^sig : (m : ℕ) → (k : ΣS ℕ (λ k → k < suc n)) → ΣS ℕ (λ k → k < suc (n + m))
-prev^sig {n = n} m (k , le) = (suc^ m k , <-= (suc^-pres-< le) suc^+)
+prev^sig {n = n} m (k ΣS, le) = (suc^ m k ΣS, <-= (suc^-pres-< le) suc^+)
 
 -- standaard code-decode proof that nat is a set
 code : ℕ → ℕ → Set
@@ -396,7 +396,7 @@ axiomK-nat : (n : ℕ) (p : n ≡R n) → p ≡R reflR
 axiomK-nat n p = nat-is-set n n p reflR
 
 --This allows one to proof the following about sigma types where the first component is n:ℕ
-sndΣSSℕR : {B : ℕ → Set } {n : ℕ} {b b' : B n} → ΣSS._,_ {B = B} n b ≡R (n , b') → b ≡R b'
+sndΣSSℕR : {B : ℕ → Set } {n : ℕ} {b b' : B n} → _ΣSS,_ {B = B} n b ≡R (n ΣSS, b') → b ≡R b'
 sndΣSSℕR {B = B} {n} {b} {b'} p = apR (transportR {B = B} b) (!R (axiomK-nat n (fst (characΣSS= p)))) R∙ (snd (characΣSS= p)) 
 
 {- additional lemmas for < needed for reconstruction function explicit syntax -}
